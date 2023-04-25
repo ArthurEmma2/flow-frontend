@@ -13,10 +13,10 @@ import {BrowserRouter, Route } from "react-router-dom";
 import NewStream from "../../../pages/NewStream";
 
 export default function Header() {
-  const [tabName, setTabName] = useState<number>(0);
+  const [tabName, setTabName] = useState<string>("home");
   const {chainName, setChainName} = useContext(ChainName);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log('newTab', newValue);
     setTabName(newValue);
   };
@@ -45,16 +45,13 @@ export default function Header() {
         className="w-auto h-[48px] mobile:h-full hidden tablet:block mobile:hidden"
         hasLabel={false}
       />
-      <BrowserRouter>
-        <Route path="/">
-          <Tabs aria-label="basic tabs example" value={tabName} onChange={handleTabChange}>
-            <Tab label="Home" value="/home"/>
-            <Tab label="Dashboard" value="/dashboard"/>
-            <Tab label="Stream" value="/stream"/>
-            <Tab label="Address Book" value="/address_book"/>
-          </Tabs>
-        </Route>
-      </BrowserRouter>
+
+      <Tabs aria-label="basic tabs example" value={tabName} onChange={handleTabChange}>
+        <Tab label="Home" value="home"/>
+        <Tab label="Dashboard" value="dashboard"/>
+        <Tab label="Stream" value="stream"/>
+        <Tab label="Address Book" value="address_book"/>
+      </Tabs>
 
       <Button size="small" className="min-w-[156px] h-10 font-bold">New Stream</Button>
       { chainName === "sui" ? <ConnectButton>Connect Wallet</ConnectButton> : <></>}

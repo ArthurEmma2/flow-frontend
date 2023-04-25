@@ -9,18 +9,21 @@ import { WalletProvider as SuiWalletProvider} from "@suiet/wallet-kit";
 import { WalletProvider as AptosWalletProvider} from "@manahippo/aptos-wallet-adapter";
 import { AptosWallets } from "./utils/aptosConfigs";
 import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
-import { Stack } from "@mui/material";
+import {Stack, TableBody, TableCell, TableRow} from "@mui/material";
 import Box from "@mui/material/Box";
 import "@suiet/wallet-kit/style.css";
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import routes from "./App.routes";
-import NewStream from "./pages/NewStream";
+import MyTable from "./components/Table";
 
 function App() {
   // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
   // const chainName = useContext(ChainName);
   const [chainName, setChainName] = useState<string>('aptos')
   console.log('chainName', chainName);
+
+
+
+
+
   return (
 
       <ChainName.Provider value={{chainName, setChainName}}>
@@ -30,13 +33,13 @@ function App() {
               <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
                 <Stack spacing={2}>
                   <Box>
-                    <Header></Header>
+                    <Header />
                   </Box>
                   <Box>
                     <Home />
                   </Box>
                   <Box>
-                    <Footer></Footer>
+                    <Footer />
                   </Box>
                 </Stack>
               </SuiWalletProvider> :
@@ -48,7 +51,7 @@ function App() {
                     <Header></Header>
                   </Box>
                   <Box>
-                    <Home />
+
                   </Box>
                   <Box>
                     <Footer></Footer>
@@ -56,10 +59,7 @@ function App() {
                 </Stack>
               </AptosWalletProvider>
           }
-
-
         </Box>
-
       </ChainName.Provider>
 
   );
