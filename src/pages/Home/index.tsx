@@ -20,14 +20,13 @@ const Home:React.FC = () => {
   return (
     <Container>
       <Stack spacing={5}>
-        <div className="flex flex-col justify-center items-center">
+        <Container >
           <Typography variant="h2" color="text.secondary">Streaming payments on</Typography>
           <Typography variant="h3" color="text.secondary">Move Ecosystem</Typography>
           <Typography variant="body1" color="text.secondary" sx={{width: "50%"}}>
             MoveFlow is a revolutionary crypto asset streaming protocol built on Move ecosystem. Through our continuous payment technology, we are changing the way you send and receive money.
           </Typography>
-        </div>
-
+        </Container>
         <Paper elevation={0} sx={{ paddingLeft: 10, paddingRight: 10}}>
           <Grid container spacing={5} sx={{width: "100%"}}>
             <Grid item lg={4} textAlign="center">
@@ -85,17 +84,17 @@ const Home:React.FC = () => {
           </Grid>
         </Paper>
         <Paper elevation={0}>
-          <div className="font-bold text-5xl mb-5">Developer</div>
+          <Typography variant="h2" color="text.secondary">Developer</Typography>
           <div className="justify-center items-center">
-            <div className="font-bold text-4xl">Build On Moveflow</div>
-            <div className="text-gray-300 text-2xl">Use our SDK to enable dApp with payment streaming features or create a novel use case.</div>
+            <Typography variant="body1" color="text.secondary">Build On Moveflow</Typography>
+            <Typography variant="body1" color="text.secondary">Use our SDK to enable dApp with payment streaming features or create a novel use case.</Typography>
           </div>
         </Paper>
         <Paper elevation={0}>
-          <div className="font-bold text-5xl mb-5">Meet the team</div>
+          <Typography variant="h2" color="text.secondary">Meet the team</Typography>
           <div className="justify-center items-center">
-            <div className="font-bold text-4xl">About</div>
-            <div className="text-gray-300 text-2xl">The moveflow team is a passionate, dedicated team of glass eaters with a strong belief in the larger vision of the streaming primitive and driven to unlock this value of the world.</div>
+            <Typography variant="body1" color="text.secondary">About</Typography>
+            <Typography variant="body1" color="text.secondary">The moveflow team is a passionate, dedicated team of glass eaters with a strong belief in the larger vision of the streaming primitive and driven to unlock this value of the world.</Typography>
           </div>
         </Paper>
       </Stack>
@@ -108,7 +107,7 @@ const Home:React.FC = () => {
 
 
 
-      
+
           {/*<div className="flex flex-wrap justify-center mt-3 gap-10">*/}
           {/*  {*/}
           {/*    developerInfoList.map((developer, idx) => {*/}

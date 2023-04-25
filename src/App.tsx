@@ -9,8 +9,12 @@ import { WalletProvider as SuiWalletProvider} from "@suiet/wallet-kit";
 import { WalletProvider as AptosWalletProvider} from "@manahippo/aptos-wallet-adapter";
 import { AptosWallets } from "./utils/aptosConfigs";
 import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
-import {Paper, Stack} from "@mui/material";
+import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
+import "@suiet/wallet-kit/style.css";
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import routes from "./App.routes";
+import NewStream from "./pages/NewStream";
 
 function App() {
   // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
@@ -18,45 +22,46 @@ function App() {
   const [chainName, setChainName] = useState<string>('aptos')
   console.log('chainName', chainName);
   return (
-    <ChainName.Provider value={{chainName, setChainName}}>
-      <Box sx={{width: '100%', height: '100%'}}>
 
-      {/*    {*/}
-      {/*      chainName === "sui" ?*/}
-      {/*        <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>*/}
-      {/*          <Stack spacing={2}>*/}
-      {/*            <Paper>*/}
-      {/*              <Header></Header>*/}
-      {/*            </Paper>*/}
-      {/*            /!*<Paper>*!/*/}
-      {/*            /!*  <Home />*!/*/}
-      {/*            /!*</Paper>*!/*/}
-      {/*            <Paper>*/}
-      {/*              <Footer></Footer>*/}
-      {/*            </Paper>*/}
-      {/*          </Stack>*/}
-      {/*        </SuiWalletProvider> :*/}
-      {/*        <AptosWalletProvider wallets={AptosWallets} onError={(err: Error) => {*/}
-      {/*          console.log('Handle Error Message', err)*/}
-      {/*        }}>*/}
-      {/*          <Stack spacing={2} direction="column">*/}
-      {/*            <Paper>*/}
-      {/*              <Header></Header>*/}
-      {/*            </Paper>*/}
+      <ChainName.Provider value={{chainName, setChainName}}>
+        <Box sx={{width: '100%', height: '100%'}}>
+          {
+            chainName === "sui" ?
+              <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
+                <Stack spacing={2}>
+                  <Box>
+                    <Header></Header>
+                  </Box>
+                  <Box>
+                    <Home />
+                  </Box>
+                  <Box>
+                    <Footer></Footer>
+                  </Box>
+                </Stack>
+              </SuiWalletProvider> :
+              <AptosWalletProvider wallets={AptosWallets} onError={(err: Error) => {
+                console.log('Handle Error Message', err)
+              }}>
+                <Stack spacing={2} direction="column">
+                  <Box>
+                    <Header></Header>
+                  </Box>
+                  <Box>
+                    <Home />
+                  </Box>
+                  <Box>
+                    <Footer></Footer>
+                  </Box>
+                </Stack>
+              </AptosWalletProvider>
+          }
 
-      {/*              */}
 
-      {/*            <Paper>*/}
-      {/*              <Footer></Footer>*/}
-      {/*            </Paper>*/}
-      {/*          </Stack>*/}
-      {/*        </AptosWalletProvider>*/}
-      {/*    }*/}
+        </Box>
 
-        <Home />
-      </Box>
+      </ChainName.Provider>
 
-    </ChainName.Provider>
   );
 }
 

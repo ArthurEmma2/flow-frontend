@@ -8,6 +8,9 @@ import LogoIcon from "../../LogoIcon";
 import {ConnectButton} from "@suiet/wallet-kit";
 import {useContext, useState} from "react";
 import {ChainName} from "../../../context/chainName";
+import Home from "../../../pages/Home";
+import {BrowserRouter, Route } from "react-router-dom";
+import NewStream from "../../../pages/NewStream";
 
 export default function Header() {
   const [tabName, setTabName] = useState<number>(0);
@@ -24,12 +27,12 @@ export default function Header() {
 
   return (
     <Box sx={{
-      position:"fixed",
-      left: "0px",
-      top: "0px",
-      width: "100%",
+      position:"relative",
+      top: "1rem",
+      // width: "100%",
       height: "2rem",
       padding: "1rem 0 1rem 0",
+      marginBottom: "0.5rem",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -42,12 +45,17 @@ export default function Header() {
         className="w-auto h-[48px] mobile:h-full hidden tablet:block mobile:hidden"
         hasLabel={false}
       />
-      <Tabs aria-label="basic tabs example" value={tabName} onChange={handleTabChange}>
-        <Tab label="Home"/>
-        <Tab label="Dashboard" />
-        <Tab label="Stream" />
-        <Tab label="Address Book" />
-      </Tabs>
+      <BrowserRouter>
+        <Route path="/">
+          <Tabs aria-label="basic tabs example" value={tabName} onChange={handleTabChange}>
+            <Tab label="Home" value="/home"/>
+            <Tab label="Dashboard" value="/dashboard"/>
+            <Tab label="Stream" value="/stream"/>
+            <Tab label="Address Book" value="/address_book"/>
+          </Tabs>
+        </Route>
+      </BrowserRouter>
+
       <Button size="small" className="min-w-[156px] h-10 font-bold">New Stream</Button>
       { chainName === "sui" ? <ConnectButton>Connect Wallet</ConnectButton> : <></>}
       <Select

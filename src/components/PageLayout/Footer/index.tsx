@@ -24,7 +24,7 @@ const Link = ({ href, children }: { href: string; children: any }) => {
 export default function Footer() {
     return (
         <Box sx={{
-            position:"fixed",
+            position:"relative",
             left: "0px",
             bottom: "0px",
             width:"100%",
