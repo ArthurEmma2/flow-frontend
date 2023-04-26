@@ -8,9 +8,9 @@ import LogoIcon from "../../LogoIcon";
 import {ConnectButton} from "@suiet/wallet-kit";
 import {useContext, useState} from "react";
 import {ChainName} from "../../../context/chainName";
-import Home from "../../../pages/Home";
-import {BrowserRouter, Route } from "react-router-dom";
-import NewStream from "../../../pages/NewStream";
+// import Home from "../../../pages/Home";
+// import {BrowserRouter, Route } from "react-router-dom";
+// import NewStream from "../../../pages/NewStream";
 
 export default function Header() {
   const [tabName, setTabName] = useState<string>("home");

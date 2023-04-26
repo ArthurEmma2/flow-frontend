@@ -1,20 +1,10 @@
 import React from "react";
 import {Stack, Box, Grid, Paper, Typography, Container} from "@mui/material";
-import { styled } from '@mui/material/styles';
 import OutgoingPic from '../../resources/outgoing.png';
 import DashboardPic from '../../resources/dashboard.png';
 import StreamPic from '../../resources/stream.png';
 import NonceGeekLogo from '../../resources/icons/noncegeek.png';
 import {AntAlphaLogo, AntAlphaTitle, AptosLogo, ZonffLogo, Logo706} from '../../resources';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  elevation: 0,
-}));
 
 const Home:React.FC = () => {
   return (

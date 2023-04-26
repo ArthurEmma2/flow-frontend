@@ -1,4 +1,4 @@
-import React, {ChangeEvent, MouseEvent, ReactNode, useState} from "react";
+import React, {ChangeEvent, ChangeEventHandler, MouseEvent, ReactNode, useState} from "react";
 import {
     TableRow,
     Table,
@@ -19,24 +19,27 @@ interface TableProps {
     availablePageSize: number[]
     columnList: string[]
     columnAlign: "center" | "left" | "right",
+    page: number,
+    pageSize: number,
+    totalNum: number,
+    onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, page: number) => void;
+    onRowsPerPageChange: ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>
 }
 
-const MyTable = ({ children, content, needPagination, availablePageSize, columnList, columnAlign}: TableProps) => {
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const handleChangePage = (
-        event: MouseEvent<HTMLButtonElement> | null,
-        newPage: number,
-    ) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (
-        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+const MyTable = (props: TableProps) => {
+    const {
+        children,
+        content,
+        needPagination,
+        availablePageSize,
+        columnList,
+        columnAlign,
+        page,
+        pageSize,
+        totalNum,
+        onPageChange,
+        onRowsPerPageChange,
+    } = props
 
     return (
         <TableContainer component={Paper}>
@@ -60,8 +63,8 @@ const MyTable = ({ children, content, needPagination, availablePageSize, columnL
                     <TableRow>
                         <MyTablePagination
                             availablePageSize={availablePageSize}
-                            totalNumber={content.length}
-                            rowsPerPage={rowsPerPage}
+                            totalNumber={totalNum}
+                            rowsPerPage={pageSize}
                             page={page}
                             selectProps={{
                                 inputProps: {
@@ -69,8 +72,8 @@ const MyTable = ({ children, content, needPagination, availablePageSize, columnL
                                 },
                                 native: true,
                             }}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onPageChange={onPageChange}
+                            onRowsPerPageChange={onRowsPerPageChange}
                         />
                     </TableRow>
                 </TableFooter>

@@ -9,10 +9,10 @@ import { WalletProvider as SuiWalletProvider} from "@suiet/wallet-kit";
 import { WalletProvider as AptosWalletProvider} from "@manahippo/aptos-wallet-adapter";
 import { AptosWallets } from "./utils/aptosConfigs";
 import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
-import {Stack, TableBody, TableCell, TableRow} from "@mui/material";
+import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
 import "@suiet/wallet-kit/style.css";
-import MyTable from "./components/Table";
+import AddressBook from "./pages/AddressBook";
 
 function App() {
   // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
@@ -35,9 +35,7 @@ function App() {
                   <Box>
                     <Header />
                   </Box>
-                  <Box>
-                    <Home />
-                  </Box>
+                  <AddressBook/>
                   <Box>
                     <Footer />
                   </Box>
