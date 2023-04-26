@@ -1,14 +1,11 @@
-import React, {ChangeEvent, ChangeEventHandler, MouseEvent, ReactNode, useState} from "react";
+import React, {ChangeEventHandler, ReactNode } from "react";
 import {
     TableRow,
-    Table,
     TableCell,
     Paper,
     TableContainer,
     TableHead,
-    TableBody,
     TableFooter,
-    TablePagination
 } from "@mui/material";
 import MyTablePagination from "./Pagination";
 
@@ -29,7 +26,6 @@ interface TableProps {
 const MyTable = (props: TableProps) => {
     const {
         children,
-        content,
         needPagination,
         availablePageSize,
         columnList,

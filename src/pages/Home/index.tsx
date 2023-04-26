@@ -6,7 +6,7 @@ import StreamPic from '../../resources/stream.png';
 import NonceGeekLogo from '../../resources/icons/noncegeek.png';
 import {AntAlphaLogo, AntAlphaTitle, AptosLogo, ZonffLogo, Logo706} from '../../resources';
 
-const Home:React.FC = () => {
+const Home = () => {
   return (
     <Container>
       <Stack spacing={5}>

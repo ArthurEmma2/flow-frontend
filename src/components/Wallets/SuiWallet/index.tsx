@@ -8,17 +8,17 @@ const MySuiWalletButton = () => {
   )
 }
 
-export default function SuiWallet() {
+export default function SuiWalletButton() {
   const { connected } = useWallet();
   const [showModal, setShowModal] = useState<boolean>(false)
 
   if (connected) {
-    return MySuiWalletButton
+    return <MySuiWalletButton/>
   }
 
   return (
     <ConnectModal open={showModal} onOpenChange={(open) => {setShowModal(open)}} >
-      <Button>Connect Wallet</Button>
+      <Button>Connect Wallet1</Button>
     </ConnectModal>
   )
 }

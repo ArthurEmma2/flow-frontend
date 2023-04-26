@@ -20,10 +20,6 @@ function App() {
   const [chainName, setChainName] = useState<string>('aptos')
   console.log('chainName', chainName);
 
-
-
-
-
   return (
 
       <ChainName.Provider value={{chainName, setChainName}}>

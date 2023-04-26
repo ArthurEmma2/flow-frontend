@@ -8,6 +8,7 @@ import LogoIcon from "../../LogoIcon";
 import {ConnectButton} from "@suiet/wallet-kit";
 import {useContext, useState} from "react";
 import {ChainName} from "../../../context/chainName";
+import SuiWalletButton from "../../Wallets/SuiWallet";
 // import Home from "../../../pages/Home";
 // import {BrowserRouter, Route } from "react-router-dom";
 // import NewStream from "../../../pages/NewStream";
@@ -54,7 +55,7 @@ export default function Header() {
       </Tabs>
 
       <Button size="small" className="min-w-[156px] h-10 font-bold">New Stream</Button>
-      { chainName === "sui" ? <ConnectButton>Connect Wallet</ConnectButton> : <></>}
+      { chainName === "sui" ? <SuiWalletButton /> : <></>}
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
