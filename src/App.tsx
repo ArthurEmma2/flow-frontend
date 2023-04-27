@@ -1,7 +1,5 @@
 import { useState } from "react";
 import './App.css';
-import Home from "./pages/Home";
-// import Notification from './components/Notification';
 import Footer from "./components/PageLayout/Footer";
 import Header from "./components/PageLayout/Header";
 import { ChainName } from "./context/chainName";
@@ -11,8 +9,11 @@ import { AptosWallets } from "./utils/aptosConfigs";
 import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
+import {ThemeProvider} from "@mui/material";
 import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
+import {darkTheme} from "./theme";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
@@ -21,7 +22,7 @@ function App() {
   console.log('chainName', chainName);
 
   return (
-
+    <ThemeProvider theme={darkTheme}>
       <ChainName.Provider value={{chainName, setChainName}}>
         <Box sx={{width: '100%', height: '100%'}}>
           {
@@ -45,7 +46,7 @@ function App() {
                     <Header></Header>
                   </Box>
                   <Box>
-
+                  <Dashboard />
                   </Box>
                   <Box>
                     <Footer></Footer>
@@ -55,7 +56,7 @@ function App() {
           }
         </Box>
       </ChainName.Provider>
-
+    </ThemeProvider>
   );
 }
 

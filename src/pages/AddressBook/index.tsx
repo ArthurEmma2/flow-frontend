@@ -96,7 +96,7 @@ const AddressBook = () => {
               setPageSize(parseInt(event.target.value, 10));
             }}
           >
-            {addresses.length == 0 ? <></> : (addresses).map((row) => (
+            {addresses.length === 0 ? <></> : (addresses).map((row) => (
               <TableRow key={row.id}>
                 <TableCell component="th" scope="row" align="center">
                   {row.name}
