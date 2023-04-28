@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import SvgIcon from '@mui/material/SvgIcon';
 import {TwitterIcon, DocIcon, GithubIcon} from "../../../resources";
+import './footer.css';
 
 const URL = {
     github: 'https://github.com/Move-Flow',
@@ -14,7 +15,6 @@ const Link = ({ href, children }: { href: string; children: any }) => {
       target="_blank"
       rel="noreferrer"
       href={href}
-      style={{textDecoration: "none"}}
       className="flex items-center h6 text-grey-900 opacity-50 gap-2 hover:text-grey-900 hover:opacity-100">
       {children}
     </a>
@@ -24,7 +24,7 @@ const Link = ({ href, children }: { href: string; children: any }) => {
 export default function Footer() {
     return (
         <Box sx={{
-            position:"fixed",
+            position:"relative",
             left: "0px",
             bottom: "0px",
             width:"100%",
@@ -37,35 +37,19 @@ export default function Footer() {
                 ml: 10,
             },
         }}>
-            <Box sx={{
-              display: "grid",
-              gridTemplateColumns: 'repeat(2, 0.5fr)',
-              gap: 1,
-            }}>
-              <Box>
-                <SvgIcon component={TwitterIcon} inheritViewBox />
-              </Box>
-              <Box>
+            <Box sx={{ gap: 1 }} className="footer-item">
+                <SvgIcon component={TwitterIcon}/>
                 <Link href={URL.twitter}>
                   Twitter
                 </Link>
-              </Box>
             </Box>
-            <Box sx={{
-              display: "grid",
-              gridTemplateColumns: 'repeat(2, 0.5fr)',
-              gap: 1,
-            }}>
+            <Box sx={{ gap: 1 }} className="footer-item">
               <SvgIcon component={GithubIcon} inheritViewBox />
               <Link href={URL.github}>
                 Github
               </Link>
             </Box>
-            <Box sx={{
-              display: "grid",
-              gridTemplateColumns: 'repeat(2, 0.5fr)',
-              gap: 1,
-            }}>
+            <Box sx={{ gap: 1 }} className="footer-item">
               <SvgIcon component={DocIcon} inheritViewBox />
               <Link href={URL.docs}>
                 Deck
