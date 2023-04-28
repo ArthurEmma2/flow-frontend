@@ -6,3 +6,4 @@ export { ReactComponent as AntAlphaTitle } from './icons/antalphalabs_titles.svg
 export { ReactComponent as AptosLogo } from './icons/aptos_logo.svg';
 export { ReactComponent as ZonffLogo } from './icons/zonff_logo.svg';
 export { ReactComponent as Logo706 } from './icons/logo707.svg';
+export { ReactComponent as AptosLogoAlt } from './icons/aptos-apt-logo.svg';
