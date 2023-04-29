@@ -1,8 +1,8 @@
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import NewStream from "./pages/NewStream";
+import NewStream from "./pages/Stream/NewStream";
 import AddressBook from "./pages/AddressBook";
-import OutgoingStream from "./pages/OutgoingStream";
+import OutgoingStream from "./pages/Stream/OutgoingStream";
 import IncomingStream from "./pages/IncomingStream";
 import ErrorPage from "./pages/ErrorPage";
 
