@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Box from "@mui/material/Box";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -13,20 +13,28 @@ import SuiWalletButton from "../../Wallets/SuiWallet";
 import {IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import Dashboard from "../../../pages/Dashboard";
+import Stream from "../../../pages/Stream";
+import AddressBook from "../../../pages/AddressBook";
+import useCurrentPage from "../../../hooks/useCurrentPage";
 // import Home from "../../../pages/Home";
 // import {BrowserRouter, Route } from "react-router-dom";
 // import NewStream from "../../../pages/NewStream";
 
+
+
 export default function Header() {
-  const [tabName, setTabName] = useState<string>("home");
+  // const [tabName, setTabName] = useState<string>("dashboard");
   const {chainName, setChainName} = useContext(ChainName);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [currentPageName, setCurrentPage] = useCurrentPage();
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log('newTab', newValue);
-    setTabName(newValue);
+    setCurrentPage(newValue as string);
   };
 
   const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -42,6 +50,10 @@ export default function Header() {
   };
 
   const darkMode = useTheme().palette.mode === 'dark';
+
+  // useEffect(() => {
+  //   setCurrentPage(currentPageName);
+  // }, [currentPageName])
 
   return (
     <Box sx={{
@@ -69,12 +81,10 @@ export default function Header() {
           className="w-auto h-[48px] mobile:h-full hidden tablet:block mobile:hidden"
           hasLabel={false}
         />
-
-        <Tabs aria-label="basic tabs example" value={tabName} onChange={handleTabChange}>
-          <Tab label="Home" value="home"/>
-          <Tab label="Dashboard" value="dashboard"/>
-          <Tab label="Stream" value="stream"/>
-          <Tab label="Address Book" value="address_book"/>
+        <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
+          <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
+          <Tab label="Stream" value="stream" href="/stream"/>
+          <Tab label="Address Book" value="address_book" href="/address_book"/>
         </Tabs>
       </Box>
       <Box sx={{

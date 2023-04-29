@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import './App.css';
 import Footer from "./components/PageLayout/Footer";
 import Header from "./components/PageLayout/Header";
@@ -14,6 +14,24 @@ import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
 import {darkTheme} from "./theme";
 import Dashboard from "./pages/Dashboard";
+import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
+import Stream from "./pages/Stream";
+import Address from "./types/address";
+
+export const router = [
+  {
+    path: "/dashboard",
+    element: <Dashboard/>,
+  },
+  {
+    path: "/stream",
+    element: <Stream/>,
+  },
+  {
+    path: "/address_book",
+    element: <AddressBook />
+  }
+];
 
 function App() {
   // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
@@ -46,7 +64,13 @@ function App() {
                     <Header></Header>
                   </Box>
                   <Box>
-                    <AddressBook/>
+                  <Box>
+                    <Routes>
+                      <Route path="/dashboard" element={<Dashboard/>} />
+                      <Route path="/stream" element={<Stream/>} />
+                      <Route path="/address_book" element={<AddressBook/>} />
+                    </Routes>
+                  </Box>
                   </Box>
                   <Box>
                     <Footer></Footer>
