@@ -1,23 +1,29 @@
-import { Card, CardContent } from "@mui/material";
-import {ReactNode} from "react";
+import {Box, Card, CardContent} from "@mui/material";
+import React, {ReactNode} from "react";
 import Typography from "@mui/material/Typography";
+import {SxProps} from "@mui/system";
+import {Theme} from "@mui/material/styles";
 
 
 interface CardProp {
   children: ReactNode;
-  content: string;
+  content: ReactNode;
+  cardStyle?: SxProps<Theme>;
 }
 
-const MyCard = ({children, content}: CardProp) => {
+const MyCard = ({children, content, cardStyle}: CardProp) => {
   return (
-    <Card sx={{height: "100%", width: "100%"}}>
-      <CardContent>
-        {children}
-        <Typography>
-          {content}
-        </Typography>
-      </CardContent>
-    </Card>
+    <React.Fragment>
+      <Box>
+        <Card sx={cardStyle}>
+          <CardContent>
+            {children}
+            {content}
+          </CardContent>
+        </Card>
+      </Box>
+
+    </React.Fragment>
   )
 }
 
