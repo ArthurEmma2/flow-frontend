@@ -32,7 +32,7 @@ function App() {
                   <Box>
                     <Header />
                   </Box>
-                  <AddressBook/>
+
                   <Box>
                     <Footer />
                   </Box>
@@ -46,7 +46,7 @@ function App() {
                     <Header></Header>
                   </Box>
                   <Box>
-                  <Dashboard />
+                    <AddressBook/>
                   </Box>
                   <Box>
                     <Footer></Footer>

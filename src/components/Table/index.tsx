@@ -1,13 +1,16 @@
 import React, {ChangeEventHandler, ReactNode } from "react";
 import {
     TableRow,
+    Table,
     TableCell,
     Paper,
     TableContainer,
     TableHead,
-    TableFooter,
+    TableFooter, TableBody,
 } from "@mui/material";
 import MyTablePagination from "./Pagination";
+import {SxProps} from "@mui/system";
+import {Theme} from "@mui/material/styles";
 
 interface TableProps {
     children?: ReactNode;
@@ -20,7 +23,8 @@ interface TableProps {
     pageSize: number,
     totalNum: number,
     onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, page: number) => void;
-    onRowsPerPageChange: ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>
+    onRowsPerPageChange: ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>,
+    tableSx?: SxProps<Theme>,
 }
 
 const MyTable = (props: TableProps) => {
@@ -35,29 +39,33 @@ const MyTable = (props: TableProps) => {
         totalNum,
         onPageChange,
         onRowsPerPageChange,
+        tableSx,
     } = props
 
     return (
-        <TableContainer component={Paper}>
-            <TableHead>
-                <TableRow>
-                    {
-                        columnList.map((val, index) => {
-                            if (val === "") {
-                                return <TableCell/>
-                            }
-                            return (
-                                <TableCell align={columnAlign}>{val}</TableCell>
-                            )
-                        })
-                    }
-                </TableRow>
-            </TableHead>
-            {children}
-            {
-                needPagination && <TableFooter>
+        <TableContainer component={Paper} sx={tableSx}>
+            <Table>
+                <TableHead>
                     <TableRow>
-                        <MyTablePagination
+                        {
+                            columnList.map((val, index) => {
+                                if (val === "") {
+                                    return <TableCell/>
+                                }
+                                return (
+                                  <TableCell align={columnAlign}>{val}</TableCell>
+                                )
+                            })
+                        }
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {children}
+                </TableBody>
+                {
+                  needPagination && <TableFooter>
+                      <TableRow sx={{ borderSize: 0}}>
+                          <MyTablePagination
                             availablePageSize={availablePageSize}
                             totalNumber={totalNum}
                             rowsPerPage={pageSize}
@@ -70,10 +78,11 @@ const MyTable = (props: TableProps) => {
                             }}
                             onPageChange={onPageChange}
                             onRowsPerPageChange={onRowsPerPageChange}
-                        />
-                    </TableRow>
-                </TableFooter>
-            }
+                          />
+                      </TableRow>
+                  </TableFooter>
+                }
+            </Table>
         </TableContainer>
     )
 }

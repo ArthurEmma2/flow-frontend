@@ -10,7 +10,7 @@ import {ConnectButton} from "@suiet/wallet-kit";
 import {useContext, useState} from "react";
 import {ChainName} from "../../../context/chainName";
 import SuiWalletButton from "../../Wallets/SuiWallet";
-import {Popover, Typography, useTheme} from "@mui/material";
+import {IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
 // import Home from "../../../pages/Home";
@@ -50,7 +50,7 @@ export default function Header() {
       // width: "100%",
       height: "2rem",
       padding: "1rem 0 1rem 0",
-      marginBottom: "0.5rem",
+      marginBottom: "2rem",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -85,9 +85,9 @@ export default function Header() {
       }}>
         <Button size="small" variant="outlined">New Stream</Button>
         { chainName === "sui" ? <SuiWalletButton /> : <AptosWalletButton/>}
-        <Button aria-describedby={id} onClick={handleUserClick}>
+        <IconButton aria-describedby={id} onClick={handleUserClick}>
           <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
-        </Button>
+        </IconButton>
         <Popover
           id={id}
           open={open}

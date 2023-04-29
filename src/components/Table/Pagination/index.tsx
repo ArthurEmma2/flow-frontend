@@ -78,7 +78,6 @@ const MyTablePaginationAction = (props: TablePaginationActionsProps) => {
                 {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
             </IconButton>
         </Box>
-
     )
 }
 
@@ -96,6 +95,9 @@ const MyTablePagination = (props: PaginationProps) => {
             onPageChange={onPageChange}
             onRowsPerPageChange={onRowsPerPageChange}
             ActionsComponent={MyTablePaginationAction}
+            labelDisplayedRows={({ from, to, count }) => { return ""}}
+            align="right"
+            sx={{border: "0px"}}
         />
 
     )
