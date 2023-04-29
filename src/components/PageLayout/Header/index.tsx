@@ -10,8 +10,9 @@ import {ConnectButton} from "@suiet/wallet-kit";
 import {useContext, useState} from "react";
 import {ChainName} from "../../../context/chainName";
 import SuiWalletButton from "../../Wallets/SuiWallet";
-import {Popover, Typography} from "@mui/material";
+import {IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
+import AptosWalletButton from "../../Wallets/AptosWallet";
 // import Home from "../../../pages/Home";
 // import {BrowserRouter, Route } from "react-router-dom";
 // import NewStream from "../../../pages/NewStream";
@@ -40,6 +41,8 @@ export default function Header() {
     setChainName(event.target.value as string);
   };
 
+  const darkMode = useTheme().palette.mode === 'dark';
+
   return (
     <Box sx={{
       position:"relative",
@@ -47,7 +50,7 @@ export default function Header() {
       // width: "100%",
       height: "2rem",
       padding: "1rem 0 1rem 0",
-      marginBottom: "0.5rem",
+      marginBottom: "2rem",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -74,27 +77,35 @@ export default function Header() {
           <Tab label="Address Book" value="address_book"/>
         </Tabs>
       </Box>
-      <Button size="small" className="min-w-[156px] h-10 font-bold">New Stream</Button>
-      { chainName === "sui" ? <SuiWalletButton /> : <></>}
-      <Button aria-describedby={id} onClick={handleUserClick}>
-        <AptosLogoAlt/>
-      </Button>
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleUserClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
-      </Popover>
+      <Box sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 2,
+      }}>
+        <Button size="small" variant="outlined">New Stream</Button>
+        { chainName === "sui" ? <SuiWalletButton /> : <AptosWalletButton/>}
+        <IconButton aria-describedby={id} onClick={handleUserClick}>
+          <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
+        </IconButton>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleUserClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+        </Popover>
+      </Box>
+
 
       {/*<Select*/}
       {/*  labelId="demo-simple-select-label"*/}
