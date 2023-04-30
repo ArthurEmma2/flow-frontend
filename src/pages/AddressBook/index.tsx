@@ -15,7 +15,6 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import SendIcon from '@mui/icons-material/Send';
-import * as net from "net";
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
