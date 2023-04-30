@@ -1,24 +1,32 @@
 import React from "react";
+import { MaybeHexString } from 'aptos';
+import { useWallet as useAptosWallet } from '@manahippo/aptos-wallet-adapter';
 import {Box, Button, Popover, Stack} from "@mui/material";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WalletSelector from "../WalletSelector";
 import Item from "../../Item";
+import {stringWithEllipsis} from "../../../utils/string";
+
+interface ConnectedInfoProps {
+  address: MaybeHexString
+}
+
+const ConnectedButton = ({address}: ConnectedInfoProps) => {
+  return (
+    <div className="flex flex-row gap-x-1">
+      <span>{stringWithEllipsis(address as string)}</span>
+      <ContentCopyIcon htmlColor="white" fontSize="small"/>
+    </div>
+  )
+}
 
 
 export default function AptosWalletButton() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-
+  const { wallets, connect, disconnect, connected, account } = useAptosWallet();
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
-  const connected = true;
-  const wallets = [
-    {
-      name: "pontem",
-    },
-    {
-      name: "martian",
-    }
-  ]
-
+  console.log('account', account);
   const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }
@@ -35,7 +43,7 @@ export default function AptosWalletButton() {
         aria-describedby={id}
         onClick={handleUserClick}
       >
-        Connect Wallet
+        {connected ? <ConnectedButton address={account?.address!}></ConnectedButton> : 'Connect Wallet'}
       </Button>
       <Popover
         id={id}
@@ -58,7 +66,9 @@ export default function AptosWalletButton() {
           <Box>
             <Stack>
               <Item>
-                <Button variant="outlined" size="small">Disconnect</Button>
+                <Button variant="outlined" size="small" onClick={() => {
+                  disconnect();
+                }}>Disconnect</Button>
               </Item>
             </Stack>
           </Box>
