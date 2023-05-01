@@ -120,7 +120,7 @@ const AddressBook = () => {
             >
               {addresses.length === 0 ? <></> : (addresses).map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell component="th" scope="row" align="center">
+                  <TableCell component="th" scope="row" align="left">
                     {row.name}
                   </TableCell>
                   <TableCell style={{ width: 160 }} align="center">

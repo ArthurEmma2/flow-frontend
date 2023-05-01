@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import MyCard from "../../components/Card";
-import {Grid, Box, Typography, Paper, Container} from "@mui/material";
+import {Grid, Box, Typography, Container} from "@mui/material";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -89,7 +89,7 @@ const Dashboard = () => {
         <React.Fragment>
           <div className="flex flex-row justify-start items-center">
             <NorthEastIcon color="primary"/>
-            <Typography variant="h6">Streaming / Outgoing</Typography>
+            <Typography variant="h6">Streaming / Incoming</Typography>
           </div>
         </React.Fragment>,
       content:
@@ -102,7 +102,7 @@ const Dashboard = () => {
         <React.Fragment>
           <div className="flex flex-row justify-start items-center gap-x-1">
             <CurrencyExchangeIcon color="primary"/>
-            <Typography variant="h6"> Withdrawn Amount</Typography>
+            <Typography variant="h6"> Withdrawable Amount</Typography>
           </div>
         </React.Fragment>,
       content:

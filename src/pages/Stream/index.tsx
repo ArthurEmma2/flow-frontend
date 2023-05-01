@@ -1,8 +1,8 @@
 import {
-  Box,
+  Avatar,
+  Box, Button,
   Collapse,
   Container,
-  Grid,
   IconButton,
   Paper,
   Tab,
@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
-import GridViewIcon from '@mui/icons-material/GridView';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -32,7 +31,8 @@ import BigNumber from 'bignumber.js';
 import {stringWithEllipsis} from "../../utils/string";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import Item from "../../components/Item";
+import {AptosLogoAlt} from "../../resources";
+import { Hashicon } from "@emeraldpay/hashicon-react";
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
@@ -65,7 +65,7 @@ const Stream = () => {
   const [openMap, setOpenMap] = useState<Map<string, boolean>>(new Map<string, boolean>());
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalNum, setTotalNum] = useState(0);
+  const [totalNum] = useState(0);
 
   const streamInfos: StreamInfo[] = [{
     coinId: "aptos",
@@ -100,16 +100,75 @@ const Stream = () => {
     return (
       <React.Fragment>
         <Collapse in={openMap.get(row.streamId)} timeout="auto" unmountOnExit>
-          <Box sx={{ width: '100%', border: "0px", borderRadius: "8px", paddingTop: 2, paddingBottom: 2, paddingLeft: 10, paddingRight: 10}}>
+          <Box sx={{ width: '100%', border: "0px", borderRadius: "8px", paddingTop: 5, paddingBottom: 5, paddingLeft: 15, paddingRight: 15}}>
             <Typography variant="h6" component="div" align="center">
               Total Amount Streamed
             </Typography>
-            <Typography variant="h6" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-              {row.name}
-            </Typography>
-            <Container>
+            <div className="flex flex-row gap-x-1 items-center justify-end px-6">
+              <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
+                <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
+                <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
+                  {row.streamedAmount}
+                </Typography>
+                <Typography variant="h5" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
+                  Apt
+                </Typography>
+              </div>
+              <div className="flex basis-1/3 justify-end">
+                <Button variant="outlined" style={{fontSize: 8, width: 120, height: 30, borderRadius: 8 }}>View on Explorer</Button>
+              </div>
+            </div>
+            <div className="flex flex-row items-center justify-between px-6 my-8">
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255, 255, 255, 0.1);",
+                  width: "320px",
+                  height: "72px",
+                  paddingLeft: 3,
+                  paddingRight: 3,
+                }}
+              >
+                <div className="flex flex-row items-center justify-start gap-x-3">
+                  <Avatar>
+                    <Hashicon value={row.senderId} size={25}/>
+                  </Avatar>
+                  <div>{row.senderId}</div>
+                </div>
 
-              <div className="flex flex-row justify-between">
+                <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
+              </Box>
+              <Box sx={{flexShrink: 1}}>
+                <CancelOutlinedIcon fontSize="small" />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255, 255, 255, 0.1);",
+                  width: "320px",
+                  height: "72px",
+                  paddingLeft: 3,
+                  paddingRight: 3,
+                }}
+              >
+                <div className="flex flex-row items-center justify-start gap-x-3">
+                  <Avatar>
+                    <Hashicon value={row.recipientId} size={25}/>
+                  </Avatar>
+                  <div>{row.recipientId}</div>
+                </div>
+
+                <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
+              </Box>
+            </div>
+            <Container>
+              <div className="flex flex-row justify-between mb-4">
                 <div>StartTime</div>
                 <div>{moment(parseInt(row.startTime)).format('YYYY-MM-DD HH:mm:ss')}</div>
                 <div>Streamed Amount</div>
@@ -132,58 +191,6 @@ const Stream = () => {
                 </div>
               </div>
             </Container>
-
-
-            {/*<Grid container spacing={2} sx={{ flexGrow: 1, paddingLeft: 6, paddingRight: 6 }}>*/}
-            {/*  <Grid xs={0.25}></Grid>*/}
-            {/*  <Grid xs={1.75}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2, textAlign: "right"}}>*/}
-            {/*      StartTime*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={3}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2, textAlign: "right"}}>*/}
-            {/*      {moment(parseInt(row.startTime)).format('YYYY-MM-DD HH:mm:ss')}*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={2}>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={2}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2}}>Streamed Amount</Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={3}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2}}>*/}
-            {/*      <div className="flex flex-row">*/}
-            {/*        <p className="text-red-600 text-center">-</p>*/}
-            {/*        <CountUp decimals={6} duration={1} end={Number(new BigNumber(row.streamedAmount).dividedBy(10 ** 9).toFixed(6))} />*/}
-            {/*      </div>*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={0.25}></Grid>*/}
-            {/*  <Grid xs={1.75}>*/}
-            {/*    <Box  sx={{ fontSize: '12pt', padding: 2, textAlign: "right"}}>*/}
-            {/*      Stop Time*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={3}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2, textAlign: "right"}}>*/}
-            {/*      {moment(parseInt(row.stopTime)).format('YYYY-MM-DD HH:mm:ss')}*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={2}>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={2}>*/}
-            {/*    <Box sx={{ fontSize: '12pt', padding: 2}}>Withdrawn Amount</Box>*/}
-            {/*  </Grid>*/}
-            {/*  <Grid xs={3}>*/}
-            {/*    <Box sx={{fontSize: '12pt', padding: 2 }}>*/}
-            {/*      <div className="flex flex-row align-middle text-center">*/}
-            {/*        <p className="text-red-600 text-center">-</p>*/}
-            {/*        <CountUp decimals={6} duration={1} end={Number(new BigNumber(row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))} />*/}
-            {/*      </div>*/}
-            {/*    </Box>*/}
-            {/*  </Grid>*/}
-            {/*</Grid>*/}
           </Box>
         </Collapse>
       </React.Fragment>
@@ -262,26 +269,29 @@ const Stream = () => {
           value={streamType}
           onChange={(event, newValue) => {setStreamType(newValue)}}
           aria-label="basic tabs example"
+          sx={{ paddingLeft: 2, paddingRight: 2 }}
         >
           {streamTabs.map((val) => {
             return (
-              <Tab key={val.name} label={val.name} value={val.name} icon={val.icon} iconPosition="start"/>
+              <Tab key={val.name} label={val.name} value={val.name} icon={val.icon} iconPosition="end"/>
             )
           })}
         </Tabs>
+        <Box sx={{ marginTop: 1, marginBottom: 1, paddingLeft: 2, paddingRight: 2 }}>
+          <div className="flex flex-row gap-x-2">
+            {statusTab.map((val) => {
+              return (
+                <Button variant="outlined" key={val.name}>
+                  <div className="flex flex-row gap-x-1">
+                    {val.icon}
+                    {val.name}
+                  </div>
+                </Button>
+              )
+            })}
+          </div>
 
-        <Tabs
-          value={statusType}
-          onChange={(event, newValue) => {setStatusType(newValue)}}
-          aria-label="basic tabs example"
-        >
-          <Tab label="All" value="All" icon={<GridViewIcon/>} iconPosition="start" />
-          {statusTab.map((val) => {
-            return (
-              <Tab key={val.name} label={val.name} value={val.name} icon={val.icon} iconPosition="start"></Tab>
-            )
-          })}
-        </Tabs>
+        </Box>
         <MyTable
           content={streamInfos}
           needPagination={true}
