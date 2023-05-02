@@ -3,25 +3,16 @@ import Box from "@mui/material/Box";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 import LogoIcon from "../../LogoIcon";
-import {ConnectButton} from "@suiet/wallet-kit";
-import {useContext, useState} from "react";
+import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
 import SuiWalletButton from "../../Wallets/SuiWallet";
 import {IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import Dashboard from "../../../pages/Dashboard";
-import Stream from "../../../pages/Stream";
-import AddressBook from "../../../pages/AddressBook";
 import useCurrentPage from "../../../hooks/useCurrentPage";
-// import Home from "../../../pages/Home";
-// import {BrowserRouter, Route } from "react-router-dom";
-// import NewStream from "../../../pages/NewStream";
-
+import {gradientButtonStyle} from "../../../style/button";
 
 
 export default function Header() {
@@ -71,21 +62,11 @@ export default function Header() {
         ml: 15,
       },
     }}>
-      <Box sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 5,
-      }}>
+      <Box>
         <LogoIcon
           className="w-auto h-[48px] mobile:h-full hidden tablet:block mobile:hidden"
           hasLabel={false}
         />
-        <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
-          <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
-          <Tab label="Stream" value="stream" href="/stream"/>
-          <Tab label="Address Book" value="address_book" href="/address_book"/>
-        </Tabs>
       </Box>
       <Box sx={{
         display: "flex",
@@ -93,7 +74,21 @@ export default function Header() {
         alignItems: "center",
         gap: 2,
       }}>
-        <Button size="small" variant="outlined">New Stream</Button>
+
+        <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
+          <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
+          <Tab label="Stream" value="stream" href="/stream"/>
+          <Tab label="Address Book" value="address_book" href="/address_book"/>
+        </Tabs>
+        <Button size="medium" variant="outlined" sx={gradientButtonStyle}>+ New Stream</Button>
+      </Box>
+      <Box sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 2,
+      }}>
+
         { chainName === "sui" ? <SuiWalletButton /> : <AptosWalletButton/>}
         <IconButton aria-describedby={id} onClick={handleUserClick}>
           <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>

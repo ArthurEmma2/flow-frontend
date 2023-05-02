@@ -53,6 +53,12 @@ export default function AptosWalletButton() {
         size="small"
         aria-describedby={id}
         onClick={handleUserClick}
+        sx={{
+          border: "1px solid rgba(255, 255, 255, 0.6)",
+          color: "rgba(255, 255, 255, 0.6)",
+          borderRadius: "6px",
+          height: "35px",
+        }}
       >
         <div className="flex flex-row items-center justify-center gap-x-1">
           <ConnectedButton connected={connected} address={account?.address!}></ConnectedButton>
@@ -90,7 +96,7 @@ export default function AptosWalletButton() {
           </Box>
 
           :
-          <Stack spacing={2}>
+          <Stack>
             {wallets.map((val) => {
               return (
                 <Item key={val.adapter.name}>

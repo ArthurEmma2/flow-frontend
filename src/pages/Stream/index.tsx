@@ -8,7 +8,8 @@ import {
   Tab,
   TableCell,
   TableRow,
-  Tabs,
+  Tabs, ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from "@mui/material";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
@@ -18,6 +19,7 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
 import React, {useState} from "react";
@@ -41,11 +43,12 @@ const tableStyle: SxProps<Theme> = {
 }
 
 const statusTab = [
-  {name: "Scheduled", icon: <ScheduleIcon htmlColor="#40187f"/>},
-  {name: "Streaming", icon: <AutorenewIcon color="primary"/>},
-  {name: "Cancelled", icon: <CancelOutlinedIcon htmlColor="#40187f"/>},
-  {name: "Paused", icon: <PauseCircleOutlinedIcon />},
-  {name: "Completed", icon: <CheckCircleOutlineRoundedIcon color="primary"/>}
+  {name: "All", icon: <GridViewIcon htmlColor="#FFFFFF" fontSize="small"/>},
+  {name: "Scheduled", icon: <ScheduleIcon htmlColor="#40187f" fontSize="small"/>},
+  {name: "Streaming", icon: <AutorenewIcon color="primary" fontSize="small"/>},
+  {name: "Cancelled", icon: <CancelOutlinedIcon htmlColor="#40187f" fontSize="small"/>},
+  {name: "Paused", icon: <PauseCircleOutlinedIcon fontSize="small"/>},
+  {name: "Completed", icon: <CheckCircleOutlineRoundedIcon color="primary" fontSize="small"/>}
 ]
 
 const streamTabs = [
@@ -65,6 +68,14 @@ const Stream = () => {
   const [openMap, setOpenMap] = useState<Map<string, boolean>>(new Map<string, boolean>());
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [statusMap, setStatusMap] = useState<Map<string, boolean>>(new Map([
+    ["All", false],
+    ["Scheduled", false],
+    ["Streaming", false],
+    ["Cancelled", false],
+    ["Paused", false],
+    ["Completed", false],
+  ]))
   const [totalNum] = useState(0);
 
   const streamInfos: StreamInfo[] = [{
@@ -110,7 +121,19 @@ const Stream = () => {
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
                   {row.streamedAmount}
                 </Typography>
-                <Typography variant="h5" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
+
+                <Typography
+                  variant="h5" align="center"
+                  sx={{
+                    marginTop: 1,
+                    marginBottom: 1,
+                    fontWeight: 'bolder',
+                    // color: (theme) => theme.palette.gradient.main
+                  }}
+                  style={{
+                    color: "linear-gradient(-39deg, #4991f8 0%, #4bc1ff 100%)",
+                  }}
+                >
                   Apt
                 </Typography>
               </div>
@@ -263,13 +286,21 @@ const Stream = () => {
 
   return (
     <Container>
-      <Typography variant="h5" color="white">{`${streamType} Streams`}</Typography>
-      <Paper sx={{ marginTop: 2, background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);"}}>
+      <Typography
+        variant="h5"
+        color="white"
+        sx={{marginBottom: 2}}
+      >
+        {`${streamType} Streams`}
+      </Typography>
+      <Paper sx={{
+        background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);"
+      }}>
         <Tabs
           value={streamType}
           onChange={(event, newValue) => {setStreamType(newValue)}}
           aria-label="basic tabs example"
-          sx={{ paddingLeft: 2, paddingRight: 2 }}
+          sx={{ paddingLeft: 1, paddingRight: 1,}}
         >
           {streamTabs.map((val) => {
             return (
@@ -277,19 +308,39 @@ const Stream = () => {
             )
           })}
         </Tabs>
-        <Box sx={{ marginTop: 1, marginBottom: 1, paddingLeft: 2, paddingRight: 2 }}>
-          <div className="flex flex-row gap-x-2">
+        <Box sx={{ marginTop: 2, marginBottom: 2, paddingLeft: 2, paddingRight: 2 }}>
+          <ToggleButtonGroup
+            size="small"
+            value={statusType}
+            exclusive
+            onChange={(e, newVal) => {
+              statusMap.set(newVal, true)
+              setStatusMap(statusMap);
+              setStatusType(newVal);
+            }}
+            aria-label="text alignment"
+            sx={{
+              gridGap: "1rem",
+            }}
+          >
             {statusTab.map((val) => {
               return (
-                <Button variant="outlined" key={val.name}>
-                  <div className="flex flex-row gap-x-1">
-                    {val.icon}
+                <ToggleButton
+                  // variant="outlined"
+                  key={val.name}
+                  value={val.name}
+                  aria-label={val.name}
+                  onClick={() => {
+
+                }}>
+                  <div className="flex flex-row items-center justify-center gap-x-1">
                     {val.name}
+                    {val.icon}
                   </div>
-                </Button>
+                </ToggleButton>
               )
             })}
-          </div>
+          </ToggleButtonGroup>
 
         </Box>
         <MyTable

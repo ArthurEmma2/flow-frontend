@@ -20,7 +20,7 @@ interface DashboardContentProp {
 
 const amountCardStyle: SxProps<Theme> = {
   width: "100%",
-  height: "7lh",
+  height: "9lh",
   border: "1px solid rgb(255,255,255, 0.6)",
   borderRadius: "8px",
   backgroundColor: "#0E111B",
@@ -32,7 +32,7 @@ const amountContentStyle: SxProps<Theme> = {
 }
 
 const walletAmountCardStyle: SxProps<Theme> = {
-  height: "15lh",
+  height: "19lh",
   border: "1px solid rgb(255,255,255, 0.6)",
   borderRadius: "8px",
   backgroundColor: "#0E111B",
