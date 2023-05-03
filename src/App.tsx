@@ -12,7 +12,7 @@ import Box from "@mui/material/Box";
 import {ThemeProvider} from "@mui/material";
 import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
-import {darkTheme} from "./theme";
+import {darkTheme} from "./style/theme";
 import Dashboard from "./pages/Dashboard";
 import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
 import Stream from "./pages/Stream";

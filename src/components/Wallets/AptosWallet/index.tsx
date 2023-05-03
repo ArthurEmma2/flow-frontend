@@ -3,22 +3,16 @@ import { MaybeHexString } from 'aptos';
 import { useWallet as useAptosWallet } from '@manahippo/aptos-wallet-adapter';
 import {Box, Button, Popover, Stack} from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import WalletSelector from "../WalletSelector";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Item from "../../Item";
 import {stringWithEllipsis} from "../../../utils/string";
 
 interface ConnectedInfoProps {
-  address: MaybeHexString
+  connected: boolean
+  address?: MaybeHexString
 }
 
-const ConnectedButton = ({address}: ConnectedInfoProps) => {
-  return (
-    <div className="flex flex-row gap-x-1">
-      <span>{stringWithEllipsis(address as string)}</span>
-      <ContentCopyIcon htmlColor="white" fontSize="small"/>
-    </div>
-  )
-}
 
 
 export default function AptosWalletButton() {
@@ -35,6 +29,23 @@ export default function AptosWalletButton() {
     setAnchorEl(null);
   }
 
+  const ConnectedButton = ({connected, address}: ConnectedInfoProps) => {
+    return (
+      <div className="flex flex-row items-center justify-center gap-x-1">
+        {connected ?
+          <React.Fragment>
+            <span>{stringWithEllipsis(address as string, 4)}</span>
+            <ContentCopyIcon htmlColor="white" fontSize="small"/>
+          </React.Fragment>
+          :
+          <React.Fragment>
+            <span>Connect Wallet</span>
+          </React.Fragment>
+        }
+      </div>
+    )
+  }
+
   return (
     <>
       <Button
@@ -42,8 +53,18 @@ export default function AptosWalletButton() {
         size="small"
         aria-describedby={id}
         onClick={handleUserClick}
+        sx={{
+          border: "1px solid rgba(255, 255, 255, 0.6)",
+          color: "rgba(255, 255, 255, 0.6)",
+          borderRadius: "6px",
+          height: "35px",
+        }}
       >
-        {connected ? <ConnectedButton address={account?.address!}></ConnectedButton> : 'Connect Wallet'}
+        <div className="flex flex-row items-center justify-center gap-x-1">
+          <ConnectedButton connected={connected} address={account?.address!}></ConnectedButton>
+          {open ? <KeyboardArrowDownIcon/> : <KeyboardArrowUpIcon/>}
+        </div>
+
       </Button>
       <Popover
         id={id}
@@ -68,14 +89,24 @@ export default function AptosWalletButton() {
               <Item>
                 <Button variant="outlined" size="small" onClick={() => {
                   disconnect();
+                  setAnchorEl(null);
                 }}>Disconnect</Button>
               </Item>
             </Stack>
           </Box>
 
           :
-          <Stack spacing={2}>
-            <WalletSelector wallets={wallets}/>
+          <Stack>
+            {wallets.map((val) => {
+              return (
+                <Item key={val.adapter.name}>
+                  <Button variant="outlined" size="small" onClick={() => {
+                    connect(val.adapter.name);
+                    setAnchorEl(null);
+                  }}>{val.adapter.name}</Button>
+                </Item>
+              )
+            })}
           </Stack>
         }
       </Popover>
