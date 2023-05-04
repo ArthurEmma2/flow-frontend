@@ -44,11 +44,12 @@ export const darkTheme = createTheme({
         root: {
           fontSize: "1rem",
           minHeight: "50px",
+          ".Mui-selected": {
+            color: "rgb(255, 255, 255) !important",
+            fontWeight: "bold"
+          }
         },
-        selected: {
-          color: "rgb(255, 255, 255) !important",
-          fontWeight: "bold",
-        }
+
       }
     },
     MuiToggleButtonGroup: {

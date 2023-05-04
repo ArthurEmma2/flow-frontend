@@ -1,5 +1,3 @@
-
-
 interface Address {
     id?: string,
     addr: string

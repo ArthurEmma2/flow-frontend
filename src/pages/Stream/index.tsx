@@ -35,6 +35,16 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {AptosLogoAlt} from "../../resources";
 import { Hashicon } from "@emeraldpay/hashicon-react";
+import { withStyles } from '@mui/styles';
+import {Direction} from "../../types/streamStatus";
+
+const customTypographyStyle = {
+  h5: {
+    color: "linear-gradient(103.84deg, #F143E2 -20.31%, #40187F 100%)"
+  },
+}
+
+const CustomTypography = withStyles(customTypographyStyle)(Typography);
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
@@ -70,32 +80,32 @@ const Stream = () => {
   const [pageSize, setPageSize] = useState(10);
   const [statusMap, setStatusMap] = useState<Map<string, boolean>>(new Map([
     ["All", false],
-    ["Scheduled", false],
-    ["Streaming", false],
-    ["Cancelled", false],
-    ["Paused", false],
-    ["Completed", false],
+    [Direction.Scheduled, false],
+    [Direction.Streaming, false],
+    [Direction.Canceled, false],
+    [Direction.Paused, false],
+    [Direction.Completed, false],
   ]))
   const [totalNum] = useState(0);
 
   const streamInfos: StreamInfo[] = [{
-    coinId: "aptos",
+    // coinId: "aptos",
+    closed: true,
     streamId: "1234",
     senderId: "u989489",
     recipientId: "joiaj",
-    name: "demo stream",
-    ratePerSecond: "10",
+    createTime: "1682843609",
+    // name: "demo stream",
+    ratePerInterval: "10",
     startTime: "1682843609",
     stopTime: "1682943609",
     lastWithdrawTime: "0",
     depositAmount: "123000000",
-    remainingBalance: "453000000",
-    streamedAmount: "783000000",
-    toTransfer: "0",
+    remainingAmount: "453000000",
+    // streamedAmount: "7.83000000",
     interval: "193",
-    status: "Streaming",
-    toBeWithdrawal: "0",
-    withdrawn: "0",
+    // toBeWithdrawal: "0",
+    withdrawnAmount: "0",
   }]
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
@@ -119,23 +129,18 @@ const Stream = () => {
               <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
                 <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-                  {row.streamedAmount}
+                  {/*{row.streamedAmount}*/}
                 </Typography>
-
-                <Typography
+                <CustomTypography
                   variant="h5" align="center"
                   sx={{
                     marginTop: 1,
                     marginBottom: 1,
                     fontWeight: 'bolder',
-                    // color: (theme) => theme.palette.gradient.main
-                  }}
-                  style={{
-                    color: "linear-gradient(-39deg, #4991f8 0%, #4bc1ff 100%)",
                   }}
                 >
                   Apt
-                </Typography>
+                </CustomTypography>
               </div>
               <div className="flex basis-1/3 justify-end">
                 <Button variant="outlined" style={{fontSize: 8, width: 120, height: 30, borderRadius: 8 }}>View on Explorer</Button>
@@ -198,7 +203,7 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp decimals={6} duration={1} end={Number(new BigNumber(row.streamedAmount).dividedBy(10 ** 9).toFixed(6))} />
+                    {/*<CountUp decimals={6} duration={1} end={Number(new BigNumber(row.streamedAmount).dividedBy(10 ** 9).toFixed(6))} />*/}
                   </div>
                 </div>
               </div>
@@ -209,7 +214,7 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row align-middle text-center">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp decimals={6} duration={1} end={Number(new BigNumber(row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))} />
+                    {/*<CountUp decimals={6} duration={1} end={Number(new BigNumber(row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))} />*/}
                   </div>
                 </div>
               </div>
@@ -226,7 +231,7 @@ const Stream = () => {
       <React.Fragment>
         <TableRow key={row.streamId}>
           <TableCell align="center">
-            {row.name}
+            {/*{row.name}*/}
           </TableCell>
           <TableCell align="center">
             <div className="flex flex-row justify-center items-center">
@@ -235,7 +240,8 @@ const Stream = () => {
                 <CountUp
                   decimals={6}
                   duration={1}
-                  end={Number(BigNumber.sum(row.withdrawn, row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))}
+                  // end={Number(BigNumber.sum(row.withdrawn, row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))}
+                  end={0}
                 />
                 <div>/</div>
                 <div>{Number(new BigNumber(row.depositAmount).dividedBy(10 ** 9).toFixed(6))}</div>

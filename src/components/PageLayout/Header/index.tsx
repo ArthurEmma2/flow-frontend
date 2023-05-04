@@ -106,6 +106,7 @@ export default function Header() {
             vertical: 'top',
             horizontal: 'right',
           }}
+          sx={{borderRadius: "8px"}}
         >
           <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
         </Popover>

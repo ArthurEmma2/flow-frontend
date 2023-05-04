@@ -17,6 +17,8 @@ import Dashboard from "./pages/Dashboard";
 import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
 import Stream from "./pages/Stream";
 import Address from "./types/address";
+import {WalletAdapter} from "./context/WalletAdapter";
+import {NetworkAdapter} from "./data/account";
 
 export const router = [
   {
@@ -34,51 +36,56 @@ export const router = [
 ];
 
 function App() {
-  // const msg: string = `Error: [WALLET.SIGN_TX_ERROR] User rejection`
-  // const chainName = useContext(ChainName);
   const [chainName, setChainName] = useState<string>('aptos')
-  console.log('chainName', chainName);
+  const [walletAdapter, setWalletAdapter] = useState<NetworkAdapter>();
 
   return (
     <ThemeProvider theme={darkTheme}>
       <ChainName.Provider value={{chainName, setChainName}}>
-        <Box sx={{width: '100%', height: '100%'}}>
-          {
-            chainName === "sui" ?
-              <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
-                <Stack spacing={2}>
-                  <Box>
-                    <Header />
-                  </Box>
+        <WalletAdapter.Provider value={{walletAdapter, setWalletAdapter}}>
+          <Box sx={{width: '100%', height: '100%'}}>
+            {
+              chainName === "sui" ?
+                <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
+                  <Stack spacing={2}>
+                    <Box>
+                      <Header />
+                    </Box>
 
-                  <Box>
-                    <Footer />
-                  </Box>
-                </Stack>
-              </SuiWalletProvider> :
-              <AptosWalletProvider wallets={AptosWallets} onError={(err: Error) => {
-                console.log('Handle Error Message', err)
-              }}>
-                <Stack spacing={2} direction="column">
-                  <Box>
-                    <Header></Header>
-                  </Box>
-                  <Box>
-                  <Box>
-                    <Routes>
-                      <Route path="/dashboard" element={<Dashboard/>} />
-                      <Route path="/stream" element={<Stream/>} />
-                      <Route path="/address_book" element={<AddressBook/>} />
-                    </Routes>
-                  </Box>
-                  </Box>
-                  <Box>
-                    <Footer></Footer>
-                  </Box>
-                </Stack>
-              </AptosWalletProvider>
-          }
-        </Box>
+                    <Box>
+                      <Footer />
+                    </Box>
+                  </Stack>
+                </SuiWalletProvider> :
+                <AptosWalletProvider
+                  wallets={AptosWallets}
+                  autoConnect
+                  onError={(err: Error) => {
+                    console.log('Handle Error Message', err)
+                  }}
+                >
+                  <Stack spacing={2} direction="column">
+                    <Box>
+                      <Header></Header>
+                    </Box>
+                    <Box>
+                      <Box>
+                        <Routes>
+                          <Route path="/dashboard" element={<Dashboard/>} />
+                          <Route path="/stream" element={<Stream/>} />
+                          <Route path="/address_book" element={<AddressBook/>} />
+                        </Routes>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Footer></Footer>
+                    </Box>
+                  </Stack>
+                </AptosWalletProvider>
+            }
+          </Box>
+        </WalletAdapter.Provider>
+
       </ChainName.Provider>
     </ThemeProvider>
   );
