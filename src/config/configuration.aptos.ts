@@ -25,7 +25,7 @@ const TESTNET_CONFIG = new NetworkConfiguration(
   'testnet',
   'https://fullnode.testnet.aptoslabs.com/v1',
   'https://faucet.devnet.aptoslabs.com',
-  '0xb5add92f1f60ae106e8ac7712fd71d550c36ed3bc33fa6004fe4a1d1bcc91bb5',
+  '0x85e0c7b86bbea605ab495df331042370b81c9abe94a0a7447c719de549545207',
   'https://api.moveflow.xyz/api',
   'apt_testnet',
 );

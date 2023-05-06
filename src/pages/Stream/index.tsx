@@ -1,6 +1,7 @@
 import {
   Avatar,
-  Box, Button,
+  Box,
+  Button,
   Collapse,
   Container,
   IconButton,
@@ -8,7 +9,8 @@ import {
   Tab,
   TableCell,
   TableRow,
-  Tabs, ToggleButton,
+  Tabs,
+  ToggleButton,
   ToggleButtonGroup,
   Typography
 } from "@mui/material";
@@ -22,7 +24,7 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
-import React, {useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
 import MyTable from "../../components/Table";
 import {SxProps} from "@mui/system";
@@ -34,9 +36,15 @@ import {stringWithEllipsis} from "../../utils/string";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {AptosLogoAlt} from "../../resources";
-import { Hashicon } from "@emeraldpay/hashicon-react";
-import { withStyles } from '@mui/styles';
-import {Direction} from "../../types/streamStatus";
+import {Hashicon} from "@emeraldpay/hashicon-react";
+import {withStyles} from '@mui/styles';
+import {StreamStatus} from "../../types/streamStatus";
+import {WalletAdapter} from "../../context/WalletAdapter";
+import {ChainName} from "../../context/chainName";
+import {Network} from "../../context/network";
+import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
+import netConfApt from "../../config/configuration.aptos";
+import {Types} from "aptos";
 
 const customTypographyStyle = {
   h5: {
@@ -53,12 +61,12 @@ const tableStyle: SxProps<Theme> = {
 }
 
 const statusTab = [
-  {name: "All", icon: <GridViewIcon htmlColor="#FFFFFF" fontSize="small"/>},
-  {name: "Scheduled", icon: <ScheduleIcon htmlColor="#40187f" fontSize="small"/>},
-  {name: "Streaming", icon: <AutorenewIcon color="primary" fontSize="small"/>},
-  {name: "Cancelled", icon: <CancelOutlinedIcon htmlColor="#40187f" fontSize="small"/>},
-  {name: "Paused", icon: <PauseCircleOutlinedIcon fontSize="small"/>},
-  {name: "Completed", icon: <CheckCircleOutlineRoundedIcon color="primary" fontSize="small"/>}
+  {name: StreamStatus.All, icon: <GridViewIcon htmlColor="#FFFFFF" fontSize="small"/>},
+  {name: StreamStatus.Scheduled, icon: <ScheduleIcon htmlColor="#40187f" fontSize="small"/>},
+  {name: StreamStatus.Streaming, icon: <AutorenewIcon color="primary" fontSize="small"/>},
+  {name: StreamStatus.Canceled, icon: <CancelOutlinedIcon htmlColor="#40187f" fontSize="small"/>},
+  {name: StreamStatus.Paused, icon: <PauseCircleOutlinedIcon fontSize="small"/>},
+  {name: StreamStatus.Completed, icon: <CheckCircleOutlineRoundedIcon color="primary" fontSize="small"/>}
 ]
 
 const streamTabs = [
@@ -73,40 +81,21 @@ const streamTabs = [
 ]
 
 const Stream = () => {
+  const {walletAdapter} = useContext(WalletAdapter);
+  const {chainName} = useContext(ChainName);
+  const {network} = useContext(Network);
+  const { connected, signAndSubmitTransaction } = useAptosWallet();
+  const accountAddr = walletAdapter?.getAddress()!;
+
+  const [streams, setStreams] = useState<StreamInfo[]>([]);
   const [streamType, setStreamType] = useState<string>("Outgoing");
   const [statusType, setStatusType] = useState("All");
   const [openMap, setOpenMap] = useState<Map<string, boolean>>(new Map<string, boolean>());
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [statusMap, setStatusMap] = useState<Map<string, boolean>>(new Map([
-    ["All", false],
-    [Direction.Scheduled, false],
-    [Direction.Streaming, false],
-    [Direction.Canceled, false],
-    [Direction.Paused, false],
-    [Direction.Completed, false],
-  ]))
   const [totalNum] = useState(0);
 
-  const streamInfos: StreamInfo[] = [{
-    // coinId: "aptos",
-    closed: true,
-    streamId: "1234",
-    senderId: "u989489",
-    recipientId: "joiaj",
-    createTime: "1682843609",
-    // name: "demo stream",
-    ratePerInterval: "10",
-    startTime: "1682843609",
-    stopTime: "1682943609",
-    lastWithdrawTime: "0",
-    depositAmount: "123000000",
-    remainingAmount: "453000000",
-    // streamedAmount: "7.83000000",
-    interval: "193",
-    // toBeWithdrawal: "0",
-    withdrawnAmount: "0",
-  }]
+
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
   function changeCollapseButton(streamId: string) {
@@ -115,6 +104,49 @@ const Stream = () => {
     newMap.set(streamId, !prevVal);
     setOpenMap(newMap);
   }
+
+  const pullStreams = () => {
+    if (streamType === "Outgoing") {
+      walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+        if (statusType !== StreamStatus.All) {
+          const newStreams =  streams.filter((stream) => {
+            return stream.status === statusType;
+          })
+          setStreams(newStreams);
+        } else {
+          setStreams(streams);
+        }
+      })
+    } else {
+      walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
+          if (statusType !== StreamStatus.All) {
+            const newStreams = streams.filter((stream) => {
+              return stream.status === statusType;
+            })
+            setStreams(newStreams);
+          } else {
+            setStreams(streams);
+          }
+        }
+      )
+    }
+  };
+
+  useEffect(() => {
+    pullStreams()
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!connected) {
+        return;
+      }
+      pullStreams();
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
 
   const CollapseContent = (props: {row: StreamInfo}) => {
     const {row} = props
@@ -129,7 +161,11 @@ const Stream = () => {
               <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
                 <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-                  {/*{row.streamedAmount}*/}
+                  <CountUp
+                    decimals={6}
+                    preserveValue
+                    end={Number(new BigNumber(row.depositAmount).toFixed(6))}
+                  />
                 </Typography>
                 <CustomTypography
                   variant="h5" align="center"
@@ -164,13 +200,17 @@ const Stream = () => {
                   <Avatar>
                     <Hashicon value={row.senderId} size={25}/>
                   </Avatar>
-                  <div>{row.senderId}</div>
+                  <div>{stringWithEllipsis(row.senderId)}</div>
                 </div>
+                <IconButton>
+                  <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
+                </IconButton>
 
-                <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
               </Box>
               <Box sx={{flexShrink: 1}}>
-                <CancelOutlinedIcon fontSize="small" />
+                <IconButton>
+                  <CancelOutlinedIcon fontSize="small" />
+                </IconButton>
               </Box>
               <Box
                 sx={{
@@ -189,7 +229,7 @@ const Stream = () => {
                   <Avatar>
                     <Hashicon value={row.recipientId} size={25}/>
                   </Avatar>
-                  <div>{row.recipientId}</div>
+                  <div>{stringWithEllipsis(row.recipientId)}</div>
                 </div>
 
                 <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
@@ -203,7 +243,11 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row">
                     <p className="text-red-600 text-center">-</p>
-                    {/*<CountUp decimals={6} duration={1} end={Number(new BigNumber(row.streamedAmount).dividedBy(10 ** 9).toFixed(6))} />*/}
+                    <CountUp
+                      decimals={6}
+                      preserveValue
+                      end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
+                    />
                   </div>
                 </div>
               </div>
@@ -214,7 +258,11 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row align-middle text-center">
                     <p className="text-red-600 text-center">-</p>
-                    {/*<CountUp decimals={6} duration={1} end={Number(new BigNumber(row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))} />*/}
+                    <CountUp
+                      decimals={6}
+                      preserveValue
+                      end={Number(new BigNumber(row.withdrawnAmount).toFixed(6))}
+                    />
                   </div>
                 </div>
               </div>
@@ -231,7 +279,7 @@ const Stream = () => {
       <React.Fragment>
         <TableRow key={row.streamId}>
           <TableCell align="center">
-            {/*{row.name}*/}
+            {row.name}
           </TableCell>
           <TableCell align="center">
             <div className="flex flex-row justify-center items-center">
@@ -239,12 +287,11 @@ const Stream = () => {
               <div className="flex flex-row justify-center items-center">
                 <CountUp
                   decimals={6}
-                  duration={1}
-                  // end={Number(BigNumber.sum(row.withdrawn, row.toBeWithdrawal).dividedBy(10 ** 9).toFixed(6))}
-                  end={0}
+                  preserveValue
+                  end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
                 />
                 <div>/</div>
-                <div>{Number(new BigNumber(row.depositAmount).dividedBy(10 ** 9).toFixed(6))}</div>
+                <div>{Number(new BigNumber(row.depositAmount).toFixed(6))}</div>
               </div>
             </div>
           </TableCell>
@@ -320,8 +367,6 @@ const Stream = () => {
             value={statusType}
             exclusive
             onChange={(e, newVal) => {
-              statusMap.set(newVal, true)
-              setStatusMap(statusMap);
               setStatusType(newVal);
             }}
             aria-label="text alignment"
@@ -332,13 +377,10 @@ const Stream = () => {
             {statusTab.map((val) => {
               return (
                 <ToggleButton
-                  // variant="outlined"
                   key={val.name}
                   value={val.name}
                   aria-label={val.name}
-                  onClick={() => {
-
-                }}>
+                >
                   <div className="flex flex-row items-center justify-center gap-x-1">
                     {val.name}
                     {val.icon}
@@ -350,7 +392,7 @@ const Stream = () => {
 
         </Box>
         <MyTable
-          content={streamInfos}
+          content={streams}
           needPagination={true}
           availablePageSize={[5, 10, 15]}
           columnList={columnList}
@@ -367,7 +409,7 @@ const Stream = () => {
           }}
           tableSx={tableStyle}
         >
-          {streamInfos.length === 0 ? <></> : streamInfos.map((row) => {
+          {streams.length === 0 ? <></> : streams.map((row) => {
             return (
               <Row row={row} key={row.streamId}></Row>
             )

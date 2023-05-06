@@ -16,7 +16,14 @@ interface StreamInfo {
     startTime: string, // stream's start time
     stopTime: string,  // stream's end time
     withdrawnAmount: string, // 已经接收的金额
-    // name: string, // stream's name
+    pauseInfo: {
+        accPausedTime: string,
+        pauseAt: string,
+        paused: boolean,
+    },
+    name: string, // stream's name
+    streamedAmount: string,
+    withdrawableAmount: string,
 }
 
 export default StreamInfo;

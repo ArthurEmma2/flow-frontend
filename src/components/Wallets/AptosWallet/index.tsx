@@ -18,7 +18,14 @@ interface ConnectedInfoProps {
 
 export default function AptosWalletButton() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const { wallets, wallet, connect, disconnect, connected, account } = useAptosWallet();
+  const {
+    wallets,
+    wallet,
+    connect,
+    disconnect,
+    connected,
+    account,
+  } = useAptosWallet();
   const {setWalletAdapter} = useContext(WalletAdapter);
   const {chainName} = useContext(ChainName);
   const open = Boolean(anchorEl);

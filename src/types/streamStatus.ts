@@ -6,4 +6,5 @@ export enum StreamStatus {
   Completed = "Completed",
   Paused = "Paused",
   Unknown = "Unknown",
+  All = "All",
 }

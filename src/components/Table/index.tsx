@@ -50,10 +50,10 @@ const MyTable = (props: TableProps) => {
                         {
                             columnList.map((val, index) => {
                                 if (val === "") {
-                                    return <TableCell/>
+                                    return <TableCell key={index}/>
                                 }
                                 return (
-                                  <TableCell align={columnAlign}>{val}</TableCell>
+                                  <TableCell key={index} align={columnAlign}>{val}</TableCell>
                                 )
                             })
                         }
