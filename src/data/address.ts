@@ -66,7 +66,5 @@ export const FindAddress = (creator: string, chain: string, network: string, {pa
         headers: myHeaders,
         redirect: 'follow'
     };
-
-    // return fetch(`https://api.moveflow.xyz/api/addresses?pagesize=${pageSize}&page=${page+1}&creator=${creator}&chain=${chain}&network=${network}`, requestOptions)
-    return fetch(`https://api.moveflow.xyz/api/addresses?pagesize=${pageSize}&page=${page}&creator=${creator}&network=sui_mainnet`, requestOptions)
+    return fetch(`https://api.moveflow.xyz/api/addresses?pagesize=${pageSize}&page=${page}&creator=${creator}&network=${network}&chain=${chain}`, requestOptions)
 }

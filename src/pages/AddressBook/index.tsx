@@ -15,6 +15,7 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import SendIcon from '@mui/icons-material/Send';
+import {gradientButtonStyle} from "../../style/button";
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
@@ -42,7 +43,7 @@ const AddressBook = () => {
         setWalletAddress("");
       })
       .catch(error => {
-
+        console.log('err', error)
       })
   }
 
@@ -66,13 +67,13 @@ const AddressBook = () => {
 
   }
 
-  // todo
   function handleSend() {
 
   }
 
   function copyAddress(row: Address) {
     navigator.clipboard.writeText(row.addr);
+    console.log('copied')
   }
 
   useEffect(() => {
@@ -90,6 +91,8 @@ const AddressBook = () => {
         }
         setAddresses(addressList);
         setTotalNum(result.total);
+        setPage(result.page);
+        setPageSize(result.pageSize);
       })
       .catch(error => console.log('error', error));
   }, [chainName, network, page, pageSize])
@@ -106,7 +109,7 @@ const AddressBook = () => {
               availablePageSize={[5, 10, 15]}
               columnList={columnList}
               columnAlign="center"
-              page={page}
+              page={page + 1}
               pageSize={pageSize}
               totalNum={totalNum}
               onPageChange={(event, newPage) => {
@@ -178,7 +181,7 @@ const AddressBook = () => {
                 />
               </div>
               <div className="flex justify-center items-center mt-5 mb-2">
-                <Button size="small" onClick={handleAdd}>Add Address</Button>
+                <Button size="small" onClick={handleAdd} sx={Object.assign(gradientButtonStyle, {width: 120})}>Add Address</Button>
               </div>
             </Paper>
           </Box>
