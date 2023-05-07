@@ -76,9 +76,7 @@ class AptAdapter implements NetworkAdapter {
   }
 
   async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
-    // const address = this.account.address;
-    // const event_handle = '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>';
-    // const eventField = 'withdraw_events';
+    const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     console.log('recevAddr', recvAddress);
     const address = netConfApt.contract;
     const event_handle = `${address}::${aptosConfigType}`;
@@ -114,8 +112,54 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.debug("AptAdapter getIncomingStreams inStreamHandle, tbReqStreamInd", streamId, inStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(inStreamHandle, tbReqStreamInd);
+      const status = this.getStatus(stream, currTime)
+      const withdrawableAmount = this.calculateWithdrawableAmount(
+        Number(stream.start_time),
+        Number(stream.stop_time),
+        Number(currTime),
+        Number(stream.pauseInfo.pause_at),
+        Number(stream.last_withdraw_time),
+        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.interval),
+        Number(stream.rate_per_interval),
+        status,
+      )
+      const streamedAmount = this.calculateStreamedAmount(
+        Number(stream.withdrawn_amount),
+        Number(stream.start_time),
+        Number(stream.stop_time),
+        Number(currTime),
+        Number(stream.pauseInfo.pause_at),
+        Number(stream.last_withdraw_time),
+        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.interval),
+        Number(stream.rate_per_interval),
+        status,
+      );
+      streams.push({
+        name: stream.name,
+        status: status,
+        createTime: (Number(stream.create_time) * 1000).toString(),
+        depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
+        streamId: stream.id,
+        interval: stream.interval,
+        lastWithdrawTime: stream.last_withdraw_time,
+        ratePerInterval: stream.rate_per_interval,
+        recipientId: stream.recipient,
+        remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
+        senderId: stream.sender,
+        startTime: (Number(stream.start_time) * 1000).toString(),
+        stopTime: (Number(stream.stop_time) * 1000).toString(),
+        withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
+        pauseInfo: {
+          accPausedTime: stream.pauseInfo.acc_paused_time,
+          pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
+          paused: stream.pauseInfo.paused,
+        },
+        streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),
+        withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
+      });
       console.log('stream___', stream);
-      streams.push(stream);
     }
     // console.debug("AptAdapter getIncomingStreams streams", streams);
     return streams;
@@ -183,7 +227,7 @@ class AptAdapter implements NetworkAdapter {
       streams.push({
         name: stream.name,
         status: status,
-        createTime: stream.create_time,
+        createTime: (Number(stream.create_time) * 1000).toString(),
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
@@ -192,12 +236,12 @@ class AptAdapter implements NetworkAdapter {
         recipientId: stream.recipient,
         remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
         senderId: stream.sender,
-        startTime: stream.start_time,
-        stopTime: stream.stop_time,
+        startTime: (Number(stream.start_time) * 1000).toString(),
+        stopTime: (Number(stream.stop_time) * 1000).toString(),
         withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
         pauseInfo: {
           accPausedTime: stream.pauseInfo.acc_paused_time,
-          pauseAt: stream.pauseInfo.pause_at,
+          pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
         streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),

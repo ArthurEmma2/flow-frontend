@@ -84,7 +84,7 @@ const Stream = () => {
   const {walletAdapter} = useContext(WalletAdapter);
   const {chainName} = useContext(ChainName);
   const {network} = useContext(Network);
-  const { connected, signAndSubmitTransaction } = useAptosWallet();
+  const { connected } = useAptosWallet();
   const accountAddr = walletAdapter?.getAddress()!;
 
   const [streams, setStreams] = useState<StreamInfo[]>([]);
@@ -118,6 +118,7 @@ const Stream = () => {
         }
       })
     } else {
+      console.log('streamType___', streamType)
       walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
           if (statusType !== StreamStatus.All) {
             const newStreams = streams.filter((stream) => {

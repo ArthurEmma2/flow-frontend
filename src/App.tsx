@@ -14,9 +14,8 @@ import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
 import {darkTheme} from "./style/theme";
 import Dashboard from "./pages/Dashboard";
-import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
+import { Route, Routes} from "react-router-dom";
 import Stream from "./pages/Stream";
-import Address from "./types/address";
 import {WalletAdapter} from "./context/WalletAdapter";
 import {NetworkAdapter} from "./data/account";
 import NewStream from "./pages/NewStream";
@@ -48,7 +47,7 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <ChainName.Provider value={{chainName, setChainName}}>
         <WalletAdapter.Provider value={{walletAdapter, setWalletAdapter}}>
-          <Box sx={{width: '100%', height: '100%'}}>
+          <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20,}}>
             {
               chainName === "sui" ?
                 <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
