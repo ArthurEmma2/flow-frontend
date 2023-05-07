@@ -194,7 +194,7 @@ const AddressBook = () => {
                 onChange={(e) => handleNameUpdate(e)}
                 style={{ backgroundColor: "#313138", marginBottom: "0" }}
                 className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
-              />  
+              />
           }
         </TableCell>
         <TableCell style={{ width: 160 }} align="center">
@@ -205,7 +205,7 @@ const AddressBook = () => {
                   {stringWithEllipsis(row.addr)}
                   <IconButton onClick={() => {copyAddress(row)}} disabled={disabled}>
                     <ContentCopyIcon fontSize="small"/>
-                  </IconButton> 
+                  </IconButton>
                 </>
               ) : <input
                     type="text"
@@ -213,7 +213,7 @@ const AddressBook = () => {
                     onChange={(e) => handleAddrUpdate(e)}
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
                     className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
-                  /> 
+                  />
             }
           </div>
         </TableCell>
@@ -222,7 +222,7 @@ const AddressBook = () => {
             (!editing || (editing && row.id !== editingObj.id)) ? (
               <IconButton onClick={() => {handleUpdateClick(row)}} disabled={disabled}>
                 <ModeEditOutlineOutlinedIcon fontSize="small"/>
-              </IconButton>    
+              </IconButton>
             ): (
               <>
                 <IconButton onClick={() => {handleUpdate()}}>
