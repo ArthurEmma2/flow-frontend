@@ -18,6 +18,7 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import {gradientButtonStyle} from "../../style/button";
 import { useWallet } from "@manahippo/aptos-wallet-adapter";
+import {useNavigate} from "react-router-dom";
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
@@ -47,7 +48,7 @@ const AddressBook = () => {
   });
 
   const wallet = useWallet();
-
+  const navigate = useNavigate();
 
   function handleAdd() {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
@@ -164,8 +165,15 @@ const AddressBook = () => {
 
 
 
-  function handleSend() {
-
+  function handleSend(disabled: boolean = false, row: Address) {
+    if(!disabled){
+      navigate("/new_stream", {
+        state: {
+          address: row.addr,
+          name: row.name,
+        }
+      })
+    }
   }
 
   function copyAddress(row: Address) {
@@ -258,7 +266,7 @@ const AddressBook = () => {
                           </IconButton>
                         </TableCell>
                         <TableCell>
-                          <IconButton onClick={() => {handleSend()}}>
+                          <IconButton onClick={() => {handleSend(false, row)}}>
                             <SendIcon fontSize="small"/>
                           </IconButton>
                         </TableCell>
@@ -301,7 +309,7 @@ const AddressBook = () => {
                         </IconButton>
                       </TableCell>
                       <TableCell>
-                        <IconButton onClick={() => {handleSend()}}>
+                        <IconButton onClick={() => {handleSend(true, row)}}>
                           <SendIcon fontSize="small"/>
                         </IconButton>
                       </TableCell>

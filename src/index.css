@@ -49,6 +49,10 @@ code {
   color: white !important;
 }
 
+.ant-picker-input > input:disabled {
+  color: grey !important;
+}
+
 .ant-picker-suffix {
   color: white !important;
 }

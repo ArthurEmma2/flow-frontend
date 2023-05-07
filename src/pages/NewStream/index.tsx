@@ -13,9 +13,16 @@ import { DatePicker, Space } from 'antd';
 import {gradientButtonStyle} from "../../style/button";
 import dayjs from 'dayjs';
 import { useCoingeckoValue, RawCoinInfo } from "../../hooks/useCoingecko";
+import { useLocation } from 'react-router-dom'; 
 
 
 const { RangePicker } = DatePicker;
+
+interface Option {
+  addr: string
+  name: string
+  label: string
+}
 
 
 const intervals = [
@@ -48,6 +55,8 @@ const NewStream: React.FC<{}> = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   const [receiverAddress, setReceiverAddress] = useState("");
+  const [receiverInputText, setReceiverInputText] = useState("");
+  const [receiverValue, setReceiverValue] = useState<Option | null>(null); // [label, value
   const [token, setToken] = useState("Aptos");
   const [amount, setAmount] = useState(0);
   // const [startDate, setStartDate] = useState(new Date(new Date().getTime() + 1000* 60));
@@ -72,6 +81,7 @@ const NewStream: React.FC<{}> = () => {
   }
 
   const wallet = useWallet();
+  const { state } = useLocation();
 
   const aptos: RawCoinInfo = {
     coingecko_id: 'aptos',
@@ -120,8 +130,11 @@ const NewStream: React.FC<{}> = () => {
   const handleReceiverSelect = (newValue: any) => {
     if(newValue == null){
       setReceiverAddress("");
+      setReceiverInputText("");
     } else {
+      console.log(newValue)
       setReceiverAddress(newValue.addr);
+      setReceiverInputText(newValue.label);
     }
   }
 
@@ -161,6 +174,23 @@ const NewStream: React.FC<{}> = () => {
     }
   }, [numberOfTimes, amountPerTime, interval, enableStreamRate])
 
+  useEffect(() => {
+    console.log("state", state)
+    if(state!==null && state.address!=null && state.address.length>0){
+      const options = generateAddressOptions();
+      for(let i=0;i<options.length;i++){
+        console.log("options", options)
+        if(options[i].addr === state.address){
+          setReceiverAddress(state.address);
+          setReceiverInputText(options[i].label);
+          setReceiverValue(options[i]);
+          state.address = "";
+          break;
+        }
+      }
+    }
+  }, [addresses])
+
   const generateAddressOptions = () => {
     // console.log("items:", items);
     // return items.map((item:any) => {
@@ -169,10 +199,14 @@ const NewStream: React.FC<{}> = () => {
       return addresses.map((item:any) => {
         return {
           "label": `${item.name}(${item.addr.substring(0, 9) + (item.addr.length > 8 ? ("..." + item.addr.substring(item.addr.length-8)): "")})`,
-          "addr": item.addr
+          "addr": item.addr,
+          "name": item.name,
         };
       })
   }
+
+
+  // const receiverOptions = generateAddressOptions();
 
 
   const createStream = (name: string, remark: string, recipientAddr: string, depositAmount: number,
@@ -222,6 +256,8 @@ const NewStream: React.FC<{}> = () => {
     })
   }
 
+  console.log("receiverInputText", receiverInputText);
+
   return (
     <Container>
       <Typography
@@ -255,6 +291,8 @@ const NewStream: React.FC<{}> = () => {
               <Grid item sm={6}>
                 <InputLabel shrink>Reveiver Wallet Address</InputLabel>
                 <Autocomplete
+                  value={receiverValue}
+                  inputValue={receiverInputText}
                   freeSolo
                   options={generateAddressOptions()}
                   onChange={(e: any, newValue: any) => {
@@ -262,6 +300,8 @@ const NewStream: React.FC<{}> = () => {
                   }}
                   onInputChange={(e, newInputValue) => {
                     setReceiverAddress(newInputValue);
+                    setReceiverInputText(newInputValue);
+                    setReceiverValue(null);
                   }}
                   sx = {{
                     "& .MuiInputBase-inputSizeSmall": {
@@ -354,13 +394,12 @@ const NewStream: React.FC<{}> = () => {
                 <InputLabel shrink>Time</InputLabel>
                 <RangePicker 
                   showTime 
-                  style={{width: "100%", backgroundColor: "#313138", color: "white !important"}}
+                  style={{width: "100%", backgroundColor: "#313138"}}
                   value={[dayjs(datePickerTime[0]), dayjs(datePickerTime[1])]}
                   onChange={(value, dateString) => {
                       setDatePickerTime(dateString);
-                      console.log('Selected Time: ', value);
-                      console.log( 'Formatted Selected Time: ', dateString);
                   }}
+                  disabled={[false, enableStreamRate]}
                   // suffixIcon={null}
                   allowClear={false}
                   dropdownClassName={"createDateRangePicker"}
