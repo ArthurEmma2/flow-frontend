@@ -7,5 +7,10 @@ export const gradientButtonStyle = {
   borderRadius: "6px",
   border: "0px",
   color: "white",
-  height: "35px",
+  height: 35,
+  width: 150,
+}
+
+export const newStreamButtonStyle = {
+  height: "20px !important"
 }

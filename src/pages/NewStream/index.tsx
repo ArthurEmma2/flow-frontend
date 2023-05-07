@@ -2,14 +2,14 @@ import React, {useState, useContext, useEffect} from "react";
 import {Types} from "aptos";
 import netConfApt from "../../config/configuration.aptos";
 import { useWallet } from "@manahippo/aptos-wallet-adapter";
-import { findAddress } from "../../data/address";
+import { FindAddress } from "../../data/address";
 import {ChainName} from "../../context/chainName";
 import Address from "../../types/address";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
 import { Container, Typography, Paper, Grid, FormControlLabel, Switch, Button, InputLabel, Select, MenuItem, TextField  } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
 import AptosIcon from '../../resources/aptos4.png';
-import { DatePicker, Space } from 'antd';
+import { DatePicker } from 'antd';
 import {gradientButtonStyle} from "../../style/button";
 import dayjs from 'dayjs';
 import { useCoingeckoValue, RawCoinInfo } from "../../hooks/useCoingecko";
@@ -109,7 +109,7 @@ const NewStream: React.FC<{}> = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
     }
-    findAddress(wallet.account.address, chainName, wallet.network.name, {page, pageSize})
+    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -209,7 +209,7 @@ const NewStream: React.FC<{}> = () => {
   // const receiverOptions = generateAddressOptions();
 
 
-  const createStream = (name: string, remark: string, recipientAddr: string, depositAmount: number,
+  const createStream = async (name: string, remark: string, recipientAddr: string, depositAmount: number,
                         startTime: string, stopTime: string,
                         interval: number, canPause?: boolean,
                         closeable?: boolean, recipientModifiable?: boolean) => {
@@ -226,7 +226,7 @@ const NewStream: React.FC<{}> = () => {
         name,
         remark,
         recipientAddr,
-        depositAmount,
+        depositAmount * 10 ** 8,
         startTime,
         stopTime,
         Math.floor(interval/1000).toString(),
@@ -238,16 +238,23 @@ const NewStream: React.FC<{}> = () => {
     };
 
     console.log('transaction', transaction)
-    signAndSubmitTransaction(transaction).then((result) => {
-      if (result) {
-        return "success"
-      }
-      return "failed"
-    });
+    const res = await signAndSubmitTransaction(transaction)
+    console.log('res___', res)
   }
 
   const handleSend = () => {
-    createStream(transactionName, remark, receiverAddress, amount, dayjs(datePickerTime[0]).unix().toString(), dayjs(datePickerTime[1]).unix().toString(), interval, true, true, true);
+    createStream(
+      transactionName,
+      remark,
+      receiverAddress,
+      amount,
+      dayjs(datePickerTime[0]).unix().toString(),
+      dayjs(datePickerTime[1]).unix().toString(),
+      interval,
+      true,
+      true,
+      true
+    );
   }
 
   const generateOptions = (items:any, valueField: string, labelField: string) => {
@@ -386,7 +393,7 @@ const NewStream: React.FC<{}> = () => {
                   disabled={[false, enableStreamRate]}
                   // suffixIcon={null}
                   allowClear={false}
-                  dropdownClassName={"createDateRangePicker"}
+                  popupClassName={"createDateRangePicker"}
                 />
               </Grid>
             </Grid>

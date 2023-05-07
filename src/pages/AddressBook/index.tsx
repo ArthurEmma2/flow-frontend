@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import MyTable from "../../components/Table";
 import {Container, Grid, IconButton, Paper, TableCell, TableRow, withStyles, Table, TableBody, TableContainer, TableHead, TablePagination, Snackbar, Tooltip, Alert} from "@mui/material";
 import Address from "../../types/address";
-import {addAddress, deleteAddress, findAddress, updateAddress} from "../../data/address";
+import {AddAddress, DeleteAddress, FindAddress, UpdateAddress} from "../../data/address";
 import {stringWithEllipsis} from "../../utils/string";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -36,7 +36,7 @@ const AddressBook = () => {
   const {chainName} = useContext(ChainName);
   const {network} = useContext(Network);
   // const creator = "0x58e3511aa31f0bd694d95ad6148e33cb45c52356eca673847c51dd3b13a66983"
-  const columnList = ["Name", "Address", "", "", ""]
+  const columnList = ["Name", "Address", "",]
   const [status, setStatus] = useState<string>("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -55,8 +55,8 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    addAddress(wallet.account.address, addressName, walletAddress, chainName, wallet.network.name)
-      .then(response => {
+    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, wallet.network.name)
+      .then((response: { json: () => any; }) => {
         console.log("response", response);
         return response.json()
       })
@@ -68,7 +68,7 @@ const AddressBook = () => {
         setAlertMessage("New address has been created successfully.");
         setShowAlert(true);
       })
-      .catch(error => {
+      .catch(() => {
         setStatus("error");
         setAlertMessage("Failed to create the new address. Please try again.")
         setShowAlert(true);
@@ -84,7 +84,7 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    updateAddress(wallet.account.address,editingObj.name, editingObj.addr, chainName, wallet.network.name, editingObj)
+    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, wallet.network.name, editingObj)
       .then(response => response.text())
       .then(result => {
         setPage(1);
@@ -116,7 +116,7 @@ const AddressBook = () => {
     if (row.id === undefined) {
       return
     }
-    deleteAddress(row.id)
+    DeleteAddress(row.id)
       .then(response => response.text())
       .then(result => {
         setPage(1);
@@ -218,32 +218,37 @@ const AddressBook = () => {
           </div>
         </TableCell>
         <TableCell align="right" style={{ width: 150 }}>
-          {
-            (!editing || (editing && row.id !== editingObj.id)) ? (
-              <IconButton onClick={() => {handleUpdateClick(row)}} disabled={disabled}>
-                <ModeEditOutlineOutlinedIcon fontSize="small"/>
+          <div className="flex flex-row gap-x-5">
+            <div>
+              {
+                (!editing || (editing && row.id !== editingObj.id)) ? (
+                  <IconButton onClick={() => {handleUpdateClick(row)}} disabled={disabled}>
+                    <ModeEditOutlineOutlinedIcon fontSize="small"/>
+                  </IconButton>
+                ): (
+                  <>
+                    <IconButton onClick={() => {handleUpdate()}}>
+                      <CheckCircleOutlineRoundedIcon  fontSize="small"/>
+                    </IconButton>
+                    <IconButton onClick={() => {handleCancelUpdate()}}>
+                      <CancelOutlinedIcon  fontSize="small"/>
+                    </IconButton>
+                  </>
+                )
+              }
+            </div>
+            <div>
+              <IconButton onClick={() => {handleSend(false, row)}} disabled={disabled}>
+                <SendIcon fontSize="small"/>
               </IconButton>
-            ): (
-              <>
-                <IconButton onClick={() => {handleUpdate()}}>
-                  <CheckCircleOutlineRoundedIcon  fontSize="small"/>
-                </IconButton>
-                <IconButton onClick={() => {handleCancelUpdate()}}>
-                  <CancelOutlinedIcon  fontSize="small"/>
-                </IconButton>
-              </>
-            )
-          }
-        </TableCell>
-        <TableCell align="right">
-          <IconButton onClick={() => {handleSend(false, row)}} disabled={disabled}>
-            <SendIcon fontSize="small"/>
-          </IconButton>
-        </TableCell>
-        <TableCell align="right">
-          <IconButton onClick={() => {handleDelete(row)}} disabled={disabled}>
-            <CancelOutlinedIcon fontSize="small"/>
-          </IconButton>
+            </div>
+            <div>
+              <IconButton onClick={() => {handleDelete(row)}} disabled={disabled}>
+                <CancelOutlinedIcon fontSize="small"/>
+              </IconButton>
+            </div>
+          </div>
+
         </TableCell>
       </TableRow>
     )
@@ -259,7 +264,7 @@ const AddressBook = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
     }
-    findAddress(wallet.account.address, chainName, wallet.network.name, {page, pageSize})
+    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -326,7 +331,7 @@ const AddressBook = () => {
         <Grid item lg={4}>
           <Box>
             <Typography variant="h5" color="white" sx={{marginBottom: "1rem"}}>Add an Address</Typography>
-            <Paper elevation={0} sx={{ background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);", padding: 4}}>
+            <Paper elevation={0} sx={{ background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);", borderRadius: "8px", padding: 4}}>
               <div>
                 <div className="text-xl mt-1 mb-1">Address Name</div>
                 <input

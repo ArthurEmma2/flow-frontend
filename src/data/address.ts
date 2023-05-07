@@ -2,7 +2,7 @@ import Address from "../types/address";
 import Pagination from "../types/pagination";
 import {MaybeHexString} from "aptos";
 
-export const addAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string) => {
+export const AddAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string) => {
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
@@ -23,7 +23,7 @@ export const addAddress = (creator: MaybeHexString, name: string, addr: string, 
     return fetch("https://api.moveflow.xyz/api/address/add", requestOptions)
 }
 
-export const updateAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string, obj: Address) => {
+export const UpdateAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string, obj: Address) => {
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
@@ -44,7 +44,7 @@ export const updateAddress = (creator: MaybeHexString, name: string, addr: strin
     return fetch(`https://api.moveflow.xyz/api/address/${obj.id}`, requestOptions)
 }
 
-export const deleteAddress = (addressId: string) => {
+export const DeleteAddress = (addressId: string) => {
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
@@ -57,7 +57,7 @@ export const deleteAddress = (addressId: string) => {
     return fetch(`https://api.moveflow.xyz/api/address/${addressId}`, requestOptions)
 }
 
-export const findAddress = (creator: MaybeHexString, chain: string, network: string, {page, pageSize}: Pagination): Promise<Response> => {
+export const FindAddress = (creator: MaybeHexString, chain: string, network: string, {page, pageSize}: Pagination): Promise<Response> => {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
