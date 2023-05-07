@@ -19,6 +19,7 @@ import Stream from "./pages/Stream";
 import Address from "./types/address";
 import {WalletAdapter} from "./context/WalletAdapter";
 import {NetworkAdapter} from "./data/account";
+import NewStream from "./pages/NewStream";
 
 export const router = [
   {
@@ -32,6 +33,10 @@ export const router = [
   {
     path: "/address_book",
     element: <AddressBook />
+  },
+  {
+    path: "/new_stream",
+    element: <NewStream />
   }
 ];
 
@@ -74,6 +79,7 @@ function App() {
                           <Route path="/dashboard" element={<Dashboard/>} />
                           <Route path="/stream" element={<Stream/>} />
                           <Route path="/address_book" element={<AddressBook/>} />
+                          <Route path="/new_stream" element={<NewStream/>} />
                         </Routes>
                       </Box>
                     </Box>

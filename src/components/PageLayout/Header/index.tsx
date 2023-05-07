@@ -79,8 +79,9 @@ export default function Header() {
           <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
           <Tab label="Stream" value="stream" href="/stream"/>
           <Tab label="Address Book" value="address_book" href="/address_book"/>
+          <Tab label="New Stream" value="new_stream" href="/new_stream"/>
         </Tabs>
-        <Button size="medium" variant="outlined" sx={gradientButtonStyle}>+ New Stream</Button>
+        <Button size="medium" variant="outlined" sx={gradientButtonStyle} onClick={(e) => handleTabChange(e, "new_stream")}>+ New Stream</Button>
       </Box>
       <Box sx={{
         display: "flex",

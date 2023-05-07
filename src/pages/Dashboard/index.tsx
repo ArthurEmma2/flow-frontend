@@ -17,7 +17,7 @@ import {WalletAdapter} from "../../context/WalletAdapter";
 import BigNumber from "bignumber.js";
 import {StreamStatus} from "../../types/streamStatus";
 import StreamInfo from "../../types/streamInfo";
-import {FindAddress} from "../../data/address";
+import {findAddress} from "../../data/address";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
 
@@ -407,7 +407,7 @@ const Dashboard = () => {
 
         });
 
-        FindAddress(accountAddr, chainName, network, {
+        findAddress(accountAddr, chainName, network, {
           page: 0,
           pageSize: 300,
         }).then(response => response.text())
