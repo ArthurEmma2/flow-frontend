@@ -17,3 +17,51 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.createDateRangePicker
+  .ant-picker-cell-in-view.ant-picker-cell-range-start
+  .ant-picker-cell-inner {
+  /* background-color: #27c456 !important; */
+  background: linear-gradient(93.3deg, #F143E2 2.36%, #40187F 99.66%) !important;
+  /* border-radius: "6px";
+  border: "0px";
+  color: "white";  */
+}
+
+.createDateRangePicker
+  .ant-picker-cell-in-view.ant-picker-cell-range-end
+  .ant-picker-cell-inner {
+    background: linear-gradient(93.3deg, #F143E2 2.36%, #40187F 99.66%) !important;
+  }
+
+.createDateRangePicker
+  .ant-picker-time-panel-column
+  > li.ant-picker-time-panel-cell-selected
+  .ant-picker-time-panel-cell-inner {
+  background: #fcbbea !important;
+} 
+
+.createDateRangePicker .ant-btn-primary {
+  background: linear-gradient(93.3deg, #F143E2 2.36%, #40187F 99.66%) !important;
+  border-color: linear-gradient(93.3deg, #F143E2 2.36%, #40187F 99.66%) !important;
+}
+.ant-picker-input > input {
+  color: white !important;
+}
+
+.ant-picker-input > input:disabled {
+  color: grey !important;
+}
+
+.ant-picker-suffix {
+  color: white !important;
+}
+
+.css-yjsfm1 {
+  font-size: 10px !important;
+}
+
+.ant-picker-separator {
+  color: white !important;
+  margin-bottom: 8px !important;
+}

@@ -13,6 +13,7 @@ import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
 import useCurrentPage from "../../../hooks/useCurrentPage";
 import {gradientButtonStyle} from "../../../style/button";
+import { Link, useNavigate } from 'react-router-dom';
 
 
 export default function Header() {
@@ -23,6 +24,8 @@ export default function Header() {
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
+
+  const navigate = useNavigate();
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log('newTab', newValue);
     setCurrentPage(newValue as string);
@@ -80,7 +83,7 @@ export default function Header() {
           <Tab label="Stream" value="stream" href="/stream"/>
           <Tab label="Address Book" value="address_book" href="/address_book"/>
         </Tabs>
-        <Button size="medium" variant="outlined" sx={gradientButtonStyle}>+ New Stream</Button>
+        <Button size="medium" variant="outlined" sx={gradientButtonStyle} onClick={(e) =>  navigate("new_stream")}>+ New Stream</Button>
       </Box>
       <Box sx={{
         display: "flex",
