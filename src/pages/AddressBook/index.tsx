@@ -180,6 +180,81 @@ const AddressBook = () => {
     navigator.clipboard.writeText(row.addr);
   }
 
+  const generateRow = (row: Address) => {
+    const disabled = editing && row.id !== editingObj.id;
+
+    return (
+      <TableRow key={row.id}>
+        <TableCell component="th" scope="row" align="left">
+          {(!editing || (editing && row.id !== editingObj.id)) ?
+             <>{row.name}</>
+            : <input
+                type="text"
+                value={editingObj.name}
+                onChange={(e) => handleNameUpdate(e)}
+                style={{ backgroundColor: "#313138", marginBottom: "0" }}
+                className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+              />  
+          }
+        </TableCell>
+        <TableCell style={{ width: 160 }} align="center">
+          <div className="flex flex-row items-center gap-x-1">
+            {
+              (!editing || (editing && row.id !== editingObj.id)) ? (
+                <>
+                  {stringWithEllipsis(row.addr)}
+                  <IconButton onClick={() => {copyAddress(row)}} disabled={disabled}>
+                    <ContentCopyIcon fontSize="small"/>
+                  </IconButton> 
+                </>
+              ) : <input
+                    type="text"
+                    value={editingObj.addr}
+                    onChange={(e) => handleAddrUpdate(e)}
+                    style={{ backgroundColor: "#313138", marginBottom: "0" }}
+                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  /> 
+            }
+          </div>
+        </TableCell>
+        <TableCell>
+          {
+            (!editing || (editing && row.id !== editingObj.id)) ? (
+              <IconButton onClick={() => {handleUpdateClick(row)}} disabled={disabled}>
+                <ModeEditOutlineOutlinedIcon fontSize="small"/>
+              </IconButton>    
+            ): (
+              <>
+                <IconButton onClick={() => {handleUpdate()}}>
+                  <CheckCircleOutlineRoundedIcon  fontSize="small"/>
+                </IconButton>
+                <IconButton onClick={() => {handleCancelUpdate()}}>
+                  <CancelOutlinedIcon  fontSize="small"/>
+                </IconButton>
+              </>
+            )
+          }
+        </TableCell>
+        <TableCell>
+          <IconButton onClick={() => {handleSend(false, row)}} disabled={disabled}>
+            <SendIcon fontSize="small"/>
+          </IconButton>
+        </TableCell>
+        <TableCell>
+          <IconButton onClick={() => {handleDelete(row)}} disabled={disabled}>
+            <CancelOutlinedIcon fontSize="small"/>
+          </IconButton>
+        </TableCell>
+      </TableRow>
+    )
+  }
+
+  const generateRows = () => {
+    return addresses.map((row) => {
+      return generateRow(row);
+    })
+  }
+
   const getAddress = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
@@ -208,6 +283,7 @@ const AddressBook = () => {
       // placeholder
         return;
     }
+    console.log("page:", page, "pageSize:", pageSize, "chainName:", chainName, "network:", network, "wallet:", wallet, "showAlert:", showAlert )
     getAddress();
   }, [chainName, network, page, pageSize, wallet, showAlert])
 
@@ -232,96 +308,18 @@ const AddressBook = () => {
               availablePageSize={[5, 10, 15]}
               columnList={columnList}
               columnAlign="left"
-              page={page}
+              page={page-1}
               pageSize={pageSize}
               totalNum={totalNum}
               onPageChange={(event, newPage) => {
-                console.log('newPage', newPage);
-                setPage(newPage)
+                setPage(newPage+1)
               }}
               onRowsPerPageChange={(event) => {
                 setPageSize(parseInt(event.target.value, 10));
               }}
               tableSx={tableStyle}
             >
-              {addresses.length === 0 ? <></> : (addresses).map((row) =>
-              {
-                if(!editing || (editing && row.id !== editingObj.id) ){
-                    return (
-                      <TableRow key={row.id}>
-                        <TableCell component="th" scope="row" align="left">
-                          {row.name}
-                        </TableCell>
-                        <TableCell style={{ width: 160 }} align="center">
-                          <div className="flex flex-row items-center gap-x-1">
-                            {stringWithEllipsis(row.addr)}
-                            <IconButton onClick={() => {copyAddress(row)}}>
-                              <ContentCopyIcon fontSize="small"/>
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => {handleUpdateClick(row)}}>
-                            <ModeEditOutlineOutlinedIcon fontSize="small"/>
-                          </IconButton>
-                        </TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => {handleSend(false, row)}}>
-                            <SendIcon fontSize="small"/>
-                          </IconButton>
-                        </TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => {handleDelete(row)}}>
-                            <CancelOutlinedIcon fontSize="small"/>
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    )
-                } else {
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell component="th" scope="row" align="left">
-                        <input
-                          type="text"
-                          value={editingObj.name}
-                          onChange={(e) => handleNameUpdate(e)}
-                          style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                          className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
-                        />                    
-                      </TableCell>
-                      <TableCell style={{ width: 160 }} align="center">
-                        <div className="flex flex-row items-center gap-x-1">
-                          <input
-                            type="text"
-                            value={editingObj.addr}
-                            onChange={(e) => handleAddrUpdate(e)}
-                            style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                            className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
-                          />    
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => {handleUpdate()}}>
-                          <CheckCircleOutlineRoundedIcon  fontSize="small"/>
-                        </IconButton>
-                        <IconButton onClick={() => {handleCancelUpdate()}}>
-                          <CancelOutlinedIcon  fontSize="small"/>
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => {handleSend(true, row)}}>
-                          <SendIcon fontSize="small"/>
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => {handleDelete(row)}}>
-                          <CancelOutlinedIcon fontSize="small"/>
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>                  
-                  )
-                }
-              })}
+              {generateRows()}
             </MyTable>
           </Box>
         </Grid>
@@ -352,7 +350,7 @@ const AddressBook = () => {
                 />
               </div>
               <div className="flex justify-center items-center mt-5 mb-2">
-                <Button size="small" onClick={handleAdd}>Add Address</Button>
+                <Button size="small" onClick={handleAdd}  sx={{...gradientButtonStyle, width: "150px"}}>Add Address</Button>
               </div>
             </Paper>
           </Box>

@@ -319,22 +319,6 @@ const NewStream: React.FC<{}> = () => {
                     <TextField {...params} label="address" size="small" sx={{ backgroundColor: "#313138", height:"35px"}}/>
                   }
                 />
-                {/* <Select
-                  value={receiverAddress}
-                  onChange={(e: any) => setReceiverAddress(e.target.value)}
-                  sx={{
-                    width: "100%",
-                    backgroundColor: "#313138",
-                    height:"35px",
-                  }}
-                  disableUnderline
-                  MenuProps={{ 
-                    style: {
-                      maxHeight: 400,
-                    },
-                  }}
-                > { generateAddressOptions(addresses)}
-                </Select> */}
               </Grid>
               <Grid item sm={12}>
                 <InputLabel shrink>Remarks</InputLabel>
