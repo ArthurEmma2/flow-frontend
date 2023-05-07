@@ -185,7 +185,7 @@ const AddressBook = () => {
 
     return (
       <TableRow key={row.id}>
-        <TableCell component="th" scope="row" align="left">
+        <TableCell style={{ width: 160 }} component="th" scope="row" align="left">
           {(!editing || (editing && row.id !== editingObj.id)) ?
              <>{row.name}</>
             : <input
@@ -217,7 +217,7 @@ const AddressBook = () => {
             }
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell align="right" style={{ width: 150 }}>
           {
             (!editing || (editing && row.id !== editingObj.id)) ? (
               <IconButton onClick={() => {handleUpdateClick(row)}} disabled={disabled}>
@@ -235,12 +235,12 @@ const AddressBook = () => {
             )
           }
         </TableCell>
-        <TableCell>
+        <TableCell align="right">
           <IconButton onClick={() => {handleSend(false, row)}} disabled={disabled}>
             <SendIcon fontSize="small"/>
           </IconButton>
         </TableCell>
-        <TableCell>
+        <TableCell align="right">
           <IconButton onClick={() => {handleDelete(row)}} disabled={disabled}>
             <CancelOutlinedIcon fontSize="small"/>
           </IconButton>
