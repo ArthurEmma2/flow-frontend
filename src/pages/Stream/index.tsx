@@ -24,7 +24,7 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
 import MyTable from "../../components/Table";
 import {SxProps} from "@mui/system";
@@ -43,8 +43,6 @@ import {WalletAdapter} from "../../context/WalletAdapter";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
-import netConfApt from "../../config/configuration.aptos";
-import {Types} from "aptos";
 
 const customTypographyStyle = {
   h5: {
@@ -118,7 +116,6 @@ const Stream = () => {
         }
       })
     } else {
-      console.log('streamType___', streamType)
       walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
           if (statusType !== StreamStatus.All) {
             const newStreams = streams.filter((stream) => {
@@ -165,7 +162,7 @@ const Stream = () => {
                   <CountUp
                     decimals={6}
                     preserveValue
-                    end={Number(new BigNumber(row.depositAmount).toFixed(6))}
+                    end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
                   />
                 </Typography>
                 <CustomTypography
@@ -180,7 +177,14 @@ const Stream = () => {
                 </CustomTypography>
               </div>
               <div className="flex basis-1/3 justify-end">
-                <Button variant="outlined" style={{fontSize: 8, width: 120, height: 30, borderRadius: 8 }}>View on Explorer</Button>
+                <Button
+                  variant="outlined"
+                  style={{fontSize: 8, width: 120, height: 30, borderRadius: 8 }}
+                  onClick={(e) => {
+                    console.log('netword', network)
+                    window.open(`https://explorer.aptoslabs.com/account/${row.escrowAddress}?network=${network}`);
+                  }}
+                >View on Explorer</Button>
               </div>
             </div>
             <div className="flex flex-row items-center justify-between px-6 my-8">
@@ -209,9 +213,9 @@ const Stream = () => {
 
               </Box>
               <Box sx={{flexShrink: 1}}>
-                <IconButton>
-                  <CancelOutlinedIcon fontSize="small" />
-                </IconButton>
+                {/*<IconButton>*/}
+                {/*  <CancelOutlinedIcon fontSize="small" />*/}
+                {/*</IconButton>*/}
               </Box>
               <Box
                 sx={{

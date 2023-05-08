@@ -1,5 +1,3 @@
-import {SxProps} from "@mui/system";
-import {Theme} from "@mui/material/styles";
 
 
 export const gradientButtonStyle = {
@@ -8,7 +6,6 @@ export const gradientButtonStyle = {
   border: "0px",
   color: "white",
   height: 35,
-  width: 150,
 }
 
 export const newStreamButtonStyle = {

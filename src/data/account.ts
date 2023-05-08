@@ -114,24 +114,24 @@ class AptAdapter implements NetworkAdapter {
       const stream = await this.client.getTableItem(inStreamHandle, tbReqStreamInd);
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
-        Number(stream.start_time),
-        Number(stream.stop_time),
+        Number(stream.start_time) * 1000,
+        Number(stream.stop_time) * 1000,
         Number(currTime),
-        Number(stream.pauseInfo.pause_at),
-        Number(stream.last_withdraw_time),
-        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.pauseInfo.pause_at) * 1000,
+        Number(stream.last_withdraw_time) * 1000,
+        Number(stream.pauseInfo.acc_paused_time) * 1000,
         Number(stream.interval),
         Number(stream.rate_per_interval),
         status,
       )
       const streamedAmount = this.calculateStreamedAmount(
         Number(stream.withdrawn_amount),
-        Number(stream.start_time),
-        Number(stream.stop_time),
+        Number(stream.start_time) * 1000,
+        Number(stream.stop_time) * 1000,
         Number(currTime),
-        Number(stream.pauseInfo.pause_at),
-        Number(stream.last_withdraw_time),
-        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.pauseInfo.pause_at) * 1000,
+        Number(stream.last_withdraw_time) * 1000,
+        Number(stream.pauseInfo.acc_paused_time) * 1000,
         Number(stream.interval),
         Number(stream.rate_per_interval),
         status,
@@ -158,10 +158,11 @@ class AptAdapter implements NetworkAdapter {
         },
         streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),
         withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
+        escrowAddress: stream.escrow_address,
       });
-      console.log('stream___', stream);
+      // console.log('stream___', stream);
     }
-    // console.debug("AptAdapter getIncomingStreams streams", streams);
+    console.debug("AptAdapter getIncomingStreams streams", streams);
     return streams;
   }
 
@@ -199,27 +200,28 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
-      // console.log('stream', stream)
+      console.log('stream', stream)
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
-        Number(stream.start_time),
-        Number(stream.stop_time),
+        Number(stream.start_time) * 1000,
+        Number(stream.stop_time) * 1000,
         Number(currTime),
-        Number(stream.pauseInfo.pause_at),
-        Number(stream.last_withdraw_time),
-        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.pauseInfo.pause_at) * 1000,
+        Number(stream.last_withdraw_time) * 1000,
+        Number(stream.pauseInfo.acc_paused_time) * 1000,
         Number(stream.interval),
         Number(stream.rate_per_interval),
         status,
       )
+      console.log('withdrawableAmount', withdrawableAmount)
       const streamedAmount = this.calculateStreamedAmount(
         Number(stream.withdrawn_amount),
-        Number(stream.start_time),
-        Number(stream.stop_time),
+        Number(stream.start_time) * 1000,
+        Number(stream.stop_time) * 1000,
         Number(currTime),
-        Number(stream.pauseInfo.pause_at),
-        Number(stream.last_withdraw_time),
-        Number(stream.pauseInfo.acc_paused_time),
+        Number(stream.pauseInfo.pause_at) * 1000,
+        Number(stream.last_withdraw_time) * 1000,
+        Number(stream.pauseInfo.acc_paused_time) * 1000,
         Number(stream.interval),
         Number(stream.rate_per_interval),
         status,
@@ -227,7 +229,7 @@ class AptAdapter implements NetworkAdapter {
       streams.push({
         name: stream.name,
         status: status,
-        createTime: (Number(stream.create_time) * 1000).toString(),
+        createTime: (Number(stream.create_at) * 1000).toString(),
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
@@ -246,9 +248,10 @@ class AptAdapter implements NetworkAdapter {
         },
         streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),
         withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
+        escrowAddress: stream.escrow_address,
       });
     }
-    // console.info("AptAdapter getOutStreamHandle streams", streams);
+    console.info("AptAdapter getOutStreamHandle streams", streams);
     return streams;
 
   }
@@ -312,10 +315,10 @@ class AptAdapter implements NetworkAdapter {
     if (Boolean(stream.pauseInfo.paused)) {
       return StreamStatus.Paused
     }
-    if (currTime < BigInt(stream.start_time)) {
+    if (currTime < BigInt(stream.start_time) * BigInt(1000)) {
       return StreamStatus.Scheduled
     }
-    if (currTime < BigInt(stream.stop_time)) {
+    if (currTime < BigInt(stream.stop_time) * BigInt(1000)) {
       return StreamStatus.Streaming
     }
     return StreamStatus.Unknown;
@@ -341,6 +344,8 @@ class AptAdapter implements NetworkAdapter {
     if (currTime <= BigInt(startTime)) {
       return withdrawal
     }
+    // console.log('currTime', currTime)
+    // console.log('stopTime', stopTime)
     if (currTime > BigInt(stopTime)) {
       if (status === StreamStatus.Paused) {
         timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
@@ -355,7 +360,7 @@ class AptAdapter implements NetworkAdapter {
       }
     }
 
-    let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval)))
+    let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval) / BigInt(1000)));
     withdrawal = Number(BigInt(intervalNum) * BigInt(ratePerInterval) / BigInt(1000));
     return withdrawal;
   }

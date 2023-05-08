@@ -74,16 +74,23 @@ const Dashboard = () => {
   const accountAddr = walletAdapter?.getAddress()!;
 
   const [balance, setBalance] = useState<string>("0");
-  const [canceledNum, setCanceledNum] = useState<number>(0);
-  const [streamedNum, setStreamedNum] = useState<number>(0);
-  const [completedNum, setCompletedNum] = useState<number>(0);
-  const [scheduledNum, setScheduledNum] = useState<number>(0);
+  const [outgoingCanceledNum, setOutgoingCanceledNum] = useState<number>(0);
+  const [incomingCanceledNum, setIncomingCanceledNum] = useState<number>(0);
+  const [outgoingStreamedNum, setOutgoingStreamedNum] = useState<number>(0);
+  const [incomingStreamedNum, setIncomingStreamedNum] = useState<number>(0);
+  const [outgoingCompletedNum, setOutgoingCompletedNum] = useState<number>(0);
+  const [incomingCompletedNum, setIncomingCompletedNum] = useState<number>(0);
+  const [incomingScheduledNum, setIncomingScheduledNum] = useState<number>(0);
+  const [outgoingScheduledNum, setOutgoingScheduledNum] = useState<number>(0);
   const [outgoingNum, setOutgoingNum] = useState<number>(0);
   const [incomingNum, setIncomingNum] = useState<number>(0);
   const [incomingAmount, setIncomingAmount] = useState<number>(0);
   const [outgoingAmount, setOutgoingAmount] = useState<number>(0);
-  const [withdrawnAmount, setWithdrawnAmount] = useState<number>(0);
+  const [outgoingStreamedSum, setOutgoingStreamedSum] = useState<number>(0);
+  const [incomingStreamedSum, setIncomingStreamedSum] = useState<number>(0);
+  const [withdrawableAmount, setWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
+
 
   const amountCards = [
     {
@@ -96,7 +103,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`$${incomingAmount}`} sx={amountContentStyle}></CardContent>
+          <CardContent content={`$${outgoingStreamedSum} / ${outgoingAmount}`} sx={amountContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -109,7 +116,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`$${outgoingAmount}`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={`$${incomingStreamedSum} / ${incomingAmount}`} sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -122,7 +129,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`$${withdrawnAmount}`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={`$${withdrawableAmount}`} sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -176,7 +183,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`${scheduledNum.toString()}`} sx={streamContentStyle}></CardContent>
+          <CardContent content={`${(incomingScheduledNum + outgoingScheduledNum).toString()}`} sx={streamContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -189,7 +196,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`${completedNum.toString()}`} sx={streamContentStyle}></CardContent>
+          <CardContent content={`${(incomingCompletedNum + outgoingCompletedNum).toString()}`} sx={streamContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -202,7 +209,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`${streamedNum.toString()}`} sx={streamContentStyle}></CardContent>
+          <CardContent content={`${(outgoingStreamedNum + incomingStreamedNum).toString()}`} sx={streamContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -215,7 +222,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`${canceledNum.toString()}`} sx={streamContentStyle}></CardContent>
+          <CardContent content={`${(outgoingCanceledNum + incomingCanceledNum).toString()}`} sx={streamContentStyle}></CardContent>
         </React.Fragment>,
     },
   ]
@@ -243,168 +250,84 @@ const Dashboard = () => {
           const incomingSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          // console.debug("getIncomingStreams", "streams incoming sum", incomingSumH);
-          setIncomingAmount(incomingSum);
+          setIncomingAmount(Number(incomingSum.toFixed(6)));
+          const incomingStreamedSum = streams.reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0)
+          console.log('incomingStreamedSum', incomingStreamedSum);
+          setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(6)));
 
           const scheduledLenIn = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
             return acc + isScheduled;
           }, 0);
-          setScheduledNum(scheduledLenIn);
+          setIncomingScheduledNum(scheduledLenIn);
 
           const completedLenIn = streams.reduce((acc, stream) => {
             const isCompleted = stream.status === StreamStatus.Completed ? 1 : 0;
             return acc + isCompleted;
           }, 0);
-          setCompletedNum(completedLenIn);
+          setIncomingCompletedNum(completedLenIn);
 
           const streamingLenIn = streams.reduce((acc, stream) => {
-            const startTime = Number(stream.startTime);
-            const stopTime = Number(stream.stopTime);
-            const paused = stream.status == StreamStatus.Paused;
-            const _isStreaming = ( startTime <= currTime && stopTime >= currTime ) || ( stopTime < currTime && paused );
-            const isStreaming = _isStreaming ? 1 : 0;
+            const isStreaming = stream.status === StreamStatus.Streaming ? 1 : 0;
             return acc + isStreaming;
           }, 0);
-          setStreamedNum(streamingLenIn);
+          setIncomingStreamedNum(streamingLenIn);
 
           const canceledLenIn = streams.reduce((acc, stream) => {
             const isCanceled = stream.status === StreamStatus.Canceled ? 1 : 0;
             return acc + isCanceled;
           }, 0);
-          setCanceledNum(canceledLenIn);
+          setIncomingCanceledNum(canceledLenIn);
 
-          const incomingFluxSum = streams.reduce((acc, stream) => {
-            const lastWithdrawnTime = Number(stream.lastWithdrawTime);
-            const startTime = Number(stream.startTime);
-            const stopTime = Number(stream.stopTime);
-            const interval = Number(stream.interval);
-            const paused = stream.status === StreamStatus.Paused;
-            const acc_paused_time = Number(stream.pauseInfo.accPausedTime);
-            if (currTime <= startTime) {
-              return acc;
-            }
-            else if (currTime >= startTime && currTime < lastWithdrawnTime) {
-              return Number(0);
-            } else if (currTime >= startTime && currTime >= lastWithdrawnTime && currTime <= stopTime) {
-              if (paused) {
-                return acc + Number(stream.withdrawnAmount);
-              } else {
-                const timeSpan = currTime - lastWithdrawnTime - acc_paused_time;
-                const intervalNum = Math.ceil(timeSpan / interval);
-                const withdrawable = Number(BigInt(intervalNum) * BigInt(stream.ratePerInterval) / BigInt(1000));
-                // console.debug("getIncomingStreams", "paused == false", toHumanAmount(acc + BigInt(stream.withdrawn_amount) + withdrawable));
-                return acc + Number(stream.withdrawnAmount) + withdrawable;
-              }
-            } else if (currTime > stopTime) {
-              if (paused) {
-                return acc + Number(stream.withdrawnAmount);
-              }
-              return acc + Number(stream.depositAmount);
-            }
-            return 0;
-          }, 0);
-          // console.debug("getIncomingStreams", "streams incoming flux sum", incomingFluxSumH);
-          setIncomingAmount(incomingFluxSum);
 
-          const withdrawableSum = streams.reduce((acc, stream) => {
-            const lastWithdrawnTime = Number(stream.lastWithdrawTime);
-            const startTime = Number(stream.startTime);
-            const stopTime = Number(stream.stopTime);
-            const interval = Number(stream.interval);
-            const paused = stream.status === StreamStatus.Paused;
-            const acc_paused_time = Number(stream.pauseInfo.accPausedTime);
-            if (currTime <= startTime) {
-              return acc;
-            } else if (currTime >= startTime && currTime < lastWithdrawnTime) {
-              throw new Error('Current time should not be less than last withdrawn time');
-            } else if (currTime >= startTime && currTime >= lastWithdrawnTime && currTime <= stopTime) {
-              if (paused) {
-                return acc;
-              } else {
-                const timeSpan = currTime - lastWithdrawnTime - acc_paused_time;
-                const intervalNum = Math.ceil(timeSpan / interval);
-                const withdrawable = Number(BigInt(intervalNum) * BigInt(stream.ratePerInterval) / BigInt(1000));
-                // console.debug("getIncomingStreams", "withdrawable", "paused == false", toHumanAmount(acc + withdrawable));
-                return acc + Number(withdrawable);
-              }
-            } else if (currTime > stopTime) {
-              return paused ? acc : acc + Number(stream.depositAmount) - Number(stream.withdrawnAmount);
-            }
-            return 0;
-          }, 0);
-          // console.debug("getIncomingStreams", "withdrawable sum", withdrawableSumH);
-          setWithdrawnAmount(withdrawableSum);
         });
 
         walletAdapter?.getOutgoingStreams(accountAddr).then((streams) => {
           setOutgoingNum(streams.length);
           // console.debug("getOutgoingStreams", "streams", streams[0]);
           const outgoingSum = streams.reduce((acc, stream) => {
+            console.log('stream.depositAmount', stream.depositAmount)
             return acc + Number(stream.depositAmount);
           }, 0);
-          const outgoingSumH = walletAdapter?.displayAmount(new BigNumber(outgoingSum));
-          // console.debug("getOutgoingStreams", "streams outgoing sum", outgoingSumH);
-          setOutgoingAmount(Number(outgoingSumH));
+          console.log("getOutgoingStreams", "streams outgoing sum", outgoingSum);
+          setOutgoingAmount(Number(outgoingSum.toFixed(6)));
+
+          const outgoingStreamedSum = streams.reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0)
+          console.log('outgoingStreamedSum', outgoingStreamedSum);
+          setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(6)));
 
           const scheduledLenOut = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
             return acc + isScheduled;
           }, 0);
-          setScheduledNum(scheduledLenOut);
+          setOutgoingScheduledNum(scheduledLenOut);
 
           const completedLenOut = streams.reduce((acc, stream) => {
             const isCompleted = stream.status === StreamStatus.Completed ? 1 : 0;
             return acc + isCompleted;
           }, 0);
-          setCompletedNum(completedLenOut);
+          setOutgoingCompletedNum(completedLenOut);
 
           const streamingLenOut = streams.reduce((acc, stream) => {
             const isStreaming = stream.status === StreamStatus.Streaming ? 1 : 0;
             return acc + isStreaming;
           }, 0);
-          setStreamedNum(streamingLenOut);
+          setOutgoingStreamedNum(streamingLenOut);
 
           const canceledLenOut = streams.reduce((acc, stream) => {
             const isCanceled = stream.status === StreamStatus.Canceled ? 1 : 0;
             return acc + isCanceled;
           }, 0);
-          setCanceledNum(canceledLenOut);
+          setOutgoingCanceledNum(canceledLenOut);
 
-          const outgoingAmount = streams.reduce((acc: number, stream: StreamInfo) => {
-            const lastWithdrawnTime = Number(stream.lastWithdrawTime);
-            const startTime = Number(stream.startTime);
-            const stopTime = Number(stream.stopTime);
-            const interval = Number(stream.interval);
-            const paused = stream.status === StreamStatus.Paused;
-            const acc_paused_time = Number(stream.pauseInfo.accPausedTime);
-
-            if (currTime <= startTime) {
-              return Number(acc);
-            } else if (currTime >= startTime && currTime < lastWithdrawnTime) {
-              return Number(0);
-            } else if (currTime >= startTime && currTime >= lastWithdrawnTime && currTime <= stopTime) {
-              if (paused) {
-                return Number(acc) + Number(stream.withdrawnAmount);
-              }
-              const timeSpan = currTime - Number(lastWithdrawnTime) - Number(acc_paused_time);
-              const intervalNum = Math.ceil(timeSpan / interval);
-              const withdrawable = walletAdapter?.displayAmount(new BigNumber(Number(BigInt(intervalNum) * BigInt(stream.ratePerInterval) / BigInt(1000))));
-              // console.debug("getOutgoingStreams", "paused == false", toHumanAmount(acc + BigInt(stream.withdrawn_amount) + withdrawable));
-              return Number(acc) + Number(stream.withdrawnAmount) + Number(withdrawable);
-            } else if (currTime > stopTime) {
-              if (paused) {
-                return Number(acc) + Number(stream.withdrawnAmount);
-              } else {
-                return Number(acc) + Number(stream.depositAmount);
-              }
-            }
-            return Number(0);
-          }, Number(0));
-
-          // console.debug("getOutgoingStreams", "streams outgoing flux sum", outgoingFluxSumH);
-          setOutgoingAmount(outgoingAmount);
-
+          const withdrawableSum = streams.reduce((acc, stream) => {
+            return acc + Number(stream.withdrawableAmount);
+          }, 0);
+          setWithdrawableAmount(Number(withdrawableSum.toFixed(6)));
         });
 
         FindAddress(accountAddr, chainName, network, {
@@ -414,7 +337,7 @@ const Dashboard = () => {
         .then(result => {
           return JSON.parse(result);
         }).then(res => {
-          console.log('addr', res)
+          // console.log('addr', res)
           setAddressNum(res.total);
         })
       }
@@ -444,7 +367,6 @@ const Dashboard = () => {
                     <AttachMoneyIcon color="primary"/>
                     <Typography variant="h6">Wallet Balance</Typography>
                   </div>
-
                 </MyCard>
               </Box>
             </Grid>

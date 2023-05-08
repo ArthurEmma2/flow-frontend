@@ -39,15 +39,7 @@ export default function Header() {
     setAnchorEl(null);
   }
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setChainName(event.target.value as string);
-  };
-
   const darkMode = useTheme().palette.mode === 'dark';
-
-  // useEffect(() => {
-  //   setCurrentPage(currentPageName);
-  // }, [currentPageName])
 
   return (
     <Container>
@@ -71,18 +63,21 @@ export default function Header() {
         </Box>
         <Box sx={{
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "space-between",
           alignItems: "center",
           gap: 2,
         }}>
-
-          <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
-            <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
-            <Tab label="Stream" value="stream" href="/stream"/>
-            <Tab label="Address Book" value="address_book" href="/address_book"/>
-            {/*<Tab label="" value="new_stream" href="/new_stream" />*/}
-          </Tabs>
-          <Button size="medium" variant="outlined" sx={gradientButtonStyle} onClick={(e) =>  navigate("new_stream")}>+ New Stream</Button>
+          <Box>
+            <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
+              <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
+              <Tab label="Stream" value="stream" href="/stream"/>
+              <Tab label="Address Book" value="address_book" href="/address_book"/>
+              {/*<Tab label="" value="new_stream" href="/new_stream" />*/}
+            </Tabs>
+          </Box>
+          <Box>
+            <Button size="medium" variant="outlined" fullWidth={true}  sx={gradientButtonStyle} onClick={(e) =>  navigate("new_stream")}>+ New Stream</Button>
+          </Box>
         </Box>
         <Box sx={{
           display: "flex",

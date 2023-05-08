@@ -24,6 +24,7 @@ interface StreamInfo {
     name: string, // stream's name
     streamedAmount: string,
     withdrawableAmount: string,
+    escrowAddress: string,
 }
 
 export default StreamInfo;
