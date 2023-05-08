@@ -49,7 +49,7 @@ const intervals = [
 ]
 
 const NewStream: React.FC<{}> = () => {
-  const { connected, signAndSubmitTransaction } = useAptosWallet();
+  const { signAndSubmitTransaction } = useAptosWallet();
   const [enableStreamRate, setEnableStreamRate] = useState(false);
   const [transactionName, setTransactionName] = useState("");
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -59,8 +59,6 @@ const NewStream: React.FC<{}> = () => {
   const [receiverValue, setReceiverValue] = useState<Option | null>(null); // [label, value
   const [token, setToken] = useState("Aptos");
   const [amount, setAmount] = useState(0);
-  // const [startDate, setStartDate] = useState(new Date(new Date().getTime() + 1000* 60));
-  // const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 1000* 120));
   const [datePickerTime, setDatePickerTime] = useState([dayjs().toISOString(), dayjs().toISOString()]); // [startDate, endDate
   const [remark, setRemark] = useState("");
   const [numberOfTimes, setNumberOfTimes] = useState(undefined);
@@ -121,7 +119,7 @@ const NewStream: React.FC<{}> = () => {
           addr: result.data[i].address,
         })
       }
-      console.log('addressList', addressList)
+      // console.log('addressList', addressList)
       setAddresses(addressList);
     })
     .catch(error => console.log('error', error));
