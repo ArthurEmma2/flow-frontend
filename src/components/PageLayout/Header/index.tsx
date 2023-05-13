@@ -1,10 +1,8 @@
-import React, {useEffect} from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
-import { SelectChangeEvent } from '@mui/material/Select';
-import LogoIcon from "../../LogoIcon";
 import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
 import SuiWalletButton from "../../Wallets/SuiWallet";
@@ -13,7 +11,7 @@ import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
 import useCurrentPage from "../../../hooks/useCurrentPage";
 import {gradientButtonStyle} from "../../../style/button";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {ReactComponent as MoveFlowLogo} from "../../../resources/MFlogo.svg";
 
 

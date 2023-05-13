@@ -58,6 +58,11 @@ export const DeleteAddress = (addressId: string) => {
 }
 
 export const FindAddress = (creator: MaybeHexString, chain: string, network: string, {page, pageSize}: Pagination): Promise<Response> => {
+    console.log('creator', creator);
+    console.log('chain', chain);
+    console.log('network', network);
+    console.log('page', page);
+    console.log('pageSize', pageSize);
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
