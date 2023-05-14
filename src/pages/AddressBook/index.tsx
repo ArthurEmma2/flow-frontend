@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
-import {Typography, Input} from "@mui/material";
+import {Typography} from "@mui/material";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
@@ -35,7 +35,6 @@ const AddressBook = () => {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const {chainName} = useContext(ChainName);
   const {network} = useContext(Network);
-  // const creator = "0x58e3511aa31f0bd694d95ad6148e33cb45c52356eca673847c51dd3b13a66983"
   const columnList = ["Name", "Address", "",]
   const [status, setStatus] = useState<string>("");
   const [showAlert, setShowAlert] = useState(false);
@@ -49,13 +48,13 @@ const AddressBook = () => {
 
   const wallet = useWallet();
   const navigate = useNavigate();
-
+  console.log('chainName2222', network);
   function handleAdd() {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       // placeholder
-        return;
+      return;
     }
-    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, wallet.network.name)
+    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, network)
       .then((response: { json: () => any; }) => {
         console.log("response", response);
         return response.json()
@@ -84,7 +83,7 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, wallet.network.name, editingObj)
+    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, network, editingObj)
       .then(response => response.text())
       .then(result => {
         setPage(1);
@@ -110,7 +109,6 @@ const AddressBook = () => {
         })
       })
   }
-
 
   function handleDelete(row: Address) {
     if (row.id === undefined) {
@@ -162,8 +160,6 @@ const AddressBook = () => {
       addr: e.target.value,
     })
   }
-
-
 
   function handleSend(disabled: boolean = false, row: Address) {
     if(!disabled){
@@ -264,7 +260,7 @@ const AddressBook = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
     }
-    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
+    FindAddress(wallet.account.address as string, chainName, network, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -303,7 +299,8 @@ const AddressBook = () => {
             {alertMessage}
           </Alert>
         }
-      </Snackbar>      <Grid container spacing={5}>
+      </Snackbar>
+      <Grid container spacing={5}>
         <Grid item lg={8}>
           <Box>
             <Typography variant="h5" color="white" sx={{marginBottom: "1rem"}}>Address Book</Typography>

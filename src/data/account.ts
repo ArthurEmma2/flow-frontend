@@ -95,7 +95,7 @@ class AptAdapter implements NetworkAdapter {
     const eventsRecv = eventsAll.filter(event => event.data.recipient! === recvAddress);
     if (eventsRecv.length === 0) return [];
 
-    const streamIds = eventsRecv.map(event => event.data.id!);
+    const streamIds = Array.from(new Set(eventsRecv.map(event => event.data.id!)));
     // console.debug("AptAdapter getIncomingStreams streamIds", streamIds);
 
     const resources = await this.client.getAccountResources(address);
@@ -179,15 +179,16 @@ class AptAdapter implements NetworkAdapter {
         limit: 300,
       }
     );
-    // console.info("AptAdapter getOutgoingStreams events", eventsAll[0]);
+    console.info("AptAdapter getOutgoingStreams events", eventsAll);
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     const eventsSend = eventsAll.filter(event => event.data.sender! === sendAddress);
     if (eventsSend.length === 0) return [];
     // console.info("AptAdapter getOutgoingStreams eventsSend", eventsSend);
 
-    const streamIds = eventsSend.map(event => event.data.id!);
+    const streamIds = Array.from(new Set(eventsSend.map(event => event.data.id!)));
+    console.log('streamId,', streamIds);
     const resources = await this.client.getAccountResources(address);
-    // console.info("AptAdapter getOutgoingStreams resources:", resources);
+    console.info("AptAdapter getOutgoingStreams resources:", resources);
     const resGlConf = resources.find((r) => r.type.includes(aptosConfigType))!;
     // @ts-ignore
     const outStreamHandle = resGlConf.data.streams_store.inner.handle!;
@@ -200,7 +201,6 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
-      console.log('stream', stream)
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
         Number(stream.start_time) * 1000,
@@ -310,16 +310,19 @@ class AptAdapter implements NetworkAdapter {
 
   getStatus(stream: any, currTime: bigint): StreamStatus {
     if (Boolean(stream.closed)) {
-      return StreamStatus.Canceled
+      return StreamStatus.Canceled;
     }
     if (Boolean(stream.pauseInfo.paused)) {
-      return StreamStatus.Paused
+      return StreamStatus.Paused;
     }
     if (currTime < BigInt(stream.start_time) * BigInt(1000)) {
-      return StreamStatus.Scheduled
+      return StreamStatus.Scheduled;
     }
     if (currTime < BigInt(stream.stop_time) * BigInt(1000)) {
-      return StreamStatus.Streaming
+      return StreamStatus.Streaming;
+    }
+    if (currTime > BigInt(stream.stop_time) * BigInt(1000)) {
+      return StreamStatus.Completed;
     }
     return StreamStatus.Unknown;
   }

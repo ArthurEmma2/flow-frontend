@@ -91,7 +91,6 @@ const Dashboard = () => {
   const [withdrawableAmount, setWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
 
-
   const amountCards = [
     {
       title:
@@ -331,13 +330,13 @@ const Dashboard = () => {
         });
 
         FindAddress(accountAddr, chainName, network, {
-          page: 0,
-          pageSize: 300,
+          page: 1,
+          pageSize: 10,
         }).then(response => response.text())
         .then(result => {
           return JSON.parse(result);
         }).then(res => {
-          // console.log('addr', res)
+          console.log('addr', res)
           setAddressNum(res.total);
         })
       }

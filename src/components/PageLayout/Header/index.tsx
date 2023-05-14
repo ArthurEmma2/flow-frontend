@@ -46,7 +46,6 @@ export default function Header() {
         top: "1rem",
         // width: "100%",
         height: "2rem",
-
         marginBottom: "2rem",
         display: "flex",
         justifyContent: "space-between",

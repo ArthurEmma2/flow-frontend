@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -6,10 +7,13 @@ import {
   Container,
   IconButton,
   Paper,
+  Popover,
+  Snackbar,
   Tab,
   TableCell,
   TableRow,
   Tabs,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -21,6 +25,7 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import ReplayIcon from '@mui/icons-material/Replay';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
@@ -43,6 +48,8 @@ import {WalletAdapter} from "../../context/WalletAdapter";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
+import {Types} from "aptos";
+import netConfApt from "../../config/configuration.aptos";
 
 const customTypographyStyle = {
   h5: {
@@ -79,6 +86,7 @@ const streamTabs = [
 ]
 
 const Stream = () => {
+  const { signAndSubmitTransaction } = useAptosWallet();
   const {walletAdapter} = useContext(WalletAdapter);
   const {chainName} = useContext(ChainName);
   const {network} = useContext(Network);
@@ -92,7 +100,9 @@ const Stream = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalNum] = useState(0);
-
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertStatus, setAlertStatus] = useState<string>("");
 
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
@@ -130,21 +140,109 @@ const Stream = () => {
     }
   };
 
+  const extendStreams = (extraAmount: number, row: StreamInfo) => {
+    const newStopTime = Math.ceil(Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval)))
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::extend`,
+      arguments: [
+        newStopTime,
+        row.streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been extended successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+      setShowAlert(true);
+      })
+  }
+
+  const pauseStreams = (streamId: string) => {
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::pause`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been paused successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
+  const cancelStreams = (streamId: string) => {
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::close`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been canceled successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
+  const withdrawStreams = (streamId: number) => {
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::withdraw`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been withdrawn successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
   useEffect(() => {
     pullStreams()
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!connected) {
-        return;
-      }
-      pullStreams();
-    }, 3000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
+
 
   const CollapseContent = (props: {row: StreamInfo}) => {
     const {row} = props
@@ -213,9 +311,18 @@ const Stream = () => {
 
               </Box>
               <Box sx={{flexShrink: 1}}>
-                {/*<IconButton>*/}
-                {/*  <CancelOutlinedIcon fontSize="small" />*/}
-                {/*</IconButton>*/}
+                {
+                  row.status === StreamStatus.Canceled && statusTab[3].icon
+                }
+                {
+                  row.status === StreamStatus.Scheduled && statusTab[1].icon
+                }
+                {
+                  row.status === StreamStatus.Completed && statusTab[5].icon
+                }
+                {
+                  row.status === StreamStatus.Paused && statusTab[4].icon
+                }
               </Box>
               <Box
                 sx={{
@@ -280,6 +387,10 @@ const Stream = () => {
 
   const Row = (props: {row: StreamInfo}) => {
     const {row} = props
+    const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [extendValue, setExtendValue] = useState<number>(0);
+    const extendPopoverOpen = Boolean(extendAnchorEl);
+    const id = extendPopoverOpen ? 'simple-popover' : undefined;
     return (
       <React.Fragment>
         <TableRow key={row.streamId}>
@@ -312,15 +423,55 @@ const Stream = () => {
               <ContentCopyIcon fontSize="small"/>
             </div>
           </TableCell>
-          <TableCell align="center">
-            <ShareIcon fontSize="small"/>
-          </TableCell>
-          <TableCell align="center">
-            <PauseCircleOutlinedIcon fontSize="small"/>
-          </TableCell>
-          <TableCell align="center">
-            <CancelOutlinedIcon fontSize="small"/>
-          </TableCell>
+          {
+            streamType === "Outgoing" ? <>
+              <TableCell align="center">
+                <IconButton onClick={(event) => {setExtendAnchorEl(event.currentTarget)}}>
+                  <ShareIcon fontSize="small"/>
+                </IconButton>
+                <Popover
+                  id={id}
+                  open={extendPopoverOpen}
+                  anchorEl={extendAnchorEl}
+                  onClose={() => {setExtendAnchorEl(null)}}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  sx={{display: "flex", flexDirection: "column", borderRadius: "8px"}}
+                >
+                  <Box
+                    component="form"
+                    autoComplete="off"
+                  >
+                    <TextField id="standard-basic" label="Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
+                    <Button onClick={() => {extendStreams(extendValue, row)}}>Confirm</Button>
+                  </Box>
+                </Popover>
+              </TableCell>
+              <TableCell align="center">
+                <IconButton onClick={() => {pauseStreams(row.streamId)}}>
+                  <PauseCircleOutlinedIcon fontSize="small"/>
+                </IconButton>
+              </TableCell>
+              <TableCell align="center">
+                <IconButton onClick={() => {cancelStreams(row.streamId)}}>
+                  <CancelOutlinedIcon fontSize="small"/>
+                </IconButton>
+              </TableCell>
+            </> : <>
+              <TableCell>
+                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}}>
+                  <ReplayIcon fontSize="small"/>
+                </IconButton>
+              </TableCell>
+            </>
+          }
+
           <TableCell align="center">
             <IconButton
               aria-label="expand row"
@@ -344,6 +495,16 @@ const Stream = () => {
 
   return (
     <Container>
+      <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
+        { alertStatus === "success" ?
+          <Alert onClose={() => setShowAlert(false)} severity="success">
+            {alertMessage}
+          </Alert> :
+          <Alert onClose={() => setShowAlert(false)} severity="error">
+            {alertMessage}
+          </Alert>
+        }
+      </Snackbar>
       <Typography
         variant="h5"
         color="white"

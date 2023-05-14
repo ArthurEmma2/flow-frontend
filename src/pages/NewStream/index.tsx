@@ -136,7 +136,7 @@ const NewStream: React.FC<{}> = () => {
     }
   }
 
-  const sendButtondisabled = () => {
+  const sendButtonDisabled = () => {
 
     if(transactionName.length === 0 || receiverAddress.length === 0){
       console.log("fall if 0")
@@ -453,7 +453,7 @@ const NewStream: React.FC<{}> = () => {
             }
             <div className="flex justify-center items-center mt-5 mb-2">
               <Button 
-                disabled={sendButtondisabled()}
+                disabled={sendButtonDisabled()}
                 size="small" sx={{...gradientButtonStyle, width: "150px"}} onClick={(e) => {
                 e.preventDefault();
                 handleSend();
