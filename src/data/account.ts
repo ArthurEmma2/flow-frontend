@@ -67,7 +67,6 @@ class AptAdapter implements NetworkAdapter {
   async getBalance() {
     const resources = await this.client.getAccountResources(this.account.address as HexString);
     const coin = resources.find((r) => r.type.includes('0x1::aptos_coin::AptosCoin'));
-    console.debug("AptAdapter coin:", coin);
     if (typeof coin == "undefined") {
       return "0";
     }
