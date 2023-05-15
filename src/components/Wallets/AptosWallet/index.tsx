@@ -1,12 +1,12 @@
 import React, {useContext, useEffect, useState} from "react";
 import { MaybeHexString } from 'aptos';
 import {AccountKeys, useWallet as useAptosWallet, Wallet} from '@manahippo/aptos-wallet-adapter';
-import {Avatar, Box, Button, Popover, Stack, Typography} from "@mui/material";
+import {Avatar, Box, Button, IconButton, Popover, Stack, Typography} from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Item from "../../Item";
-import {stringWithEllipsis} from "../../../utils/string";
+import {copyAddress, stringWithEllipsis} from "../../../utils/string";
 import {WalletAdapter} from "../../../context/WalletAdapter";
 import {createNetworkAdapter} from "../../../data/account";
 import {ChainName} from "../../../context/chainName";
@@ -48,7 +48,12 @@ export default function AptosWalletButton() {
         {connected ?
           <React.Fragment>
             <span>{stringWithEllipsis(address as string, 4)}</span>
-            <ContentCopyIcon htmlColor="white" fontSize="small"/>
+            <IconButton onClick={() => {
+              copyAddress(address as string);
+            }}>
+              <ContentCopyIcon htmlColor="white" fontSize="small"/>
+            </IconButton>
+
           </React.Fragment>
           :
           <React.Fragment>

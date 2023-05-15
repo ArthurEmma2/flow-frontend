@@ -28,6 +28,31 @@ export interface NetworkAdapter {
 
   displayAmount(amount: BigNumber): string;
 
+  calculateStreamedAmount(
+    withdrawnAmount: number,
+    startTime: number,
+    stopTime: number,
+    currTime: number,
+    pausedAt: number,
+    lastWithdrawTime: number,
+    accPausedTime: number,
+    interval: number,
+    ratePerInterval: number,
+    status: StreamStatus,
+  ): number
+
+  calculateWithdrawableAmount(
+    startTime: number,
+    stopTime: number,
+    currTime: number,
+    pausedAt: number,
+    lastWithdrawTime: number,
+    accPausedTime: number,
+    interval: number,
+    ratePerInterval: number,
+    status: StreamStatus,
+  ): number
+
   // createStream(
   //   name: string, recipient: string, depositAmount: number,
   //   startTime: number, endTime: number,
@@ -142,7 +167,7 @@ class AptAdapter implements NetworkAdapter {
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
-        lastWithdrawTime: stream.last_withdraw_time,
+        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
         ratePerInterval: stream.rate_per_interval,
         recipientId: stream.recipient,
         remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
@@ -151,7 +176,7 @@ class AptAdapter implements NetworkAdapter {
         stopTime: (Number(stream.stop_time) * 1000).toString(),
         withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
         pauseInfo: {
-          accPausedTime: stream.pauseInfo.acc_paused_time,
+          accPausedTime: (Number(stream.pauseInfo.acc_paused_time)).toString(),
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
@@ -232,7 +257,7 @@ class AptAdapter implements NetworkAdapter {
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
-        lastWithdrawTime: stream.last_withdraw_time,
+        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
         ratePerInterval: stream.rate_per_interval,
         recipientId: stream.recipient,
         remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
@@ -241,7 +266,7 @@ class AptAdapter implements NetworkAdapter {
         stopTime: (Number(stream.stop_time) * 1000).toString(),
         withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
         pauseInfo: {
-          accPausedTime: stream.pauseInfo.acc_paused_time,
+          accPausedTime: (Number(stream.pauseInfo.acc_paused_time) * 1000).toString(),
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },

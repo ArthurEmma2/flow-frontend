@@ -3,7 +3,7 @@ import MyTable from "../../components/Table";
 import {Container, Grid, IconButton, Paper, TableCell, TableRow, Snackbar, Alert} from "@mui/material";
 import Address from "../../types/address";
 import {AddAddress, DeleteAddress, FindAddress, UpdateAddress} from "../../data/address";
-import {stringWithEllipsis} from "../../utils/string";
+import {copyAddress, stringWithEllipsis} from "../../utils/string";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import {ChainName} from "../../context/chainName";
@@ -172,10 +172,6 @@ const AddressBook = () => {
     }
   }
 
-  function copyAddress(row: Address) {
-    navigator.clipboard.writeText(row.addr);
-  }
-
   const generateRow = (row: Address) => {
     const disabled = editing && row.id !== editingObj.id;
 
@@ -199,7 +195,7 @@ const AddressBook = () => {
               (!editing || (editing && row.id !== editingObj.id)) ? (
                 <>
                   {stringWithEllipsis(row.addr)}
-                  <IconButton onClick={() => {copyAddress(row)}} disabled={disabled}>
+                  <IconButton onClick={() => {copyAddress(row.addr)}} disabled={disabled}>
                     <ContentCopyIcon fontSize="small"/>
                   </IconButton>
                 </>
