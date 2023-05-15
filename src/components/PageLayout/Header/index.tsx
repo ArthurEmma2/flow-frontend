@@ -5,7 +5,7 @@ import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
-import SuiWalletButton from "../../Wallets/SuiWallet";
+// import SuiWalletButton from "../../Wallets/SuiWallet";
 import {Avatar, Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
@@ -88,7 +88,7 @@ export default function Header() {
           alignItems: "center",
           gap: 2,
         }}>
-          { chainName === "sui" ? <SuiWalletButton /> : <AptosWalletButton/>}
+          { <AptosWalletButton/>}
           <IconButton aria-describedby={id} onClick={handleUserClick}>
             <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
           </IconButton>

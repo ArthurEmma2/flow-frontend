@@ -3,10 +3,10 @@ import './App.css';
 import Footer from "./components/PageLayout/Footer";
 import Header from "./components/PageLayout/Header";
 import { ChainName } from "./context/chainName";
-import { WalletProvider as SuiWalletProvider} from "@suiet/wallet-kit";
+// import { WalletProvider as SuiWalletProvider} from "@suiet/wallet-kit";
 import { WalletProvider as AptosWalletProvider} from "@manahippo/aptos-wallet-adapter";
 import { AptosWallets } from "./utils/aptosConfigs";
-import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
+// import { SupportChains, DefaultWallets } from "./utils/suiConfigs";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
 import {ThemeProvider} from "@mui/material";
@@ -49,18 +49,18 @@ function App() {
         <WalletAdapter.Provider value={{walletAdapter, setWalletAdapter}}>
           <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20,}}>
             {
-              chainName === "sui" ?
-                <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
-                  <Stack spacing={2}>
-                    <Box>
-                      <Header />
-                    </Box>
+              // chainName === "sui" ?
+              //   <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
+              //     <Stack spacing={2}>
+              //       <Box>
+              //         <Header />
+              //       </Box>
 
-                    <Box>
-                      <Footer />
-                    </Box>
-                  </Stack>
-                </SuiWalletProvider> :
+              //       <Box>
+              //         <Footer />
+              //       </Box>
+              //     </Stack>
+              //   </SuiWalletProvider> :
                 <AptosWalletProvider
                   wallets={AptosWallets}
                   autoConnect
