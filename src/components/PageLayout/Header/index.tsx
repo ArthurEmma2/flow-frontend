@@ -21,6 +21,7 @@ export default function Header() {
   const {chainName, setChainName} = useContext(ChainName);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [currentPageName, setCurrentPage] = useCurrentPage();
+  console.log('currentPageName', currentPageName);
   const {walletAdapter} = useContext(WalletAdapter);
 
   const open = Boolean(anchorEl);

@@ -48,11 +48,11 @@ export default function AptosWalletButton() {
         {connected ?
           <React.Fragment>
             <span>{stringWithEllipsis(address as string, 4)}</span>
-            <IconButton onClick={() => {
-              copyAddress(address as string);
-            }}>
-              <ContentCopyIcon htmlColor="white" fontSize="small"/>
-            </IconButton>
+            {/*<IconButton onClick={() => {*/}
+            {/*  copyAddress(address as string);*/}
+            {/*}}>*/}
+            {/*  <ContentCopyIcon htmlColor="white" fontSize="small"/>*/}
+            {/*</IconButton>*/}
 
           </React.Fragment>
           :

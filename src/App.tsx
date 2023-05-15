@@ -14,7 +14,7 @@ import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
 import {darkTheme} from "./style/theme";
 import Dashboard from "./pages/Dashboard";
-import { Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import Stream from "./pages/Stream";
 import {WalletAdapter} from "./context/WalletAdapter";
 import {NetworkAdapter} from "./data/account";
@@ -79,6 +79,7 @@ function App() {
                           <Route path="/stream" element={<Stream/>} />
                           <Route path="/address_book" element={<AddressBook/>} />
                           <Route path="/new_stream" element={<NewStream/>} />
+                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         </Routes>
                       </Box>
                     </Box>
