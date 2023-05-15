@@ -25,10 +25,10 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
-import ReplayIcon from '@mui/icons-material/Replay';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
 import React, {useContext, useEffect, useMemo, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
@@ -52,6 +52,7 @@ import {Types} from "aptos";
 import netConfApt from "../../config/configuration.aptos";
 // import Streaming from "resources/Streaming.gif";
 import "./index.css";
+import {WalletAdapterNetwork} from "@manahippo/aptos-wallet-adapter";
 
 const customTypographyStyle = {
   h5: {
@@ -119,7 +120,7 @@ const Stream = () => {
 
   const pullStreams = () => {
     if (streamType === "Outgoing") {
-      walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+      walletAdapter?.getOutgoingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams =  streams.filter((stream) => {
@@ -136,7 +137,7 @@ const Stream = () => {
         setStreams(newStreams);
       })
     } else {
-      walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
+      walletAdapter?.getIncomingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
@@ -155,6 +156,12 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: number, row: StreamInfo) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
     console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
@@ -190,6 +197,12 @@ const Stream = () => {
   }
 
   const pauseStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::pause`,
@@ -214,6 +227,12 @@ const Stream = () => {
   }
 
   const cancelStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::close`,
@@ -238,6 +257,12 @@ const Stream = () => {
   }
 
   const withdrawStreams = (streamId: number) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::withdraw`,
@@ -262,6 +287,12 @@ const Stream = () => {
   }
 
   const resumeStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::resume`,
@@ -331,19 +362,18 @@ const Stream = () => {
 
   useEffect(() => {
     pullStreams()
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, alertMessage])
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, alertMessage, page, pageSize])
 
   // 定时更新streamedAmountMap
   useEffect(() => {
     let interval = setInterval(() => {
-      console.log('streams)))', streams);
       let sMap = getStreamedAmountMap(streams);
       let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
     }, 1000);
     return () => clearInterval(interval);
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams])
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 
   const CollapseContent = (props: {
     row: StreamInfo,
@@ -592,7 +622,7 @@ const Stream = () => {
               </TableCell>
               <TableCell align="center">
                 {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
-                  <MonetizationOnOutlinedIcon fontSize="small" />
+                  <PlayCircleOutlineIcon fontSize="small" />
                 </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId)}} disabled={shouldDisable(row)}>
                   <PauseCircleOutlinedIcon fontSize="small"/>
                 </IconButton>}
@@ -605,7 +635,7 @@ const Stream = () => {
             </> : <>
               <TableCell>
                 <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}} disabled={shouldDisable(row)}>
-                  <ReplayIcon fontSize="small"/>
+                  <MonetizationOnOutlinedIcon fontSize="small"/>
                 </IconButton>
               </TableCell>
             </>

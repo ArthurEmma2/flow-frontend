@@ -169,8 +169,6 @@ export default function AptosWalletButton() {
                       connect(val.adapter.name).then(() => {
                         setAnchorEl(null);
                       });
-
-
                     }}
                     sx={{
                       borderRadius: "8px",

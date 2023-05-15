@@ -243,7 +243,7 @@ const Dashboard = () => {
           setBalance(balance);
         });
 
-        walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
+        walletAdapter?.getIncomingStreams(accountAddr, {page: 1, pageSize: 300}).then((streams: StreamInfo[]) => {
           setIncomingNum(streams.length);
           console.debug("getIncomingStreams", "streams", streams[0]);
           const incomingSum = streams.reduce((acc, stream) => {
@@ -279,11 +279,9 @@ const Dashboard = () => {
             return acc + isCanceled;
           }, 0);
           setIncomingCanceledNum(canceledLenIn);
-
-
         });
 
-        walletAdapter?.getOutgoingStreams(accountAddr).then((streams) => {
+        walletAdapter?.getOutgoingStreams(accountAddr, {page: 1, pageSize: 300}).then((streams) => {
           setOutgoingNum(streams.length);
           // console.debug("getOutgoingStreams", "streams", streams[0]);
           const outgoingSum = streams.reduce((acc, stream) => {

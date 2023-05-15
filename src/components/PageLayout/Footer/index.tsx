@@ -17,7 +17,7 @@ export default function Footer() {
                 ml: 10,
             },
         }}>
-          <Typography variant="h6" color="white">
+          <Typography variant="body2" color="white">
           MoveFlow Is 
             <Link href="https://github.com/Move-Flow/Audit_report" color="primary" underline="none">
             {' Audited'}

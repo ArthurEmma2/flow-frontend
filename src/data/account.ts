@@ -6,6 +6,7 @@ import StreamInfo from "../types/streamInfo";
 import {NetworkConfiguration} from "../config";
 import BigNumber from 'bignumber.js';
 import {StreamStatus} from "../types/streamStatus";
+import Pagination from "../types/pagination";
 
 
 export interface NetworkAdapter {
@@ -18,9 +19,9 @@ export interface NetworkAdapter {
 
   getBalance(): Promise<string>;
 
-  getIncomingStreams(recipientAddress: string): Promise<StreamInfo[]>;
+  getIncomingStreams(recipientAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
 
-  getOutgoingStreams(senderAddress: string): Promise<StreamInfo[]>;
+  getOutgoingStreams(senderAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
 
   sendTransaction(from: string, to: string, amount: number): string;
 
@@ -99,9 +100,10 @@ class AptAdapter implements NetworkAdapter {
     return this.displayAmount(new BigNumber(coin.data.coin.value));
   }
 
-  async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
+  async getIncomingStreams(recvAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]> {
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     console.log('recevAddr', recvAddress);
+    const start = (page - 1) * pageSize;
     const address = netConfApt.contract;
     const event_handle = `${address}::${aptosConfigType}`;
     const eventField = "stream_events";
@@ -110,8 +112,8 @@ class AptAdapter implements NetworkAdapter {
       event_handle,
       eventField,
       {
-        start: BigInt(0),
-        limit: 300,
+        start: start,
+        limit: pageSize,
       }
     );
     // console.debug("AptAdapter getIncomingStreams events", eventsAll);
@@ -163,7 +165,7 @@ class AptAdapter implements NetworkAdapter {
       streams.push({
         name: stream.name,
         status: status,
-        createTime: (Number(stream.create_time) * 1000).toString(),
+        createTime: (Number(stream.create_at) * 1000).toString(),
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,

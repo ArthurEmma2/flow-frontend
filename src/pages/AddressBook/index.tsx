@@ -54,6 +54,7 @@ const AddressBook = () => {
       // placeholder
       return;
     }
+
     AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, network)
       .then((response: { json: () => any; }) => {
         console.log("response", response);
