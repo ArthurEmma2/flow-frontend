@@ -174,6 +174,14 @@ const Stream = () => {
       })
   }
 
+  const shouldDisable = (row: StreamInfo) : boolean => {
+    console.debug("row: StreamInfo", row);
+    if (row.status === StreamStatus.Completed || row.status === StreamStatus.Paused || row.status === StreamStatus.Canceled)
+      return true;
+    else
+      return false;
+  }
+
   const pauseStreams = (streamId: string) => {
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
@@ -551,7 +559,7 @@ const Stream = () => {
           {
             streamType === "Outgoing" ? <>
               <TableCell align="center">
-                <IconButton onClick={(event) => {setExtendAnchorEl(event.currentTarget)}}>
+                <IconButton onClick={(event) => {setExtendAnchorEl(event.currentTarget)}} disabled={shouldDisable(row)}>
                   <ShareIcon fontSize="small"/>
                 </IconButton>
                 <Popover
@@ -591,18 +599,18 @@ const Stream = () => {
               <TableCell align="center">
                 {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
                   <MonetizationOnOutlinedIcon fontSize="small" />
-                </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId)}}>
+                </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId)}} disabled={shouldDisable(row)}>
                   <PauseCircleOutlinedIcon fontSize="small"/>
                 </IconButton>}
               </TableCell>
               <TableCell align="center">
-                <IconButton onClick={() => {cancelStreams(row.streamId)}} disabled={row.status === StreamStatus.Canceled}>
+                <IconButton onClick={() => {cancelStreams(row.streamId)}} disabled={shouldDisable(row)}>
                   <CancelOutlinedIcon fontSize="small"/>
                 </IconButton>
               </TableCell>
             </> : <>
               <TableCell>
-                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}}>
+                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}} disabled={shouldDisable(row)}>
                   <ReplayIcon fontSize="small"/>
                 </IconButton>
               </TableCell>
