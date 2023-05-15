@@ -1,6 +1,5 @@
-import Box from "@mui/material/Box";
+import {Typography, Box, Link} from "@mui/material";
 import './footer.css';
-
 
 export default function Footer() {
     return (
@@ -18,6 +17,12 @@ export default function Footer() {
                 ml: 10,
             },
         }}>
+          <Typography variant="h6" color="white">
+          MoveFlow Is 
+            <Link href="https://github.com/Move-Flow/Audit_report" color="primary" underline="none">
+            {' Audited'}
+            </Link>   
+        </Typography>
         </Box>
     )
 }
