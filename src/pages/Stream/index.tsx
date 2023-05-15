@@ -30,13 +30,12 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
 import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
 import MyTable from "../../components/Table";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 import moment from 'moment';
-import CountUp from 'react-countup';
 import BigNumber from 'bignumber.js';
 import {copyAddress, stringWithEllipsis} from "../../utils/string";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -97,9 +96,7 @@ const Stream = () => {
   const accountAddr = walletAdapter?.getAddress()!;
 
   const [streamedAmountMap, setStreamedAmountMap] = useState<Map<string, string>>(new Map());
-  const [prevStreamedAmountMap, setPrevStreamedAmountMap] = useState<Map<string, string>>(new Map());
   const [withdrawableAmountMap, setWithdrawableAmountMap] = useState<Map<string, string>>(new Map());
-  const [prevWithdrawableAmountMap, setPrevWithdrawableAmountMap] = useState<Map<string, string>>(new Map());
   const [streams, setStreams] = useState<StreamInfo[]>([]);
   const [streamType, setStreamType] = useState<string>("Outgoing");
   const [statusType, setStatusType] = useState("All");
@@ -123,27 +120,37 @@ const Stream = () => {
   const pullStreams = () => {
     if (streamType === "Outgoing") {
       walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+        let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
-          const newStreams =  streams.filter((stream) => {
+          newStreams =  streams.filter((stream) => {
             return stream.status === statusType;
           })
-          setStreams(newStreams);
         } else {
-          setStreams(streams);
+          newStreams = streams;
         }
+        let sMap = getStreamedAmountMap(newStreams);
+        setStreamedAmountMap(sMap);
+        let wMap = getWithdrawableAmountMap(newStreams);
+        console.log('newStreams', newStreams);
+        setWithdrawableAmountMap(wMap);
+        setStreams(newStreams);
       })
     } else {
       walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
-          if (statusType !== StreamStatus.All) {
-            const newStreams = streams.filter((stream) => {
-              return stream.status === statusType;
-            })
-            setStreams(newStreams);
-          } else {
-            setStreams(streams);
-          }
+        let newStreams: StreamInfo[];
+        if (statusType !== StreamStatus.All) {
+          newStreams = streams.filter((stream) => {
+            return stream.status === statusType;
+          })
+        } else {
+          newStreams = streams;
         }
-      )
+        let sMap = getStreamedAmountMap(newStreams);
+        setStreamedAmountMap(sMap);
+        let wMap = getWithdrawableAmountMap(newStreams);
+        setWithdrawableAmountMap(wMap);
+        setStreams(newStreams);
+      })
     }
   };
 
@@ -263,7 +270,6 @@ const Stream = () => {
       ],
       type_arguments: [],
     }
-    console.log('resumeStreams', transaction);
     signAndSubmitTransaction(transaction)
       .then((response) => {
         console.log("response", response);
@@ -279,65 +285,75 @@ const Stream = () => {
     })
   }
 
+  const getWithdrawableAmountMap = (streams: StreamInfo[]): Map<string, string> => {
+    let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()));
+    let wMap = new Map();
+    for (let i = 0; i < streams.length; i++) {
+      const withdrawableAmount = walletAdapter!.calculateWithdrawableAmount(
+        Number(streams[i].startTime),
+        Number(streams[i].stopTime),
+        Number(currTime),
+        Number(streams[i].pauseInfo.pauseAt),
+        Number(streams[i].lastWithdrawTime),
+        Number(streams[i].pauseInfo.accPausedTime),
+        Number(streams[i].interval),
+        Number(streams[i].ratePerInterval),
+        streams[i].status,
+      )
+      if (streams[i].streamId === "13") {
+        console.log('withdrawableAmount___', withdrawableAmount)
+      }
+      wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawableAmount)));
+    }
+    return wMap;
+  }
+
+  const getStreamedAmountMap = (streams: StreamInfo[]): Map<string, string> => {
+    let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
+    let sMap = new Map();
+    for (let i = 0; i < streams.length; i++) {
+      const streamedAmount = walletAdapter!.calculateStreamedAmount(
+        Number(streams[i].withdrawnAmount),
+        Number(streams[i].startTime),
+        Number(streams[i].stopTime),
+        Number(currTime),
+        Number(streams[i].pauseInfo.pauseAt),
+        Number(streams[i].lastWithdrawTime),
+        Number(streams[i].pauseInfo.accPausedTime),
+        Number(streams[i].interval),
+        Number(streams[i].ratePerInterval),
+        streams[i].status,
+      );
+      sMap.set(streams[i].streamId, streamedAmount)
+    }
+    return sMap;
+  }
+
   useEffect(() => {
     pullStreams()
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, alertMessage])
 
   // 定时更新streamedAmountMap
   useEffect(() => {
-    // let interval = setInterval(() => {
-      let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
-      let sMap = new Map();
-      let wMap = new Map();
-      setPrevWithdrawableAmountMap(withdrawableAmountMap);
-      setPrevStreamedAmountMap(streamedAmountMap);
-      for (let i = 0; i < streams.length; i++) {
-        const streamedAmount = walletAdapter!.calculateStreamedAmount(
-          Number(streams[i].withdrawnAmount),
-          Number(streams[i].startTime),
-          Number(streams[i].stopTime),
-          Number(currTime),
-          Number(streams[i].pauseInfo.pauseAt),
-          Number(streams[i].lastWithdrawTime),
-          Number(streams[i].pauseInfo.accPausedTime),
-          Number(streams[i].interval),
-          Number(streams[i].ratePerInterval),
-          streams[i].status,
-        );
-        sMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(streamedAmount)))
-        const withdrawnAmount = walletAdapter!.calculateWithdrawableAmount(
-          Number(streams[i].startTime),
-          Number(streams[i].stopTime),
-          Number(currTime),
-          Number(streams[i].pauseInfo.pauseAt),
-          Number(streams[i].lastWithdrawTime),
-          Number(streams[i].pauseInfo.accPausedTime),
-          Number(streams[i].interval),
-          Number(streams[i].ratePerInterval),
-          streams[i].status,
-        )
-        wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawnAmount)));
-      }
-      console.log('sMap', wMap);
+    let interval = setInterval(() => {
+      console.log('streams)))', streams);
+      let sMap = getStreamedAmountMap(streams);
+      let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
-    // }, 10000);
-    // return () => clearInterval(interval);
+    }, 1000);
+    return () => clearInterval(interval);
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams])
 
   const CollapseContent = (props: {
     row: StreamInfo,
     streamedAmount: number,
-    prevStreamedAmount: number,
     withdrawableAmount: number,
-    prevWithdrawableAmount: number,
   }) => {
     const {
       row,
       streamedAmount,
-      prevStreamedAmount,
       withdrawableAmount,
-      prevWithdrawableAmount,
     } = props
 
     return (
@@ -351,12 +367,7 @@ const Stream = () => {
               <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
                 <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-                  <CountUp
-                    decimals={6}
-                    preserveValue
-                    start={Number(new BigNumber(prevStreamedAmount).toFixed(6))}
-                    end={Number(new BigNumber(streamedAmount).toFixed(6))}
-                  />
+                  {Number(new BigNumber(streamedAmount).toFixed(6))}
                 </Typography>
                 <CustomTypography
                   variant="h5" align="center"
@@ -464,12 +475,7 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp
-                      decimals={6}
-                      preserveValue
-                      start={Number(new BigNumber(prevStreamedAmount).toFixed(6))}
-                      end={Number(new BigNumber(streamedAmount).toFixed(6))}
-                    />
+                    {Number(new BigNumber(streamedAmount).toFixed(6))}
                   </div>
                 </div>
               </div>
@@ -480,12 +486,7 @@ const Stream = () => {
                 <div className="shrink-0">
                   <div className="flex flex-row align-middle text-center">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp
-                      decimals={6}
-                      preserveValue
-                      start={Number(new BigNumber(prevWithdrawableAmount).toFixed(6))}
-                      end={Number(new BigNumber(withdrawableAmount).toFixed(6))}
-                    />
+                    {Number(new BigNumber(withdrawableAmount).toFixed(6))}
                   </div>
                 </div>
               </div>
@@ -497,20 +498,19 @@ const Stream = () => {
   }
 
   const Row = (props: {
-    row: StreamInfo
+    row: StreamInfo,
+    streamedAmountMap: Map<string, string>,
+    withdrawableAmountMap: Map<string, string>,
   }) => {
-    const {row} = props
+    const {row, streamedAmountMap, withdrawableAmountMap} = props
     const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const [extendValue, setExtendValue] = useState<number>(0);
     const extendPopoverOpen = Boolean(extendAnchorEl);
     const id = extendPopoverOpen ? 'simple-popover' : undefined;
     const streamedAmount = streamedAmountMap.get(row.streamId)!
-    const prevStreamedAmount = prevStreamedAmountMap.get(row.streamId)!
     const withdrawableAmount = withdrawableAmountMap.get(row.streamId)!
-    const prevWithdrawableAmount = prevWithdrawableAmountMap.get(row.streamId)!
     if (row.streamId === "11") {
       console.log('j89829', streamedAmount)
-      console.log('4893', prevStreamedAmount)
     }
     return (
       <React.Fragment>
@@ -522,13 +522,7 @@ const Stream = () => {
             <div className="flex flex-row justify-center items-center">
               <p className="text-red-600 text-center">-</p>
               <div className="flex flex-row justify-center items-center">
-                <CountUp
-                  decimals={6}
-                  duration={3}
-                  preserveValue
-                  start={Number(new BigNumber(prevStreamedAmount).toFixed(6))}
-                  end={Number(new BigNumber(streamedAmount).toFixed(6))}
-                />
+                <div>{Number(new BigNumber(streamedAmount).toFixed(6))}</div>
                 <div>/</div>
                 <div>{Number(new BigNumber(row.depositAmount).toFixed(6))}</div>
               </div>
@@ -632,10 +626,8 @@ const Stream = () => {
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
             <CollapseContent
               row={row}
-              prevStreamedAmount={Number(prevStreamedAmount)}
               streamedAmount={Number(streamedAmount)}
               withdrawableAmount={Number(withdrawableAmount)}
-              prevWithdrawableAmount={Number(prevWithdrawableAmount)}
             />
           </TableCell>
         </TableRow>
@@ -705,7 +697,6 @@ const Stream = () => {
               )
             })}
           </ToggleButtonGroup>
-
         </Box>
         <MyTable
           content={streams}
@@ -713,7 +704,7 @@ const Stream = () => {
           availablePageSize={[5, 10, 15]}
           columnList={columnList}
           columnAlign="center"
-          page={page}
+          page={page-1}
           pageSize={pageSize}
           totalNum={totalNum}
           onPageChange={(event, newPage) => {
@@ -728,8 +719,10 @@ const Stream = () => {
           {streams.length === 0 ? <></> : streams.map((row) => {
             return (
               <Row
-                key={row.streamId}
+                key={`${row.streamId}-${streamedAmountMap.get(row.streamId)}-${withdrawableAmountMap.get(row.streamId)}`}
                 row={row}
+                streamedAmountMap={streamedAmountMap}
+                withdrawableAmountMap={withdrawableAmountMap}
               />
             )
           })}

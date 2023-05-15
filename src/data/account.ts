@@ -225,6 +225,10 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
+
+      if (stream.name === "test283") {
+        console.log('streams8928: ', stream);
+      }
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
         Number(stream.start_time) * 1000,
@@ -237,7 +241,7 @@ class AptAdapter implements NetworkAdapter {
         Number(stream.rate_per_interval),
         status,
       )
-      console.log('withdrawableAmount', withdrawableAmount)
+      // console.log('withdrawableAmount', withdrawableAmount)
       const streamedAmount = this.calculateStreamedAmount(
         Number(stream.withdrawn_amount),
         Number(stream.start_time) * 1000,
@@ -415,7 +419,7 @@ class AptAdapter implements NetworkAdapter {
       ratePerInterval,
       status
     )
-    return withdrawnAmount + withdrawable;
+    return withdrawnAmount + Number(this.displayAmount(new BigNumber(Number(withdrawable))));
   }
 }
 
