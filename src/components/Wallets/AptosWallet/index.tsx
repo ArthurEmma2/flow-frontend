@@ -1,15 +1,16 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { MaybeHexString } from 'aptos';
 import {AccountKeys, useWallet as useAptosWallet, Wallet} from '@manahippo/aptos-wallet-adapter';
-import {Box, Button, Popover, Stack} from "@mui/material";
+import {Avatar, Box, Button, IconButton, Popover, Stack, Typography} from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Item from "../../Item";
-import {stringWithEllipsis} from "../../../utils/string";
+import {copyAddress, stringWithEllipsis} from "../../../utils/string";
 import {WalletAdapter} from "../../../context/WalletAdapter";
 import {createNetworkAdapter} from "../../../data/account";
 import {ChainName} from "../../../context/chainName";
+import {Hashicon} from "@emeraldpay/hashicon-react";
 
 interface ConnectedInfoProps {
   connected: boolean
@@ -30,10 +31,13 @@ export default function AptosWalletButton() {
   const {chainName} = useContext(ChainName);
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
+  const address = account?.address as string
+  const [walletBalance, setWalletBalance] = useState<string>("0");
   const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }
-
+  // console.log('wallet', wallet);
+  // console.log('account', account);
   const handleUserClose = () => {
     setAnchorEl(null);
   }
@@ -44,7 +48,12 @@ export default function AptosWalletButton() {
         {connected ?
           <React.Fragment>
             <span>{stringWithEllipsis(address as string, 4)}</span>
-            <ContentCopyIcon htmlColor="white" fontSize="small"/>
+            <IconButton onClick={() => {
+              copyAddress(address as string);
+            }}>
+              <ContentCopyIcon htmlColor="white" fontSize="small"/>
+            </IconButton>
+
           </React.Fragment>
           :
           <React.Fragment>
@@ -57,7 +66,11 @@ export default function AptosWalletButton() {
 
   useEffect(() => {
     if (connected) {
-      setWalletAdapter(createNetworkAdapter(chainName, account as AccountKeys, wallet as Wallet));
+      let adapter = createNetworkAdapter(chainName, account as AccountKeys, wallet as Wallet);
+      setWalletAdapter(adapter);
+      adapter.getBalance().then((balance) => {
+        setWalletBalance(balance);
+      })
     }
   }, [wallet, connected, account])
 
@@ -79,7 +92,6 @@ export default function AptosWalletButton() {
           <ConnectedButton connected={connected} address={account?.address!}></ConnectedButton>
           {open ? <KeyboardArrowDownIcon/> : <KeyboardArrowUpIcon/>}
         </div>
-
       </Button>
       <Popover
         id={id}
@@ -96,19 +108,55 @@ export default function AptosWalletButton() {
         }}
         sx={{
           marginTop: 1,
-          borderRadius: "8px"
+          borderRadius: "8px",
+          p: 4
         }}
       >
         {connected ?
-          <Box>
-            <Stack>
-              <Item>
-                <Button variant="outlined" size="small" onClick={() => {
-                  disconnect();
-                  setAnchorEl(null);
-                }}>Disconnect</Button>
-              </Item>
-            </Stack>
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            // alignItems: "center",
+            // justifyContent: "center",
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingTop: 1,
+            paddingBottom: 2,
+          }}>
+            <Box sx={{
+              display:"flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "justify-between"
+            }}>
+              <Box sx={{
+                paddingLeft: 0,
+                paddingRight: 1,
+                paddingTop: 1,
+                paddingBottom: 1,
+              }}>
+                <Avatar sx={{
+                  width: 30,
+                  height: 30,
+                }}>
+                  <Hashicon value={address} size={20}/>
+                </Avatar>
+              </Box>
+              <Typography sx={{
+                paddingLeft: 1,
+                paddingTop: 1,
+                paddingBottom: 1,
+                paddingRight: 0,
+                color: "#D5D5D5",
+              }}>{stringWithEllipsis(address, 7)}</Typography>
+            </Box>
+            <Box sx={{marginBottom: 3}}>
+              <Typography variant="h6" component="div" sx={{fontWeight: "bold"}}>{`$${walletBalance}`}</Typography>
+            </Box>
+            <Button variant="outlined" size="small" onClick={() => {
+              disconnect();
+              setAnchorEl(null);
+            }}>Disconnect</Button>
           </Box>
           :
           <Stack>
@@ -121,8 +169,6 @@ export default function AptosWalletButton() {
                       connect(val.adapter.name).then(() => {
                         setAnchorEl(null);
                       });
-
-
                     }}
                     sx={{
                       borderRadius: "8px",

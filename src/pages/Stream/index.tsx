@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -6,10 +7,13 @@ import {
   Container,
   IconButton,
   Paper,
+  Popover,
+  Snackbar,
   Tab,
   TableCell,
   TableRow,
   Tabs,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -24,15 +28,16 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
-import React, {useContext, useEffect, useState} from "react";
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
 import MyTable from "../../components/Table";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 import moment from 'moment';
-import CountUp from 'react-countup';
 import BigNumber from 'bignumber.js';
-import {stringWithEllipsis} from "../../utils/string";
+import {copyAddress, stringWithEllipsis} from "../../utils/string";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {AptosLogoAlt} from "../../resources";
@@ -43,6 +48,11 @@ import {WalletAdapter} from "../../context/WalletAdapter";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
+import {Types} from "aptos";
+import netConfApt from "../../config/configuration.aptos";
+// import Streaming from "resources/Streaming.gif";
+import "./index.css";
+import {WalletAdapterNetwork} from "@manahippo/aptos-wallet-adapter";
 
 const customTypographyStyle = {
   h5: {
@@ -79,12 +89,15 @@ const streamTabs = [
 ]
 
 const Stream = () => {
+  const { signAndSubmitTransaction } = useAptosWallet();
   const {walletAdapter} = useContext(WalletAdapter);
   const {chainName} = useContext(ChainName);
   const {network} = useContext(Network);
   const { connected } = useAptosWallet();
   const accountAddr = walletAdapter?.getAddress()!;
 
+  const [streamedAmountMap, setStreamedAmountMap] = useState<Map<string, string>>(new Map());
+  const [withdrawableAmountMap, setWithdrawableAmountMap] = useState<Map<string, string>>(new Map());
   const [streams, setStreams] = useState<StreamInfo[]>([]);
   const [streamType, setStreamType] = useState<string>("Outgoing");
   const [statusType, setStatusType] = useState("All");
@@ -92,7 +105,9 @@ const Stream = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalNum] = useState(0);
-
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertStatus, setAlertStatus] = useState<string>("");
 
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
@@ -105,49 +120,272 @@ const Stream = () => {
 
   const pullStreams = () => {
     if (streamType === "Outgoing") {
-      walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+      walletAdapter?.getOutgoingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
+        let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
-          const newStreams =  streams.filter((stream) => {
+          newStreams =  streams.filter((stream) => {
             return stream.status === statusType;
           })
-          setStreams(newStreams);
         } else {
-          setStreams(streams);
+          newStreams = streams;
         }
+        let sMap = getStreamedAmountMap(newStreams);
+        setStreamedAmountMap(sMap);
+        let wMap = getWithdrawableAmountMap(newStreams);
+        console.log('newStreams', newStreams);
+        setWithdrawableAmountMap(wMap);
+        setStreams(newStreams);
       })
     } else {
-      walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
-          if (statusType !== StreamStatus.All) {
-            const newStreams = streams.filter((stream) => {
-              return stream.status === statusType;
-            })
-            setStreams(newStreams);
-          } else {
-            setStreams(streams);
-          }
+      walletAdapter?.getIncomingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
+        let newStreams: StreamInfo[];
+        if (statusType !== StreamStatus.All) {
+          newStreams = streams.filter((stream) => {
+            return stream.status === statusType;
+          })
+        } else {
+          newStreams = streams;
         }
-      )
+        let sMap = getStreamedAmountMap(newStreams);
+        setStreamedAmountMap(sMap);
+        let wMap = getWithdrawableAmountMap(newStreams);
+        setWithdrawableAmountMap(wMap);
+        setStreams(newStreams);
+      })
     }
   };
 
+  const extendStreams = (extraAmount: number, row: StreamInfo) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
+    const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
+    console.log('new StopTimes', newStopTime);
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::extend`,
+      arguments: [
+        newStopTime,
+        row.streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been extended successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+      setShowAlert(true);
+      })
+  }
+
+  const shouldDisable = (row: StreamInfo) : boolean => {
+    console.debug("row: StreamInfo", row);
+    if (row.status === StreamStatus.Completed || row.status === StreamStatus.Paused || row.status === StreamStatus.Canceled)
+      return true;
+    else
+      return false;
+  }
+
+  const pauseStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::pause`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been paused successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
+  const cancelStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::close`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been canceled successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
+  const withdrawStreams = (streamId: number) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::withdraw`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been withdrawn successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+        setAlertStatus("failed");
+        setAlertMessage(e.name);
+        setShowAlert(true);
+      })
+  }
+
+  const resumeStreams = (streamId: string) => {
+    // if (network != null && network !== "testnet") {
+    //   setAlertStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
+    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
+      type: 'entry_function_payload',
+      function: `${netConfApt.contract}::stream::resume`,
+      arguments: [
+        streamId
+      ],
+      type_arguments: [],
+    }
+    signAndSubmitTransaction(transaction)
+      .then((response) => {
+        console.log("response", response);
+      })
+      .then(() => {
+        setAlertStatus("success");
+        setAlertMessage("The stream has been resumed successfully.");
+        setShowAlert(true);
+      }).catch((e) => {
+      setAlertStatus("failed");
+      setAlertMessage(e.name);
+      setShowAlert(true);
+    })
+  }
+
+  const getWithdrawableAmountMap = (streams: StreamInfo[]): Map<string, string> => {
+    let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()));
+    let wMap = new Map();
+    for (let i = 0; i < streams.length; i++) {
+      const withdrawableAmount = walletAdapter!.calculateWithdrawableAmount(
+        Number(streams[i].startTime),
+        Number(streams[i].stopTime),
+        Number(currTime),
+        Number(streams[i].pauseInfo.pauseAt),
+        Number(streams[i].lastWithdrawTime),
+        Number(streams[i].pauseInfo.accPausedTime),
+        Number(streams[i].interval),
+        Number(streams[i].ratePerInterval),
+        streams[i].status,
+      )
+      if (streams[i].streamId === "13") {
+        console.log('withdrawableAmount___', withdrawableAmount)
+      }
+      wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawableAmount)));
+    }
+    return wMap;
+  }
+
+  const getStreamedAmountMap = (streams: StreamInfo[]): Map<string, string> => {
+    let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
+    let sMap = new Map();
+    for (let i = 0; i < streams.length; i++) {
+      const streamedAmount = walletAdapter!.calculateStreamedAmount(
+        Number(streams[i].withdrawnAmount),
+        Number(streams[i].startTime),
+        Number(streams[i].stopTime),
+        Number(currTime),
+        Number(streams[i].pauseInfo.pauseAt),
+        Number(streams[i].lastWithdrawTime),
+        Number(streams[i].pauseInfo.accPausedTime),
+        Number(streams[i].interval),
+        Number(streams[i].ratePerInterval),
+        streams[i].status,
+      );
+      sMap.set(streams[i].streamId, streamedAmount)
+    }
+    return sMap;
+  }
+
   useEffect(() => {
     pullStreams()
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, alertMessage, page, pageSize])
 
+  // 定时更新streamedAmountMap
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!connected) {
-        return;
-      }
-      pullStreams();
-    }, 3000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType])
+    let interval = setInterval(() => {
+      let sMap = getStreamedAmountMap(streams);
+      let wMap = getWithdrawableAmountMap(streams);
+      setStreamedAmountMap(sMap);
+      setWithdrawableAmountMap(wMap);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 
-  const CollapseContent = (props: {row: StreamInfo}) => {
-    const {row} = props
+  const CollapseContent = (props: {
+    row: StreamInfo,
+    streamedAmount: number,
+    withdrawableAmount: number,
+  }) => {
+    const {
+      row,
+      streamedAmount,
+      withdrawableAmount,
+    } = props
+
     return (
       <React.Fragment>
         <Collapse in={openMap.get(row.streamId)} timeout="auto" unmountOnExit>
@@ -159,11 +397,7 @@ const Stream = () => {
               <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
                 <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-                  <CountUp
-                    decimals={6}
-                    preserveValue
-                    end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
-                  />
+                  {Number(new BigNumber(streamedAmount).toFixed(6))}
                 </Typography>
                 <CustomTypography
                   variant="h5" align="center"
@@ -187,7 +421,7 @@ const Stream = () => {
                 >View on Explorer</Button>
               </div>
             </div>
-            <div className="flex flex-row items-center justify-between px-6 my-8">
+            <div className="flex flex-row items-center justify-between px-6 my-8 gap-0">
               <Box
                 sx={{
                   display: "flex",
@@ -207,15 +441,33 @@ const Stream = () => {
                   </Avatar>
                   <div>{stringWithEllipsis(row.senderId)}</div>
                 </div>
-                <IconButton>
+                <IconButton onClick={() => {
+                  copyAddress(row.senderId);
+                  setAlertMessage("Sender Address is Copied!")
+                  setShowAlert(true);
+                }}>
                   <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
                 </IconButton>
-
               </Box>
-              <Box sx={{flexShrink: 1}}>
-                {/*<IconButton>*/}
-                {/*  <CancelOutlinedIcon fontSize="small" />*/}
-                {/*</IconButton>*/}
+              <Box >
+                {
+                  row.status === StreamStatus.Canceled && statusTab[3].icon
+                }
+                {
+                  row.status === StreamStatus.Scheduled && statusTab[1].icon
+                }
+                {
+                  row.status === StreamStatus.Completed && statusTab[5].icon
+                }
+                {
+                  row.status === StreamStatus.Paused && statusTab[4].icon
+                }
+                {
+                  row.status === StreamStatus.Streaming &&
+                  <div className="streaming h-18">
+                    <img src={require("../../resources/Streaming.gif")} alt="Streaming"  width="100%" height="50%"/>
+                  </div>
+                }
               </Box>
               <Box
                 sx={{
@@ -236,38 +488,35 @@ const Stream = () => {
                   </Avatar>
                   <div>{stringWithEllipsis(row.recipientId)}</div>
                 </div>
-
-                <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
+                <IconButton onClick={() => {
+                  copyAddress(row.recipientId)
+                  setAlertMessage("Recipient Address is Copied!")
+                  setShowAlert(true);
+                }}>
+                  <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
+                </IconButton>
               </Box>
             </div>
             <Container>
               <div className="flex flex-row justify-between mb-4">
-                <div>StartTime</div>
+                <div>Start Time</div>
                 <div>{moment(parseInt(row.startTime)).format('YYYY-MM-DD HH:mm:ss')}</div>
                 <div>Streamed Amount</div>
                 <div>
                   <div className="flex flex-row">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp
-                      decimals={6}
-                      preserveValue
-                      end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
-                    />
+                    {Number(new BigNumber(streamedAmount).toFixed(6))}
                   </div>
                 </div>
               </div>
               <div className="flex flex-row justify-between">
-                <div>Stop Time</div>
-                <div>{moment(parseInt(row.stopTime)).format('YYYY-MM-DD HH:mm:ss')}</div>
-                <div>Withdrawn Amount</div>
-                <div>
+                <div className="shrink-0">Stop Time</div>
+                <div className="shrink-0">{moment(parseInt(row.stopTime)).format('YYYY-MM-DD HH:mm:ss')}</div>
+                <div className="shrink">Withdrawable Amount</div>
+                <div className="shrink-0">
                   <div className="flex flex-row align-middle text-center">
                     <p className="text-red-600 text-center">-</p>
-                    <CountUp
-                      decimals={6}
-                      preserveValue
-                      end={Number(new BigNumber(row.withdrawnAmount).toFixed(6))}
-                    />
+                    {Number(new BigNumber(withdrawableAmount).toFixed(6))}
                   </div>
                 </div>
               </div>
@@ -278,8 +527,21 @@ const Stream = () => {
     )
   }
 
-  const Row = (props: {row: StreamInfo}) => {
-    const {row} = props
+  const Row = (props: {
+    row: StreamInfo,
+    streamedAmountMap: Map<string, string>,
+    withdrawableAmountMap: Map<string, string>,
+  }) => {
+    const {row, streamedAmountMap, withdrawableAmountMap} = props
+    const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [extendValue, setExtendValue] = useState<number>(0);
+    const extendPopoverOpen = Boolean(extendAnchorEl);
+    const id = extendPopoverOpen ? 'simple-popover' : undefined;
+    const streamedAmount = streamedAmountMap.get(row.streamId)!
+    const withdrawableAmount = withdrawableAmountMap.get(row.streamId)!
+    if (row.streamId === "11") {
+      console.log('j89829', streamedAmount)
+    }
     return (
       <React.Fragment>
         <TableRow key={row.streamId}>
@@ -290,11 +552,7 @@ const Stream = () => {
             <div className="flex flex-row justify-center items-center">
               <p className="text-red-600 text-center">-</p>
               <div className="flex flex-row justify-center items-center">
-                <CountUp
-                  decimals={6}
-                  preserveValue
-                  end={Number(new BigNumber(row.streamedAmount).toFixed(6))}
-                />
+                <div>{Number(new BigNumber(streamedAmount).toFixed(6))}</div>
                 <div>/</div>
                 <div>{Number(new BigNumber(row.depositAmount).toFixed(6))}</div>
               </div>
@@ -308,19 +566,80 @@ const Stream = () => {
           </TableCell>
           <TableCell align="center">
             <div className="flex flex-row justify-center items-center gap-x-1">
-              {stringWithEllipsis(row.recipientId)}
-              <ContentCopyIcon fontSize="small"/>
+              <div>
+                {stringWithEllipsis(row.recipientId)}
+              </div>
+              <div>
+                <IconButton onClick={() => {
+                  copyAddress(row.recipientId)
+                  setAlertMessage("Recipient Address is Copied!")
+                  setShowAlert(true);
+                }}>
+                  <ContentCopyIcon fontSize="small"/>
+                </IconButton>
+              </div>
             </div>
           </TableCell>
-          <TableCell align="center">
-            <ShareIcon fontSize="small"/>
-          </TableCell>
-          <TableCell align="center">
-            <PauseCircleOutlinedIcon fontSize="small"/>
-          </TableCell>
-          <TableCell align="center">
-            <CancelOutlinedIcon fontSize="small"/>
-          </TableCell>
+          {
+            streamType === "Outgoing" ? <>
+              <TableCell align="center">
+                <IconButton onClick={(event) => {setExtendAnchorEl(event.currentTarget)}} disabled={shouldDisable(row)}>
+                  <ShareIcon fontSize="small"/>
+                </IconButton>
+                <Popover
+                  id={id}
+                  open={extendPopoverOpen}
+                  anchorEl={extendAnchorEl}
+                  onClose={() => {setExtendAnchorEl(null)}}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+
+                >
+                  <Box
+                    component="form"
+                    autoComplete="off"
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      paddingLeft: 2,
+                      paddingRight: 2,
+                      paddingBottom: 1,
+                      paddingTop: 1,
+                      borderRadius: "8px",
+                      gap: 2
+                    }}
+                  >
+                    <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
+                    <Button onClick={() => {extendStreams(extendValue, row)}}>Confirm</Button>
+                  </Box>
+                </Popover>
+              </TableCell>
+              <TableCell align="center">
+                {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
+                  <PlayCircleOutlineIcon fontSize="small" />
+                </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId)}} disabled={shouldDisable(row)}>
+                  <PauseCircleOutlinedIcon fontSize="small"/>
+                </IconButton>}
+              </TableCell>
+              <TableCell align="center">
+                <IconButton onClick={() => {cancelStreams(row.streamId)}} disabled={shouldDisable(row)}>
+                  <CancelOutlinedIcon fontSize="small"/>
+                </IconButton>
+              </TableCell>
+            </> : <>
+              <TableCell>
+                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}} disabled={shouldDisable(row)}>
+                  <MonetizationOnOutlinedIcon fontSize="small"/>
+                </IconButton>
+              </TableCell>
+            </>
+          }
           <TableCell align="center">
             <IconButton
               aria-label="expand row"
@@ -335,7 +654,11 @@ const Stream = () => {
         </TableRow>
         <TableRow sx={{bgcolor:"#1B2026"}}>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
-            <CollapseContent row={row}/>
+            <CollapseContent
+              row={row}
+              streamedAmount={Number(streamedAmount)}
+              withdrawableAmount={Number(withdrawableAmount)}
+            />
           </TableCell>
         </TableRow>
       </React.Fragment>
@@ -344,6 +667,16 @@ const Stream = () => {
 
   return (
     <Container>
+      <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
+        { alertStatus === "success" ?
+          <Alert onClose={() => setShowAlert(false)} severity="success">
+            {alertMessage}
+          </Alert> :
+          <Alert onClose={() => setShowAlert(false)} severity="error">
+            {alertMessage}
+          </Alert>
+        }
+      </Snackbar>
       <Typography
         variant="h5"
         color="white"
@@ -394,7 +727,6 @@ const Stream = () => {
               )
             })}
           </ToggleButtonGroup>
-
         </Box>
         <MyTable
           content={streams}
@@ -402,7 +734,7 @@ const Stream = () => {
           availablePageSize={[5, 10, 15]}
           columnList={columnList}
           columnAlign="center"
-          page={page}
+          page={page-1}
           pageSize={pageSize}
           totalNum={totalNum}
           onPageChange={(event, newPage) => {
@@ -416,7 +748,12 @@ const Stream = () => {
         >
           {streams.length === 0 ? <></> : streams.map((row) => {
             return (
-              <Row row={row} key={row.streamId}></Row>
+              <Row
+                key={`${row.streamId}-${streamedAmountMap.get(row.streamId)}-${withdrawableAmountMap.get(row.streamId)}`}
+                row={row}
+                streamedAmountMap={streamedAmountMap}
+                withdrawableAmountMap={withdrawableAmountMap}
+              />
             )
           })}
         </MyTable>

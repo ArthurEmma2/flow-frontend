@@ -1,19 +1,33 @@
-import React, {useState, useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Types} from "aptos";
 import netConfApt from "../../config/configuration.aptos";
-import { useWallet } from "@manahippo/aptos-wallet-adapter";
-import { FindAddress } from "../../data/address";
+import {WalletAdapterNetwork} from "@manahippo/aptos-wallet-adapter";
+import {FindAddress} from "../../data/address";
 import {ChainName} from "../../context/chainName";
 import Address from "../../types/address";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
-import { Container, Typography, Paper, Grid, FormControlLabel, Switch, Button, InputLabel, Select, MenuItem, TextField  } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Container,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Snackbar,
+  Switch,
+  TextField,
+  Typography
+} from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
 import AptosIcon from '../../resources/aptos4.png';
-import { DatePicker } from 'antd';
+import {DatePicker} from 'antd';
 import {gradientButtonStyle} from "../../style/button";
 import dayjs from 'dayjs';
-import { useCoingeckoValue, RawCoinInfo } from "../../hooks/useCoingecko";
-import { useLocation } from 'react-router-dom'; 
+import {RawCoinInfo, useCoingeckoValue} from "../../hooks/useCoingecko";
+import {useLocation} from 'react-router-dom';
 
 
 const { RangePicker } = DatePicker;
@@ -49,7 +63,7 @@ const intervals = [
 ]
 
 const NewStream: React.FC<{}> = () => {
-  const { signAndSubmitTransaction } = useAptosWallet();
+  const { wallet, network, account, signAndSubmitTransaction } = useAptosWallet();
   const [enableStreamRate, setEnableStreamRate] = useState(false);
   const [transactionName, setTransactionName] = useState("");
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -67,7 +81,12 @@ const NewStream: React.FC<{}> = () => {
   const {chainName} = useContext(ChainName);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [status, setStatus] = useState<string>("");
+
+  console.log('network', network);
+
   const handleSwitchChange = () => {
     if(enableStreamRate){
       setEnableStreamRate(false);
@@ -78,7 +97,6 @@ const NewStream: React.FC<{}> = () => {
     }
   }
 
-  const wallet = useWallet();
   const { state } = useLocation();
 
   const aptos: RawCoinInfo = {
@@ -104,10 +122,10 @@ const NewStream: React.FC<{}> = () => {
 
 
   const getAddress = () => {
-    if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
+    if(account == null || account.address == null || network == null || network.name == null){
       return;
     }
-    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
+    FindAddress(account.address as string, chainName, network.name, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -136,7 +154,7 @@ const NewStream: React.FC<{}> = () => {
     }
   }
 
-  const sendButtondisabled = () => {
+  const sendButtonDisabled = () => {
 
     if(transactionName.length === 0 || receiverAddress.length === 0){
       console.log("fall if 0")
@@ -158,7 +176,7 @@ const NewStream: React.FC<{}> = () => {
   }
 
   useEffect(() => {
-    if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
+    if(account == null || account.address == null || network == null || network.name == null){
       // placeholder
         return;
     }
@@ -203,20 +221,10 @@ const NewStream: React.FC<{}> = () => {
       })
   }
 
-
-  // const receiverOptions = generateAddressOptions();
-
-
-  const createStream = async (name: string, remark: string, recipientAddr: string, depositAmount: number,
+  const createStream = (name: string, remark: string, recipientAddr: string, depositAmount: number,
                         startTime: string, stopTime: string,
                         interval: number, canPause?: boolean,
                         closeable?: boolean, recipientModifiable?: boolean) => {
-                          console.log('name', name);
-                          console.log('remark', remark);
-
-
-                          console.log('startTime', startTime);
-                          console.log( 'stopTime', stopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::create`,
@@ -235,12 +243,17 @@ const NewStream: React.FC<{}> = () => {
       type_arguments: ['0x1::aptos_coin::AptosCoin'],
     };
 
-    console.log('transaction', transaction)
-    const res = await signAndSubmitTransaction(transaction)
-    console.log('res___', res)
+    const res = signAndSubmitTransaction(transaction)
+    return res;
   }
 
   const handleSend = () => {
+    // if (network != null && network.name != null && network.name !== WalletAdapterNetwork.Testnet) {
+    //   setStatus("failed");
+    //   setAlertMessage("Please switch to Testnet!")
+    //   setShowAlert(true);
+    //   return;
+    // }
     createStream(
       transactionName,
       remark,
@@ -252,7 +265,11 @@ const NewStream: React.FC<{}> = () => {
       true,
       true,
       true
-    );
+    ).then(() => {
+      setStatus("success");
+      setAlertMessage("The Stream has been created successfully!")
+      setShowAlert(true);
+    });
   }
 
   const generateOptions = (items:any, valueField: string, labelField: string) => {
@@ -272,6 +289,16 @@ const NewStream: React.FC<{}> = () => {
       >
         Continuous Streams
       </Typography>
+      <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
+        { status === "success" ?
+          <Alert onClose={() => setShowAlert(false)} severity="success">
+            {alertMessage}
+          </Alert> :
+          <Alert onClose={() => setShowAlert(false)} severity="error">
+            {alertMessage}
+          </Alert>
+        }
+      </Snackbar>
       <Grid container spacing={6}>
         <Grid item sm={8}>
           <Paper sx={{
@@ -453,7 +480,7 @@ const NewStream: React.FC<{}> = () => {
             }
             <div className="flex justify-center items-center mt-5 mb-2">
               <Button 
-                disabled={sendButtondisabled()}
+                disabled={sendButtonDisabled()}
                 size="small" sx={{...gradientButtonStyle, width: "150px"}} onClick={(e) => {
                 e.preventDefault();
                 handleSend();

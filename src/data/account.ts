@@ -6,6 +6,7 @@ import StreamInfo from "../types/streamInfo";
 import {NetworkConfiguration} from "../config";
 import BigNumber from 'bignumber.js';
 import {StreamStatus} from "../types/streamStatus";
+import Pagination from "../types/pagination";
 
 
 export interface NetworkAdapter {
@@ -18,15 +19,40 @@ export interface NetworkAdapter {
 
   getBalance(): Promise<string>;
 
-  getIncomingStreams(recipientAddress: string): Promise<StreamInfo[]>;
+  getIncomingStreams(recipientAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
 
-  getOutgoingStreams(senderAddress: string): Promise<StreamInfo[]>;
+  getOutgoingStreams(senderAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
 
   sendTransaction(from: string, to: string, amount: number): string;
 
   getTransactionStatus(hash: string): string;
 
   displayAmount(amount: BigNumber): string;
+
+  calculateStreamedAmount(
+    withdrawnAmount: number,
+    startTime: number,
+    stopTime: number,
+    currTime: number,
+    pausedAt: number,
+    lastWithdrawTime: number,
+    accPausedTime: number,
+    interval: number,
+    ratePerInterval: number,
+    status: StreamStatus,
+  ): number
+
+  calculateWithdrawableAmount(
+    startTime: number,
+    stopTime: number,
+    currTime: number,
+    pausedAt: number,
+    lastWithdrawTime: number,
+    accPausedTime: number,
+    interval: number,
+    ratePerInterval: number,
+    status: StreamStatus,
+  ): number
 
   // createStream(
   //   name: string, recipient: string, depositAmount: number,
@@ -67,7 +93,6 @@ class AptAdapter implements NetworkAdapter {
   async getBalance() {
     const resources = await this.client.getAccountResources(this.account.address as HexString);
     const coin = resources.find((r) => r.type.includes('0x1::aptos_coin::AptosCoin'));
-    console.debug("AptAdapter coin:", coin);
     if (typeof coin == "undefined") {
       return "0";
     }
@@ -75,9 +100,10 @@ class AptAdapter implements NetworkAdapter {
     return this.displayAmount(new BigNumber(coin.data.coin.value));
   }
 
-  async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
+  async getIncomingStreams(recvAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]> {
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     console.log('recevAddr', recvAddress);
+    const start = (page - 1) * pageSize;
     const address = netConfApt.contract;
     const event_handle = `${address}::${aptosConfigType}`;
     const eventField = "stream_events";
@@ -86,8 +112,8 @@ class AptAdapter implements NetworkAdapter {
       event_handle,
       eventField,
       {
-        start: BigInt(0),
-        limit: 300,
+        start: start,
+        limit: pageSize,
       }
     );
     // console.debug("AptAdapter getIncomingStreams events", eventsAll);
@@ -95,7 +121,7 @@ class AptAdapter implements NetworkAdapter {
     const eventsRecv = eventsAll.filter(event => event.data.recipient! === recvAddress);
     if (eventsRecv.length === 0) return [];
 
-    const streamIds = eventsRecv.map(event => event.data.id!);
+    const streamIds = Array.from(new Set(eventsRecv.map(event => event.data.id!)));
     // console.debug("AptAdapter getIncomingStreams streamIds", streamIds);
 
     const resources = await this.client.getAccountResources(address);
@@ -139,11 +165,11 @@ class AptAdapter implements NetworkAdapter {
       streams.push({
         name: stream.name,
         status: status,
-        createTime: (Number(stream.create_time) * 1000).toString(),
+        createTime: (Number(stream.create_at) * 1000).toString(),
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
-        lastWithdrawTime: stream.last_withdraw_time,
+        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
         ratePerInterval: stream.rate_per_interval,
         recipientId: stream.recipient,
         remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
@@ -152,7 +178,7 @@ class AptAdapter implements NetworkAdapter {
         stopTime: (Number(stream.stop_time) * 1000).toString(),
         withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
         pauseInfo: {
-          accPausedTime: stream.pauseInfo.acc_paused_time,
+          accPausedTime: (Number(stream.pauseInfo.acc_paused_time)).toString(),
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
@@ -179,15 +205,16 @@ class AptAdapter implements NetworkAdapter {
         limit: 300,
       }
     );
-    // console.info("AptAdapter getOutgoingStreams events", eventsAll[0]);
+    console.info("AptAdapter getOutgoingStreams events", eventsAll);
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     const eventsSend = eventsAll.filter(event => event.data.sender! === sendAddress);
     if (eventsSend.length === 0) return [];
     // console.info("AptAdapter getOutgoingStreams eventsSend", eventsSend);
 
-    const streamIds = eventsSend.map(event => event.data.id!);
+    const streamIds = Array.from(new Set(eventsSend.map(event => event.data.id!)));
+    console.log('streamId,', streamIds);
     const resources = await this.client.getAccountResources(address);
-    // console.info("AptAdapter getOutgoingStreams resources:", resources);
+    console.info("AptAdapter getOutgoingStreams resources:", resources);
     const resGlConf = resources.find((r) => r.type.includes(aptosConfigType))!;
     // @ts-ignore
     const outStreamHandle = resGlConf.data.streams_store.inner.handle!;
@@ -200,7 +227,10 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
-      console.log('stream', stream)
+
+      if (stream.name === "test283") {
+        console.log('streams8928: ', stream);
+      }
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
         Number(stream.start_time) * 1000,
@@ -213,7 +243,7 @@ class AptAdapter implements NetworkAdapter {
         Number(stream.rate_per_interval),
         status,
       )
-      console.log('withdrawableAmount', withdrawableAmount)
+      // console.log('withdrawableAmount', withdrawableAmount)
       const streamedAmount = this.calculateStreamedAmount(
         Number(stream.withdrawn_amount),
         Number(stream.start_time) * 1000,
@@ -233,7 +263,7 @@ class AptAdapter implements NetworkAdapter {
         depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
         streamId: stream.id,
         interval: stream.interval,
-        lastWithdrawTime: stream.last_withdraw_time,
+        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
         ratePerInterval: stream.rate_per_interval,
         recipientId: stream.recipient,
         remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
@@ -242,7 +272,7 @@ class AptAdapter implements NetworkAdapter {
         stopTime: (Number(stream.stop_time) * 1000).toString(),
         withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
         pauseInfo: {
-          accPausedTime: stream.pauseInfo.acc_paused_time,
+          accPausedTime: (Number(stream.pauseInfo.acc_paused_time) * 1000).toString(),
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
@@ -310,16 +340,19 @@ class AptAdapter implements NetworkAdapter {
 
   getStatus(stream: any, currTime: bigint): StreamStatus {
     if (Boolean(stream.closed)) {
-      return StreamStatus.Canceled
+      return StreamStatus.Canceled;
     }
     if (Boolean(stream.pauseInfo.paused)) {
-      return StreamStatus.Paused
+      return StreamStatus.Paused;
     }
     if (currTime < BigInt(stream.start_time) * BigInt(1000)) {
-      return StreamStatus.Scheduled
+      return StreamStatus.Scheduled;
     }
     if (currTime < BigInt(stream.stop_time) * BigInt(1000)) {
-      return StreamStatus.Streaming
+      return StreamStatus.Streaming;
+    }
+    if (currTime > BigInt(stream.stop_time) * BigInt(1000)) {
+      return StreamStatus.Completed;
     }
     return StreamStatus.Unknown;
   }
@@ -388,7 +421,7 @@ class AptAdapter implements NetworkAdapter {
       ratePerInterval,
       status
     )
-    return withdrawnAmount + withdrawable;
+    return withdrawnAmount + Number(this.displayAmount(new BigNumber(Number(withdrawable))));
   }
 }
 

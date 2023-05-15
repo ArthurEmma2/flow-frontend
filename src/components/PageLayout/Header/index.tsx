@@ -1,26 +1,27 @@
-import React, {useEffect} from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
-import { SelectChangeEvent } from '@mui/material/Select';
-import LogoIcon from "../../LogoIcon";
 import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
 import SuiWalletButton from "../../Wallets/SuiWallet";
-import {Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
+import {Avatar, Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
 import useCurrentPage from "../../../hooks/useCurrentPage";
 import {gradientButtonStyle} from "../../../style/button";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {ReactComponent as MoveFlowLogo} from "../../../resources/MFlogo.svg";
+import {Hashicon} from "@emeraldpay/hashicon-react";
+import {WalletAdapter} from "../../../context/WalletAdapter";
 
 
 export default function Header() {
   const {chainName, setChainName} = useContext(ChainName);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [currentPageName, setCurrentPage] = useCurrentPage();
+  const {walletAdapter} = useContext(WalletAdapter);
 
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
@@ -41,6 +42,8 @@ export default function Header() {
 
   const darkMode = useTheme().palette.mode === 'dark';
 
+  const address = walletAdapter?.getAddress() as string
+
   return (
     <Container>
       <Box sx={{
@@ -48,7 +51,6 @@ export default function Header() {
         top: "1rem",
         // width: "100%",
         height: "2rem",
-
         marginBottom: "2rem",
         display: "flex",
         justifyContent: "space-between",
@@ -85,7 +87,6 @@ export default function Header() {
           alignItems: "center",
           gap: 2,
         }}>
-
           { chainName === "sui" ? <SuiWalletButton /> : <AptosWalletButton/>}
           <IconButton aria-describedby={id} onClick={handleUserClick}>
             <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
@@ -105,7 +106,6 @@ export default function Header() {
             }}
             sx={{borderRadius: "8px"}}
           >
-            <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
           </Popover>
         </Box>
         {/*<Select*/}
