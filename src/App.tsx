@@ -65,7 +65,7 @@ function App() {
                   wallets={AptosWallets}
                   autoConnect
                   onError={(err: Error) => {
-                    console.log('Handle Error Message', err)
+                    console.log('Handle Error Message.', err)
                   }}
                 >
                   <Stack spacing={2} direction="column">
