@@ -17,7 +17,15 @@ export default function Footer() {
                 ml: 10,
             },
         }}>
-          <Typography variant="body2" color="white">
+          <Typography variant="body2" color="white" sx={{
+            position:"fixed",
+            bottom: "0px",
+            height: "3rem",
+            backgroundColor: "#0c0d13",
+            width: "100%",
+            padding: "1rem 0 1rem 0",
+            textAlign: "center",
+          }}>
             MoveFlow is
             <Link href="https://github.com/Move-Flow/Audit_report" color="primary" underline="none">
             {' audited'}
