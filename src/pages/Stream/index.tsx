@@ -30,7 +30,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShareIcon from '@mui/icons-material/Share';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import StreamInfo from "../../types/streamInfo";
 import MyTable from "../../components/Table";
 import {SxProps} from "@mui/system";
@@ -52,7 +52,6 @@ import {Types} from "aptos";
 import netConfApt from "../../config/configuration.aptos";
 // import Streaming from "resources/Streaming.gif";
 import "./index.css";
-import {WalletAdapterNetwork} from "@manahippo/aptos-wallet-adapter";
 
 const customTypographyStyle = {
   h5: {
@@ -377,7 +376,7 @@ const Stream = () => {
       let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
-    }, 1000);
+    }, 100000);
     return () => clearInterval(interval);
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 
@@ -470,8 +469,8 @@ const Stream = () => {
                 }
                 {
                   row.status === StreamStatus.Streaming &&
-                  <div className="streaming h-18">
-                    <img src={require("../../resources/Streaming.gif")} alt="Streaming"  width="100%" height="50%"/>
+                  <div>
+                    <img src={require("../../resources/Streaming.gif")} alt="Streaming" className="animated-gif"/>
                   </div>
                 }
               </Box>
