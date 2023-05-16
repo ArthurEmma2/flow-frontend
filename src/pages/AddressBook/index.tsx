@@ -18,7 +18,7 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import {gradientButtonStyle} from "../../style/button";
 import { useWallet } from "@manahippo/aptos-wallet-adapter";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const tableStyle: SxProps<Theme> = {
   background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
@@ -34,7 +34,7 @@ const AddressBook = () => {
   const [addressName, setAddressName] = useState<string>("");
   const [walletAddress, setWalletAddress] = useState<string>("");
   const {chainName} = useContext(ChainName);
-  const {network} = useContext(Network);
+  // const {network} = useContext(Network);
   const columnList = ["Name", "Address", "",]
   const [status, setStatus] = useState<string>("");
   const [showAlert, setShowAlert] = useState(false);
@@ -48,14 +48,13 @@ const AddressBook = () => {
 
   const wallet = useWallet();
   const navigate = useNavigate();
-  console.log('chainName2222', network);
+
   function handleAdd() {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       // placeholder
       return;
     }
-
-    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, network)
+    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, wallet.network.name)
       .then((response: { json: () => any; }) => {
         console.log("response", response);
         return response.json()
@@ -84,7 +83,7 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, network, editingObj)
+    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, wallet.network.name, editingObj)
       .then(response => response.text())
       .then(result => {
         setPage(1);
@@ -257,7 +256,7 @@ const AddressBook = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
     }
-    FindAddress(wallet.account.address as string, chainName, network, {page, pageSize})
+    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -281,9 +280,9 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    console.log("page:", page, "pageSize:", pageSize, "chainName:", chainName, "network:", network, "wallet:", wallet, "showAlert:", showAlert )
+    console.log("page:", page, "pageSize:", pageSize, "chainName:", chainName, "network:", wallet.network.name, "wallet:", wallet, "showAlert:", showAlert )
     getAddress();
-  }, [chainName, network, page, pageSize, wallet, showAlert])
+  }, [chainName, wallet.network.name, page, pageSize, wallet, showAlert])
 
   return (
     <Container>

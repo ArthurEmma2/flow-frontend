@@ -120,7 +120,6 @@ const Stream = () => {
   const pullStreams = () => {
     if (streamType === "Outgoing") {
       walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
-
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams =  streams.filter((stream) => {
@@ -194,7 +193,6 @@ const Stream = () => {
   }
 
   const shouldDisable = (row: StreamInfo) : boolean => {
-    console.debug("row: StreamInfo", row);
     if (row.status === StreamStatus.Completed || row.status === StreamStatus.Paused || row.status === StreamStatus.Canceled)
       return true;
     else
