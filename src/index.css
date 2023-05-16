@@ -65,3 +65,27 @@ code {
   color: white !important;
   margin-bottom: 8px !important;
 }
+
+.input-field:hover{
+  outline:  #f143e2 solid 1px !important;
+}
+
+.input-field:focus-visible {
+  outline:  #f143e2 solid 1px !important;
+}
+
+.ant-picker {
+  border: 1px solid transparent  !important;
+}
+
+.ant-picker:hover {
+  border: 1px solid #f143e2 !important;
+}
+
+.ant-picker:focus-within {
+  border: 1px solid #f143e2 !important;
+}
+
+.ant-picker-active-bar {
+  background: #f143e2 !important;
+}

@@ -186,7 +186,7 @@ const AddressBook = () => {
                 value={editingObj.name}
                 onChange={(e) => handleNameUpdate(e)}
                 style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
               />
           }
         </TableCell>
@@ -205,7 +205,7 @@ const AddressBook = () => {
                     value={editingObj.addr}
                     onChange={(e) => handleAddrUpdate(e)}
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   />
             }
           </div>
@@ -333,7 +333,7 @@ const AddressBook = () => {
                   value={addressName}
                   onChange={(e) => setAddressName(e.target.value)}
                   style={{ backgroundColor: "#313138"}}
-                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter Name"
                 />
               </div>
@@ -344,7 +344,7 @@ const AddressBook = () => {
                   value={walletAddress}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   style={{ backgroundColor: "#313138" }}
-                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter Address"
                 />
               </div>

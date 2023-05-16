@@ -19,7 +19,8 @@ import {
   Snackbar,
   Switch,
   TextField,
-  Typography
+  Typography,
+  outlinedInputClasses
 } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
 import AptosIcon from '../../resources/aptos4.png';
@@ -316,7 +317,7 @@ const NewStream: React.FC<{}> = () => {
                   value={transactionName}
                   onChange={(e) => setTransactionName(e.target.value)}
                   style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Transaction Name"
                 />        
               </Grid>
@@ -345,7 +346,10 @@ const NewStream: React.FC<{}> = () => {
                     },
                     '& input': {
                       fontSize: '0.875rem',
-                    }
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#f143e2 !important"
+                    },
                   }}
                   renderInput={(params) => 
                     <TextField {...params} label="address" size="small" sx={{ backgroundColor: "#313138", height:"35px"}}/>
@@ -359,7 +363,7 @@ const NewStream: React.FC<{}> = () => {
                   value={remark}
                   onChange={(e) => setRemark(e.target.value)}
                   style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter the remarks here (Optional)"
                 />        
               </Grid>
@@ -371,7 +375,10 @@ const NewStream: React.FC<{}> = () => {
                     width: "100%", 
                     height:"35px",
                     backgroundColor: "#313138",
-                    fontSize: "0.875rem"
+                    fontSize: "0.875rem",
+                    "&:hover > .MuiOutlinedInput-notchedOutline" : {
+                      borderColor : "#f143e2"
+                    }
                   }}
                   MenuProps={{
                     PaperProps: {
@@ -384,7 +391,7 @@ const NewStream: React.FC<{}> = () => {
                         },
                         "& .MuiMenuItem-root.Mui-selected:hover": {
                           backgroundColor: "grey"
-                        }
+                        },
                       }
                     }
                   }}
@@ -402,7 +409,7 @@ const NewStream: React.FC<{}> = () => {
                   value={amount}
                   onChange={(e: any) => setAmount(e.target.value)}
                   style={{ backgroundColor: "#313138", marginBottom: "0", color: enableStreamRate ? "grey" : "white" }}
-                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                  className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter amount to send"
                 />        
               </Grid>
@@ -441,7 +448,7 @@ const NewStream: React.FC<{}> = () => {
                     value={numberOfTimes}
                     onChange={(e: any) => setNumberOfTimes(e.target.value)}
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                     placeholder="E.g. 4"
                   />        
                 </Grid>
@@ -452,7 +459,7 @@ const NewStream: React.FC<{}> = () => {
                     value={amountPerTime}
                     onChange={(e: any) => setAmountPerTime(e.target.value)}
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
-                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
+                    className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                     placeholder="E.g. 4"
                   />        
                 </Grid>
@@ -465,7 +472,10 @@ const NewStream: React.FC<{}> = () => {
                       width: "100%",
                       backgroundColor: "#313138",
                       height:"35px",
-                      fontSize: "0.875rem"
+                      fontSize: "0.875rem",
+                      "&:hover > .MuiOutlinedInput-notchedOutline" : {
+                        borderColor : "#f143e2"
+                      }
                     }}
                     disableUnderline
                     MenuProps={{ 
