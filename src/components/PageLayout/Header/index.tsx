@@ -79,7 +79,10 @@ export default function Header() {
             </Tabs>
           </Box>
           <Box>
-            <Button size="medium" variant="outlined" fullWidth={true}  sx={gradientButtonStyle} onClick={(e) =>  navigate("new_stream")}>+ New Stream</Button>
+            <Button size="medium" variant="outlined" fullWidth={true}  sx={gradientButtonStyle} onClick={(e) => {
+                handleTabChange(e, "new_stream")
+                navigate("new_stream")
+            } }>+ New Stream</Button>
           </Box>
         </Box>
         <Box sx={{

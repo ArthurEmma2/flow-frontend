@@ -413,7 +413,7 @@ const Stream = () => {
               <div className="flex basis-1/3 justify-end">
                 <Button
                   variant="outlined"
-                  style={{fontSize: 8, width: 120, height: 30, borderRadius: 8 }}
+                  style={{fontSize: 8, width: 130, height: 30, borderRadius: 8 }}
                   onClick={(e) => {
                     console.log('netword', network)
                     window.open(`https://explorer.aptoslabs.com/account/${row.escrowAddress}?network=${network}`);
