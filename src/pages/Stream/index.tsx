@@ -118,6 +118,15 @@ const Stream = () => {
     setOpenMap(newMap);
   }
 
+  const tmpPagination = (newStreams: StreamInfo[]) => {
+    const streamsLen = newStreams.length;
+    // sort streams in descending date by field startTime
+    newStreams = newStreams.sort((a, b) => Number(b.startTime) - Number(a.startTime));
+    const index_start = (page - 1) * pageSize
+    const index_end = (page * pageSize > streamsLen) ? streamsLen : (page * pageSize);
+    return newStreams.slice(index_start, index_end);
+  }
+
   const pullStreams = () => {
     if (streamType === "Outgoing") {
       walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
@@ -130,8 +139,9 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
-        // todo: 手动分页
-        // newStreams =...
+
+        newStreams = tmpPagination(newStreams);
+
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
         let wMap = getWithdrawableAmountMap(newStreams);
@@ -150,8 +160,9 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
-        // todo: 手动分页
-        // newStreams =...
+        
+        newStreams = tmpPagination(newStreams);
+
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
         let wMap = getWithdrawableAmountMap(newStreams);
@@ -195,7 +206,6 @@ const Stream = () => {
   }
 
   const shouldDisable = (row: StreamInfo) : boolean => {
-    console.debug("row: StreamInfo", row);
     if (row.status === StreamStatus.Completed || row.status === StreamStatus.Paused || row.status === StreamStatus.Canceled)
       return true;
     else
