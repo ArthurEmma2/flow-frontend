@@ -149,7 +149,6 @@ const Stream = () => {
       })
     } else {
       walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
-
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
@@ -158,7 +157,7 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
-        
+
         newStreams = tmpPagination(newStreams);
 
         let sMap = getStreamedAmountMap(newStreams);
@@ -345,9 +344,6 @@ const Stream = () => {
         Number(streams[i].ratePerInterval),
         streams[i].status,
       )
-      if (streams[i].streamId === "13") {
-        console.log('withdrawableAmount___', withdrawableAmount)
-      }
       wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawableAmount)));
     }
     return wMap;
@@ -385,7 +381,7 @@ const Stream = () => {
       let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
-    }, 100000);
+    }, 1000);
     return () => clearInterval(interval);
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 
@@ -553,9 +549,6 @@ const Stream = () => {
     const id = extendPopoverOpen ? 'simple-popover' : undefined;
     const streamedAmount = streamedAmountMap.get(row.streamId)!
     const withdrawableAmount = withdrawableAmountMap.get(row.streamId)!
-    if (row.streamId === "11") {
-      console.log('j89829', streamedAmount)
-    }
     return (
       <React.Fragment>
         <TableRow key={row.streamId}>

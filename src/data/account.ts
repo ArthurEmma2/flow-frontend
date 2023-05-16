@@ -150,7 +150,7 @@ class AptAdapter implements NetworkAdapter {
         status,
       )
       const streamedAmount = this.calculateStreamedAmount(
-        Number(stream.withdrawn_amount),
+        Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
         Number(stream.start_time) * 1000,
         Number(stream.stop_time) * 1000,
         Number(currTime),
@@ -181,7 +181,7 @@ class AptAdapter implements NetworkAdapter {
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
-        streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),
+        streamedAmount: streamedAmount.toString(),
         withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
         escrowAddress: stream.escrow_address,
       });
@@ -226,10 +226,6 @@ class AptAdapter implements NetworkAdapter {
       };
       // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
       const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
-
-      if (stream.name === "test283") {
-        console.log('streams8928: ', stream);
-      }
       const status = this.getStatus(stream, currTime)
       const withdrawableAmount = this.calculateWithdrawableAmount(
         Number(stream.start_time) * 1000,
@@ -244,7 +240,7 @@ class AptAdapter implements NetworkAdapter {
       )
       // console.log('withdrawableAmount', withdrawableAmount)
       const streamedAmount = this.calculateStreamedAmount(
-        Number(stream.withdrawn_amount),
+        Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
         Number(stream.start_time) * 1000,
         Number(stream.stop_time) * 1000,
         Number(currTime),
@@ -275,7 +271,7 @@ class AptAdapter implements NetworkAdapter {
           pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
           paused: stream.pauseInfo.paused,
         },
-        streamedAmount: this.displayAmount(new BigNumber(streamedAmount)).toString(),
+        streamedAmount: streamedAmount.toString(),
         withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
         escrowAddress: stream.escrow_address,
       });
