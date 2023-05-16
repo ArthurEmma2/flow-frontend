@@ -102,7 +102,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`$${outgoingStreamedSum} / ${outgoingAmount}`} sx={amountContentStyle}></CardContent>
+          <CardContent content={`${outgoingStreamedSum} / ${outgoingAmount} APT`} sx={amountContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -115,7 +115,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`$${incomingStreamedSum} / ${incomingAmount}`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={`${incomingStreamedSum} / ${incomingAmount} APT`} sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -128,7 +128,7 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`$${withdrawableAmount}`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={`${withdrawableAmount} APT`} sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -136,7 +136,7 @@ const Dashboard = () => {
         <React.Fragment>
           <div className="flex flex-row justify-start items-center gap-x-1">
             <AccountCircleOutlinedIcon htmlColor="#40187f"/>
-            <Typography variant="h6"> Contracts in Address Book</Typography>
+            <Typography variant="h6"> Contacts in Address Book</Typography>
           </div>
         </React.Fragment>,
       content:
@@ -357,7 +357,7 @@ const Dashboard = () => {
             <Grid style={{height: "100%"}}>
               <Box sx={{height: "100%"}}>
                 <MyCard
-                  content={<CardContent content={`$${balance}`} sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
+                  content={<CardContent content={`${balance} APT`} sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
                   cardStyle={walletAmountCardStyle}
                 >
                   <div className="flex flex-row justify-start items-center">

@@ -10,7 +10,7 @@ import { AptosWallets } from "./utils/aptosConfigs";
 import {Stack} from "@mui/material";
 import Box from "@mui/material/Box";
 import {ThemeProvider} from "@mui/material";
-import "@suiet/wallet-kit/style.css";
+// import "@suiet/wallet-kit/style.css";
 import AddressBook from "./pages/AddressBook";
 import {darkTheme} from "./style/theme";
 import Dashboard from "./pages/Dashboard";
