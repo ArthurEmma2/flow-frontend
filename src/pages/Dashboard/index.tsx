@@ -14,7 +14,6 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import {WalletAdapter} from "../../context/WalletAdapter";
-import BigNumber from "bignumber.js";
 import {StreamStatus} from "../../types/streamStatus";
 import StreamInfo from "../../types/streamInfo";
 import {FindAddress} from "../../data/address";
@@ -245,7 +244,7 @@ const Dashboard = () => {
 
         walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
           setIncomingNum(streams.length);
-          console.debug("getIncomingStreams", "streams", streams[0]);
+          console.info("getIncomingStreams dashboard", streams);
           const incomingSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
@@ -285,16 +284,13 @@ const Dashboard = () => {
           setOutgoingNum(streams.length);
           // console.debug("getOutgoingStreams", "streams", streams[0]);
           const outgoingSum = streams.reduce((acc, stream) => {
-            console.log('stream.depositAmount', stream.depositAmount)
             return acc + Number(stream.depositAmount);
           }, 0);
-          console.log("getOutgoingStreams", "streams outgoing sum", outgoingSum);
           setOutgoingAmount(Number(outgoingSum.toFixed(6)));
 
           const outgoingStreamedSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          console.log('outgoingStreamedSum', outgoingStreamedSum);
           setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(6)));
 
           const scheduledLenOut = streams.reduce((acc, stream) => {
