@@ -41,13 +41,13 @@ const MAINNET_CONFIG = new NetworkConfiguration(
 
 const getNetworkConfiguration = (env: string): NetworkConfiguration => {
   switch (env) {
-    case "localhost":
+    case "Localhost":
       return LOCAL_CONFIG;
-    case "devnet":
+    case "Devnet":
       return DEVNET_CONFIG;
-    case "testnet":
+    case "Testnet":
       return TESTNET_CONFIG;
-    case "mainnet":
+    case "Mainnet":
       return MAINNET_CONFIG;
     default:
       return LOCAL_CONFIG;
