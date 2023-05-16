@@ -120,7 +120,8 @@ const Stream = () => {
 
   const pullStreams = () => {
     if (streamType === "Outgoing") {
-      walletAdapter?.getOutgoingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
+      walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams =  streams.filter((stream) => {
@@ -129,6 +130,8 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
+        // todo: 手动分页
+        // newStreams =...
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
         let wMap = getWithdrawableAmountMap(newStreams);
@@ -137,7 +140,8 @@ const Stream = () => {
         setStreams(newStreams);
       })
     } else {
-      walletAdapter?.getIncomingStreams(accountAddr, {page: page, pageSize: pageSize}).then((streams: StreamInfo[]) => {
+      walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
+
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
@@ -146,6 +150,8 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
+        // todo: 手动分页
+        // newStreams =...
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
         let wMap = getWithdrawableAmountMap(newStreams);

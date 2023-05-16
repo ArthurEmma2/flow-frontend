@@ -19,9 +19,9 @@ export interface NetworkAdapter {
 
   getBalance(): Promise<string>;
 
-  getIncomingStreams(recipientAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
+  getIncomingStreams(recipientAddress: string): Promise<StreamInfo[]>;
 
-  getOutgoingStreams(senderAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]>;
+  getOutgoingStreams(senderAddress: string): Promise<StreamInfo[]>;
 
   sendTransaction(from: string, to: string, amount: number): string;
 
@@ -100,10 +100,9 @@ class AptAdapter implements NetworkAdapter {
     return this.displayAmount(new BigNumber(coin.data.coin.value));
   }
 
-  async getIncomingStreams(recvAddress: string, {page, pageSize}: Pagination): Promise<StreamInfo[]> {
+  async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     console.log('recevAddr', recvAddress);
-    const start = (page - 1) * pageSize;
     const address = netConfApt.contract;
     const event_handle = `${address}::${aptosConfigType}`;
     const eventField = "stream_events";
@@ -112,8 +111,8 @@ class AptAdapter implements NetworkAdapter {
       event_handle,
       eventField,
       {
-        start: start,
-        limit: pageSize,
+        start: 0,
+        limit: 1000,
       }
     );
     // console.debug("AptAdapter getIncomingStreams events", eventsAll);
@@ -202,7 +201,7 @@ class AptAdapter implements NetworkAdapter {
       eventField,
       {
         start: BigInt(0),
-        limit: 300,
+        limit: 1000,
       }
     );
     console.info("AptAdapter getOutgoingStreams events", eventsAll);
