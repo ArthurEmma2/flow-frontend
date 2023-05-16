@@ -149,7 +149,6 @@ const Stream = () => {
       })
     } else {
       walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
-
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
@@ -382,7 +381,7 @@ const Stream = () => {
       let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
-    }, 100000);
+    }, 1000);
     return () => clearInterval(interval);
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 

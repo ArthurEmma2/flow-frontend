@@ -289,6 +289,7 @@ const Dashboard = () => {
           setOutgoingAmount(Number(outgoingSum.toFixed(6)));
 
           const outgoingStreamedSum = streams.reduce((acc, stream) => {
+            console.log(`aaa stream ${stream.streamId}, ${stream.streamedAmount}`)
             return acc + Number(stream.streamedAmount);
           }, 0)
           setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(6)));
