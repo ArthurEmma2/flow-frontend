@@ -1,4 +1,4 @@
-import {ConnectModal, useWallet} from '@suiet/wallet-kit';
+// import {ConnectModal, useWallet} from '@suiet/wallet-kit';
 import {useState} from "react";
 import Button from "@mui/material/Button";
 
@@ -9,16 +9,19 @@ const MySuiWalletButton = () => {
 }
 
 export default function SuiWalletButton() {
-  const { connected } = useWallet();
-  const [showModal, setShowModal] = useState<boolean>(false)
-
-  if (connected) {
-    return <MySuiWalletButton/>
-  }
-
+  // const { connected } = useWallet();
+  // const [showModal, setShowModal] = useState<boolean>(false)
+  //
+  // if (connected) {
+  //   return <MySuiWalletButton/>
+  // }
+  //
+  // return (
+  //   <ConnectModal open={showModal} onOpenChange={(open) => {setShowModal(open)}} >
+  //     <Button>Connect Wallet1</Button>
+  //   </ConnectModal>
+  // )
   return (
-    <ConnectModal open={showModal} onOpenChange={(open) => {setShowModal(open)}} >
-      <Button>Connect Wallet1</Button>
-    </ConnectModal>
+    <div></div>
   )
 }

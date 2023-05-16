@@ -360,7 +360,7 @@ const NewStream: React.FC<{}> = () => {
                   onChange={(e) => setRemark(e.target.value)}
                   style={{ backgroundColor: "#313138", marginBottom: "0" }}
                   className="w-full bg-blue-200 text-sm rounded mb-4 p-2"
-                  placeholder="Enter the remarks here                                                                                                                          {Optional}"
+                  placeholder="Enter the remarks here (Optional)"
                 />        
               </Grid>
               <Grid item sm={6}>

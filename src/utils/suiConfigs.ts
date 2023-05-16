@@ -1,11 +1,11 @@
-import {SuiTestnetChain, SuiDevnetChain, SuiWallet, SuietWallet} from "@suiet/wallet-kit";
+// import {SuiTestnetChain, SuiDevnetChain, SuiWallet, SuietWallet} from "@suiet/wallet-kit";
 
 export const SupportChains = [
-  SuiTestnetChain,
-  SuiDevnetChain
+  // SuiTestnetChain,
+  // SuiDevnetChain
 ]
 
 export const DefaultWallets = [
-  SuietWallet,
-  SuiWallet,
+  // SuietWallet,
+  // SuiWallet,
 ]

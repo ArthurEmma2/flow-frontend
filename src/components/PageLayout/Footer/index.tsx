@@ -18,9 +18,9 @@ export default function Footer() {
             },
         }}>
           <Typography variant="body2" color="white">
-          MoveFlow Is 
+          MoveFlow is
             <Link href="https://github.com/Move-Flow/Audit_report" color="primary" underline="none">
-            {' Audited'}
+            {' audited'}
             </Link>   
         </Typography>
         </Box>
