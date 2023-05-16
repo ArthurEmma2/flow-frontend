@@ -34,7 +34,7 @@ const AddressBook = () => {
   const [addressName, setAddressName] = useState<string>("");
   const [walletAddress, setWalletAddress] = useState<string>("");
   const {chainName} = useContext(ChainName);
-  // const {network} = useContext(Network);
+  const {network} = useContext(Network);
   const columnList = ["Name", "Address", "",]
   const [status, setStatus] = useState<string>("");
   const [showAlert, setShowAlert] = useState(false);
@@ -54,7 +54,7 @@ const AddressBook = () => {
       // placeholder
       return;
     }
-    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, wallet.network.name)
+    AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, network)
       .then((response: { json: () => any; }) => {
         console.log("response", response);
         return response.json()
@@ -83,7 +83,7 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, wallet.network.name, editingObj)
+    UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, network, editingObj)
       .then(response => response.text())
       .then(result => {
         setPage(1);
@@ -256,7 +256,7 @@ const AddressBook = () => {
     if(wallet.account == null || wallet.account.address == null || wallet.network == null || wallet.network.name == null){
       return;
     }
-    FindAddress(wallet.account.address as string, chainName, wallet.network.name, {page, pageSize})
+    FindAddress(wallet.account.address as string, chainName, network, {page, pageSize})
     .then(response => response.json())
     .then(result => {
       console.log('result___', result);
@@ -280,9 +280,8 @@ const AddressBook = () => {
       // placeholder
         return;
     }
-    console.log("page:", page, "pageSize:", pageSize, "chainName:", chainName, "network:", wallet.network.name, "wallet:", wallet, "showAlert:", showAlert )
     getAddress();
-  }, [chainName, wallet.network.name, page, pageSize, wallet, showAlert])
+  }, [chainName, network, page, pageSize, wallet, showAlert])
 
   return (
     <Container>
