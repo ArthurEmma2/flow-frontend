@@ -6,6 +6,7 @@ export const gradientButtonStyle = {
   border: "0px",
   color: "white",
   height: 35,
+  font: "3vh",
 }
 
 export const newStreamButtonStyle = {
