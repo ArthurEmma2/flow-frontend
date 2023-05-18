@@ -47,7 +47,7 @@ export default function AptosWalletButton() {
       <div className="flex flex-row items-center justify-center gap-x-1">
         {connected ?
           <React.Fragment>
-            <span>{stringWithEllipsis(address as string, 4)}</span>
+            {stringWithEllipsis(address as string, 4)}
             {/*<IconButton onClick={() => {*/}
             {/*  copyAddress(address as string);*/}
             {/*}}>*/}
@@ -57,7 +57,7 @@ export default function AptosWalletButton() {
           </React.Fragment>
           :
           <React.Fragment>
-            <span>Connect Wallet</span>
+            Connect Wallet
           </React.Fragment>
         }
       </div>
@@ -88,7 +88,7 @@ export default function AptosWalletButton() {
           height: "35px",
         }}
       >
-        <div className="flex flex-row items-center justify-center gap-x-1">
+        <div className="flex flex-row items-center justify-center gap-x-1 whitespace-nowrap">
           <ConnectedButton connected={connected} address={account?.address!}></ConnectedButton>
           {open ? <KeyboardArrowDownIcon/> : <KeyboardArrowUpIcon/>}
         </div>
