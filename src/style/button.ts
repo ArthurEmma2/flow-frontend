@@ -8,7 +8,3 @@ export const gradientButtonStyle = {
   height: 35,
   whiteSpace: "nowrap",
 }
-
-export const newStreamButtonStyle = {
-  height: "20px !important"
-}
