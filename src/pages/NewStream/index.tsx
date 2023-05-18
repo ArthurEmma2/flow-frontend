@@ -86,7 +86,7 @@ const NewStream: React.FC<{}> = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [status, setStatus] = useState<string>("");
 
-  console.log('network', network);
+  // console.debug('network', network);
 
   const handleSwitchChange = () => {
     if(enableStreamRate){
@@ -279,7 +279,7 @@ const NewStream: React.FC<{}> = () => {
     })
   }
 
-  console.log("receiverInputText", receiverInputText);
+  // console.debug("receiverInputText", receiverInputText);
 
   return (
     <Container>
