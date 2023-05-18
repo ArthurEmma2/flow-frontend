@@ -6,11 +6,7 @@ export const gradientButtonStyle = {
   border: "0px",
   color: "white",
   height: 35,
-<<<<<<< Updated upstream
-  font: "3vh",
-=======
   whiteSpace: "nowrap",
->>>>>>> Stashed changes
 }
 
 export const newStreamButtonStyle = {
