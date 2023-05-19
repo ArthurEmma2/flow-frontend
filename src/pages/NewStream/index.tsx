@@ -29,6 +29,7 @@ import {gradientButtonStyle} from "../../style/button";
 import dayjs from 'dayjs';
 import {RawCoinInfo, useCoingeckoValue} from "../../hooks/useCoingecko";
 import {useLocation} from 'react-router-dom';
+import useCurrentPage from "../../hooks/useCurrentPage";
 
 
 const { RangePicker } = DatePicker;

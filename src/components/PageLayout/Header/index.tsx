@@ -17,11 +17,10 @@ import {Hashicon} from "@emeraldpay/hashicon-react";
 import {WalletAdapter} from "../../../context/WalletAdapter";
 
 
-export default function Header() {
+export default function Header(props: any) {
   const {chainName, setChainName} = useContext(ChainName);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const [currentPageName, setCurrentPage] = useCurrentPage();
-  console.log('currentPageName', currentPageName);
+  // const [currentPageName, setCurrentPage] = useCurrentPage();
   const {walletAdapter} = useContext(WalletAdapter);
 
   const open = Boolean(anchorEl);
@@ -30,7 +29,7 @@ export default function Header() {
   const navigate = useNavigate();
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log('newTab', newValue);
-    setCurrentPage(newValue as string);
+    props.setCurrentPage(newValue as string);
   };
 
   const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -71,7 +70,7 @@ export default function Header() {
           gap: 2,
         }}>
           <Box>
-            <Tabs aria-label="basic tabs example" value={currentPageName} onChange={handleTabChange}>
+            <Tabs aria-label="basic tabs example" value={props.currentPageName} onChange={handleTabChange}>
               <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
               <Tab label="Stream" value="stream" href="/stream"/>
               <Tab label="Address Book" value="address_book" href="/address_book"/>

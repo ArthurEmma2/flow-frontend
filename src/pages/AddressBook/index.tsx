@@ -26,7 +26,7 @@ const tableStyle: SxProps<Theme> = {
   width: "100%",
 }
 
-const AddressBook = () => {
+const AddressBook = (props: any) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -163,6 +163,7 @@ const AddressBook = () => {
 
   function handleSend(disabled: boolean = false, row: Address) {
     if(!disabled){
+      props.setCurrentPage("New Stream");
       navigate("/new_stream", {
         state: {
           address: row.addr,

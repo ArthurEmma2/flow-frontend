@@ -19,6 +19,7 @@ import Stream from "./pages/Stream";
 import {WalletAdapter} from "./context/WalletAdapter";
 import {NetworkAdapter} from "./data/account";
 import NewStream from "./pages/NewStream";
+import useCurrentPage from "./hooks/useCurrentPage";
 
 export const router = [
   {
@@ -42,12 +43,13 @@ export const router = [
 function App() {
   const [chainName, setChainName] = useState<string>('aptos')
   const [walletAdapter, setWalletAdapter] = useState<NetworkAdapter>();
+  const [currentPageName, setCurrentPage] = useCurrentPage();
 
   return (
     <ThemeProvider theme={darkTheme}>
       <ChainName.Provider value={{chainName, setChainName}}>
         <WalletAdapter.Provider value={{walletAdapter, setWalletAdapter}}>
-          <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20,}}>
+          <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20}}>
             {
               // chainName === "sui" ?
               //   <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
@@ -70,14 +72,14 @@ function App() {
                 >
                   <Stack spacing={2} direction="column">
                     <Box>
-                      <Header></Header>
+                      <Header currentPageName={currentPageName} setCurrentPage={setCurrentPage}></Header>
                     </Box>
                     <Box>
                       <Box>
                         <Routes>
                           <Route path="/dashboard" element={<Dashboard/>} />
                           <Route path="/stream" element={<Stream/>} />
-                          <Route path="/address_book" element={<AddressBook/>} />
+                          <Route path="/address_book" element={<AddressBook currentPageName={currentPageName} setCurrentPage={setCurrentPage}/>} />
                           <Route path="/new_stream" element={<NewStream/>} />
                           <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         </Routes>
