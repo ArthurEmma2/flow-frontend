@@ -113,8 +113,6 @@ const Stream = () => {
   const [popoverRow, setPopoverRow] = useState<StreamInfo | null>(null);
   const [extendValue, setExtendValue] = useState<number>(0);
 
-  console.log("extendAnchorEl:", extendAnchorEl)
-
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
   function changeCollapseButton(streamId: string) {
@@ -189,12 +187,6 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: number, row: StreamInfo) => {
-    // if (network != null && network !== "testnet") {
-    //   setAlertStatus("failed");
-    //   setAlertMessage("Please switch to Testnet!")
-    //   setShowAlert(true);
-    //   return;
-    // }
     const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
     console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
@@ -229,12 +221,6 @@ const Stream = () => {
   }
 
   const pauseStreams = (streamId: string) => {
-    // if (network != null && network !== "testnet") {
-    //   setAlertStatus("failed");
-    //   setAlertMessage("Please switch to Testnet!")
-    //   setShowAlert(true);
-    //   return;
-    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::pause`,
@@ -259,12 +245,6 @@ const Stream = () => {
   }
 
   const cancelStreams = (streamId: string) => {
-    // if (network != null && network !== "testnet") {
-    //   setAlertStatus("failed");
-    //   setAlertMessage("Please switch to Testnet!")
-    //   setShowAlert(true);
-    //   return;
-    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::close`,
@@ -289,12 +269,6 @@ const Stream = () => {
   }
 
   const withdrawStreams = (streamId: number) => {
-    // if (network != null && network !== "testnet") {
-    //   setAlertStatus("failed");
-    //   setAlertMessage("Please switch to Testnet!")
-    //   setShowAlert(true);
-    //   return;
-    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::withdraw`,
@@ -319,12 +293,6 @@ const Stream = () => {
   }
 
   const resumeStreams = (streamId: string) => {
-    // if (network != null && network !== "testnet") {
-    //   setAlertStatus("failed");
-    //   setAlertMessage("Please switch to Testnet!")
-    //   setShowAlert(true);
-    //   return;
-    // }
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::resume`,
@@ -474,6 +442,7 @@ const Stream = () => {
                   copyAddress(row.senderId);
                   setAlertMessage("Sender Address is Copied!")
                   setShowAlert(true);
+                  setAlertStatus("success");
                 }}>
                   <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
                 </IconButton>
@@ -521,6 +490,7 @@ const Stream = () => {
                   copyAddress(row.recipientId)
                   setAlertMessage("Recipient Address is Copied!")
                   setShowAlert(true);
+                  setAlertStatus("success");
                 }}>
                   <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
                 </IconButton>
@@ -562,10 +532,10 @@ const Stream = () => {
     withdrawableAmountMap: Map<string, string>,
   }) => {
     const {row, streamedAmountMap, withdrawableAmountMap} = props
-    // const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-    // const [extendValue, setExtendValue] = useState<number>(0);
-    // const extendPopoverOpen = Boolean(extendAnchorEl);
-    // const id = extendPopoverOpen ? 'simple-popover' : undefined;
+    const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [extendValue, setExtendValue] = useState<number>(0);
+    const extendPopoverOpen = Boolean(extendAnchorEl);
+    const id = extendPopoverOpen ? 'simple-popover' : undefined;
     const streamedAmount = streamedAmountMap.get(row.streamId)!
     const withdrawableAmount = withdrawableAmountMap.get(row.streamId)!
     return (
@@ -600,6 +570,7 @@ const Stream = () => {
                   copyAddress(row.recipientId)
                   setAlertMessage("Recipient Address is Copied!")
                   setShowAlert(true);
+                  setAlertStatus("success");
                 }}>
                   <ContentCopyIcon fontSize="small"/>
                 </IconButton>
@@ -616,9 +587,9 @@ const Stream = () => {
                 }} disabled={shouldDisable(row)}>
                   <ShareIcon fontSize="small"/>
                 </IconButton>
-                {/* <Popover
-                  id={"simple-popover"}
-                  open={openedPopoverId !== null}
+                <Popover
+                  id={id}
+                  open={extendPopoverOpen}
                   anchorEl={extendAnchorEl}
                   onClose={() => {setExtendAnchorEl(null)}}
                   anchorOrigin={{
@@ -648,7 +619,7 @@ const Stream = () => {
                     <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
                     <Button onClick={() => {extendStreams(extendValue, row)}}>Confirm</Button>
                   </Box>
-                </Popover> */}
+                </Popover>
               </TableCell>
               <TableCell align="center">
                 {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
@@ -758,52 +729,51 @@ const Stream = () => {
             })}
           </ToggleButtonGroup>
         </Box>
-        <Popover
-          id={openedPopoverId !== null ? "simple-popover": undefined}
-          open={openedPopoverId !== null}
-          anchorEl={extendAnchorEl}
-          onClose={() => {
-            setExtendAnchorEl(null);
-            setOpenedPopoverId(null);
-            setPopoverRow(null);
-          }}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          sx={{
-            position: 'absolute',
-            left: iconPosition?.left-100,
-            top: iconPosition?.top-130,
-          }}
-
-        >
-          <Box
-            component="form"
-            autoComplete="off"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              paddingLeft: 2,
-              paddingRight: 2,
-              paddingBottom: 1,
-              paddingTop: 1,
-              borderRadius: "8px",
-              gap: 2
-            }}
-          >
-            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}/>
-            <Button onClick={() => {
-              if(popoverRow !== null){
-                extendStreams(extendValue, popoverRow)
-              }
-            }}>Confirm</Button>
-          </Box>
-            </Popover>
+        {/*<Popover*/}
+        {/*  id={openedPopoverId !== null ? "simple-popover": undefined}*/}
+        {/*  open={openedPopoverId !== null}*/}
+        {/*  anchorEl={extendAnchorEl}*/}
+        {/*  onClose={() => {*/}
+        {/*    setExtendAnchorEl(null);*/}
+        {/*    setOpenedPopoverId(null);*/}
+        {/*    setPopoverRow(null);*/}
+        {/*  }}*/}
+        {/*  anchorOrigin={{*/}
+        {/*    vertical: 'bottom',*/}
+        {/*    horizontal: 'right',*/}
+        {/*  }}*/}
+        {/*  transformOrigin={{*/}
+        {/*    vertical: 'top',*/}
+        {/*    horizontal: 'right',*/}
+        {/*  }}*/}
+        {/*  sx={{*/}
+        {/*    position: 'absolute',*/}
+        {/*    left: iconPosition?.left-100,*/}
+        {/*    top: iconPosition?.top-130,*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <Box*/}
+        {/*    component="form"*/}
+        {/*    autoComplete="off"*/}
+        {/*    sx={{*/}
+        {/*      display: "flex",*/}
+        {/*      flexDirection: "column",*/}
+        {/*      paddingLeft: 2,*/}
+        {/*      paddingRight: 2,*/}
+        {/*      paddingBottom: 1,*/}
+        {/*      paddingTop: 1,*/}
+        {/*      borderRadius: "8px",*/}
+        {/*      gap: 2*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}/>*/}
+        {/*    <Button onClick={() => {*/}
+        {/*      if(popoverRow !== null){*/}
+        {/*        extendStreams(extendValue, popoverRow)*/}
+        {/*      }*/}
+        {/*    }}>Confirm</Button>*/}
+        {/*  </Box>*/}
+        {/*</Popover>*/}
         <MyTable
           content={streams}
           needPagination={true}

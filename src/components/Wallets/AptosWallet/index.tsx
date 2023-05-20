@@ -86,6 +86,7 @@ export default function AptosWalletButton() {
           color: "rgba(255, 255, 255, 0.6)",
           borderRadius: "6px",
           height: "35px",
+          width: "150px",
         }}
       >
         <div className="flex flex-row items-center justify-center gap-x-1 whitespace-nowrap">
