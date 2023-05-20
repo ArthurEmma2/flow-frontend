@@ -196,7 +196,12 @@ const AddressBook = (props: any) => {
               (!editing || (editing && row.id !== editingObj.id)) ? (
                 <>
                   {stringWithEllipsis(row.addr)}
-                  <IconButton onClick={() => {copyAddress(row.addr)}} disabled={disabled}>
+                  <IconButton onClick={() => {
+                    copyAddress(row.addr)
+                    setAlertMessage("Recipient Address is Copied!")
+                    setShowAlert(true);
+                    setStatus("success");
+                  }} disabled={disabled}>
                     <ContentCopyIcon fontSize="small"/>
                   </IconButton>
                 </>
