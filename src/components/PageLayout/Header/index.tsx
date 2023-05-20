@@ -57,7 +57,7 @@ export default function Header(props: any) {
         alignItems: "center",
         fontSize: "1.25rem",
         '& > :not(style) + :not(style)': {
-          ml: 15,
+          ml: 0,
         },
       }}>
         <Box>
