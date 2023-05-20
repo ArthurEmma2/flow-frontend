@@ -412,7 +412,6 @@ const Stream = () => {
                   variant="outlined"
                   style={{fontSize: 8, width: 130, height: 30, borderRadius: 8, whiteSpace: "nowrap", }}
                   onClick={(e) => {
-                    console.log('netword', network)
                     window.open(`https://explorer.aptoslabs.com/account/${row.escrowAddress}?network=${network}`);
                   }}
                 >View on Explorer</Button>
@@ -449,16 +448,27 @@ const Stream = () => {
               </Box>
               <Box >
                 {
-                  row.status === StreamStatus.Canceled && statusTab[3].icon
+                  row.status === StreamStatus.Canceled &&
+                  <div className="px-2">
+                    {statusTab[3].icon}
+                  </div>
                 }
                 {
-                  row.status === StreamStatus.Scheduled && statusTab[1].icon
+                  row.status === StreamStatus.Scheduled &&
+                  <div className="px-2">
+                    {statusTab[1].icon}
+                  </div>
                 }
                 {
-                  row.status === StreamStatus.Completed && statusTab[5].icon
+                  row.status === StreamStatus.Completed &&
+                  <div className="px-2">
+                    {statusTab[5].icon}
+                  </div>
                 }
                 {
-                  row.status === StreamStatus.Paused && statusTab[4].icon
+                  row.status === StreamStatus.Paused && <div className="px-2">
+                    {statusTab[4].icon}
+                  </div>
                 }
                 {
                   row.status === StreamStatus.Streaming &&
