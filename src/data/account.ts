@@ -129,7 +129,8 @@ class AptAdapter implements NetworkAdapter {
     // @ts-ignore
     const inStreamHandle = resGlConf.data.streams_store.inner.handle!;
     let streams: StreamInfo[] = [];
-    for ( const streamId of streamIds ) {
+
+    await Promise.all(streamIds.map(async (streamId) => {
       const tbReqStreamInd = {
         key_type: "u64",
         value_type: `${address}::${aptosStreamType}`,
@@ -186,7 +187,7 @@ class AptAdapter implements NetworkAdapter {
         escrowAddress: stream.escrow_address,
       });
       // console.log('stream___', stream);
-    }
+    }));
     console.debug("AptAdapter getIncomingStreams streams", streams);
     return streams;
   }
@@ -218,7 +219,8 @@ class AptAdapter implements NetworkAdapter {
     // @ts-ignore
     const outStreamHandle = resGlConf.data.streams_store.inner.handle!;
     let streams: StreamInfo[] = [];
-    for ( const streamId of streamIds ) {
+
+    await Promise.all(streamIds.map(async (streamId) => {
       const tbReqStreamInd = {
         key_type: "u64",
         value_type: `${address}::${aptosStreamType}`,
@@ -275,10 +277,10 @@ class AptAdapter implements NetworkAdapter {
         withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
         escrowAddress: stream.escrow_address,
       });
-    }
+    }));
+
     console.info("AptAdapter getOutStreamHandle streams", streams);
     return streams;
-
   }
 
   // async createStream(
