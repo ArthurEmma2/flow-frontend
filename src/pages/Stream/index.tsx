@@ -191,7 +191,7 @@ const Stream = () => {
 
   const extendStreams = (extraAmount: number, row: StreamInfo) => {
     const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
-    console.log('new StopTimes', newStopTime);
+    console.log('new StopTimes, extraAmount', newStopTime, extraAmount);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::extend`,
@@ -200,7 +200,7 @@ const Stream = () => {
         row.streamId
       ],
       type_arguments: ['0x1::aptos_coin::AptosCoin'],
-    }
+    };
     signAndSubmitTransaction(transaction)
       .then((response) => {
         console.log("response", response);
@@ -754,7 +754,7 @@ const Stream = () => {
               gap: 2
             }}
           >
-            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}/>
+            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
             <Button onClick={() => {
                 extendStreams(extendValue, popStream[0]);
             }}>Confirm</Button>
