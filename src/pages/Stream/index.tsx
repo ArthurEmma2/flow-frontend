@@ -52,6 +52,7 @@ import {Types} from "aptos";
 import netConfApt from "../../config/configuration.aptos";
 // import Streaming from "resources/Streaming.gif";
 import "./index.css";
+import { useRef } from 'react';
 
 const customTypographyStyle = {
   h5: {
@@ -112,6 +113,8 @@ const Stream = () => {
   const [iconPosition, setIconPosition] = useState<any>(null);
   const [popoverRow, setPopoverRow] = useState<StreamInfo | null>(null);
   const [extendValue, setExtendValue] = useState<number>(0);
+  const [openPopover, setOpenPopover] = useState<boolean>(false);
+  const [popStream, setPopStream] = useState<StreamInfo[]>([]);
 
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
@@ -188,7 +191,7 @@ const Stream = () => {
 
   const extendStreams = (extraAmount: number, row: StreamInfo) => {
     const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
-    console.log('new StopTimes', newStopTime);
+    console.log('new StopTimes, extraAmount', newStopTime, extraAmount);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::extend`,
@@ -197,7 +200,7 @@ const Stream = () => {
         row.streamId
       ],
       type_arguments: ['0x1::aptos_coin::AptosCoin'],
-    }
+    };
     signAndSubmitTransaction(transaction)
       .then((response) => {
         console.log("response", response);
@@ -206,6 +209,7 @@ const Stream = () => {
         setAlertStatus("success");
         setAlertMessage("The stream has been extended successfully.");
         setShowAlert(true);
+        setOpenPopover(false);
       }).catch((e) => {
         setAlertStatus("failed");
         setAlertMessage(e.name);
@@ -542,10 +546,6 @@ const Stream = () => {
     withdrawableAmountMap: Map<string, string>,
   }) => {
     const {row, streamedAmountMap, withdrawableAmountMap} = props
-    // const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-    // const [extendValue, setExtendValue] = useState<number>(0);
-    // const extendPopoverOpen = Boolean(extendAnchorEl);
-    // const id = extendPopoverOpen ? 'simple-popover' : undefined;
     const streamedAmount = streamedAmountMap.get(row.streamId)!
     const withdrawableAmount = withdrawableAmountMap.get(row.streamId)!
     return (
@@ -594,42 +594,11 @@ const Stream = () => {
                   setExtendAnchorEl(event.currentTarget);
                   setOpenedPopoverId(row.streamId);
                   setIconPosition(event.currentTarget.getBoundingClientRect());
+                  setOpenPopover(true);
+                  setPopStream([row]);
                 }} disabled={shouldDisable(row)}>
                   <ShareIcon fontSize="small"/>
                 </IconButton>
-                {/*<Popover*/}
-                {/*  id={id}*/}
-                {/*  open={extendPopoverOpen}*/}
-                {/*  anchorEl={extendAnchorEl}*/}
-                {/*  onClose={() => {setExtendAnchorEl(null)}}*/}
-                {/*  anchorOrigin={{*/}
-                {/*    vertical: 'bottom',*/}
-                {/*    horizontal: 'right',*/}
-                {/*  }}*/}
-                {/*  transformOrigin={{*/}
-                {/*    vertical: 'top',*/}
-                {/*    horizontal: 'right',*/}
-                {/*  }}*/}
-
-                {/*>*/}
-                {/*  <Box*/}
-                {/*    component="form"*/}
-                {/*    autoComplete="off"*/}
-                {/*    sx={{*/}
-                {/*      display: "flex",*/}
-                {/*      flexDirection: "column",*/}
-                {/*      paddingLeft: 2,*/}
-                {/*      paddingRight: 2,*/}
-                {/*      paddingBottom: 1,*/}
-                {/*      paddingTop: 1,*/}
-                {/*      borderRadius: "8px",*/}
-                {/*      gap: 2*/}
-                {/*    }}*/}
-                {/*  >*/}
-                {/*    <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>*/}
-                {/*    <Button onClick={() => {extendStreams(extendValue, row)}}>Confirm</Button>*/}
-                {/*  </Box>*/}
-                {/*</Popover>*/}
               </TableCell>
               <TableCell align="center">
                 {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
@@ -676,8 +645,16 @@ const Stream = () => {
     )
   }
 
+  const centerAnchorRef = useRef(null);
   return (
     <Container>
+      <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          ref={centerAnchorRef}
+      >
+      </Box>
       <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
         { alertStatus === "success" ?
           <Alert onClose={() => setShowAlert(false)} severity="success">
@@ -740,13 +717,14 @@ const Stream = () => {
           </ToggleButtonGroup>
         </Box>
         <Popover
-          id={openedPopoverId !== null ? "simple-popover": undefined}
-          open={openedPopoverId !== null}
-          anchorEl={extendAnchorEl}
+          id={'simple-popover'}
+          open={openPopover}
+          anchorEl={centerAnchorRef.current}
           onClose={() => {
             setExtendAnchorEl(null);
             setOpenedPopoverId(null);
             setPopoverRow(null);
+            setOpenPopover(false);
           }}
           anchorOrigin={{
             vertical: 'bottom',
@@ -756,11 +734,11 @@ const Stream = () => {
             vertical: 'top',
             horizontal: 'right',
           }}
-          sx={{
+/*          sx={{
             position: 'absolute',
             left: iconPosition?.left-100,
             top: iconPosition?.top-130,
-          }}
+          }}*/
         >
           <Box
             component="form"
@@ -776,11 +754,9 @@ const Stream = () => {
               gap: 2
             }}
           >
-            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}/>
+            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
             <Button onClick={() => {
-              if(popoverRow !== null){
-                extendStreams(extendValue, popoverRow)
-              }
+                extendStreams(extendValue, popStream[0]);
             }}>Confirm</Button>
           </Box>
         </Popover>
