@@ -556,7 +556,9 @@ const Stream = () => {
           </TableCell>
           <TableCell align="center">
             <div className="flex flex-row justify-center items-center">
-              <p className="text-red-600 text-center">-</p>
+              {
+                streamType === "Outgoing" ? <p className="text-red-600 text-center">-</p> : <p className="text-green-600 text-center">+</p>
+              }
               <div className="flex flex-row justify-center items-center">
                 <div>{Number(new BigNumber(streamedAmount).toFixed(6))}</div>
                 <div>/</div>
