@@ -2142,7 +2142,7 @@
 
 "@manahippo/aptos-wallet-adapter@^1.0.10":
   version "1.0.10"
-  resolved "https://registry.npmmirror.com/@manahippo/aptos-wallet-adapter/-/aptos-wallet-adapter-1.0.10.tgz#475d7ff4b376648e3d2ace2e156c06c37b2793ac"
+  resolved "https://registry.yarnpkg.com/@manahippo/aptos-wallet-adapter/-/aptos-wallet-adapter-1.0.10.tgz#475d7ff4b376648e3d2ace2e156c06c37b2793ac"
   integrity sha512-3i3OinlnoFlYEOw0ixjsRQQWFVSdecIBhxJqxHdN4kV+Vda/St+NAB7zzVZ9Mp0gY80UbWTRp9/IcRrfdpcKFg==
   dependencies:
     "@blocto/sdk" "^0.3.1"

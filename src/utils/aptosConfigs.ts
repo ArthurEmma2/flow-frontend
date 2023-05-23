@@ -3,6 +3,7 @@ import {
   MartianWalletAdapter,
   FewchaWalletAdapter,
   AptosWalletAdapter,
+  MSafeWalletAdapter
 } from "@manahippo/aptos-wallet-adapter";
 
 export const AptosWallets = [
@@ -10,5 +11,6 @@ export const AptosWallets = [
   new MartianWalletAdapter(),
   new FewchaWalletAdapter(),
   new AptosWalletAdapter(),
+  new MSafeWalletAdapter(),
 ];
 
