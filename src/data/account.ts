@@ -101,6 +101,24 @@ class AptAdapter implements NetworkAdapter {
   }
 
   async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
+    const body = {
+      where: {
+        sender: '0x9ca8317d198392dec3ff864b77f4f289b577fbb5ea419ee1ce7f73690d12f11f',
+      },
+      orderBy: {
+        create_at: 'desc',
+      },
+      pageNumber: 0,
+      pageSize: 5,
+    };
+    const testStr = await fetch(`http://localhost:3002/streams`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      redirect: "follow",
+    }).then(data => data.json());
+    console.debug("test str", testStr);
+
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     console.log('recevAddr', recvAddress);
     const address = netConfApt.contract;
