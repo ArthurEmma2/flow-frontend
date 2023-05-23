@@ -80,11 +80,11 @@ const statusTab = [
 const streamTabs = [
   {
     name: "Outgoing",
-    icon: <SouthWestIcon color="info"/>
+    icon: <NorthEastIcon color="primary"/>
   },
   {
     name: "Incoming",
-    icon: <NorthEastIcon color="primary"/>
+    icon: <SouthWestIcon color="info"/>
   }
 ]
 
