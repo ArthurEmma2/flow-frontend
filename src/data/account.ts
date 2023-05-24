@@ -111,7 +111,7 @@ class AptAdapter implements NetworkAdapter {
       pageNumber: 0,
       pageSize: 5,
     };
-    const testStr = await fetch(`http://localhost:3002/streams`, {
+    const testStr = await fetch(`http://localhost:3001/streams`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
