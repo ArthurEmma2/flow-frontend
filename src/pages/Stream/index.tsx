@@ -651,10 +651,16 @@ const Stream = () => {
   return (
     <Container>
       <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
           ref={centerAnchorRef}
+          id="ttttt"
+          sx={{
+            position: 'fixed',
+            top: "30%",
+            left: "50%",
+            zIndex: 100,
+            height: "100px",
+            width: "100px",
+          }}
       >
       </Box>
       <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
@@ -736,11 +742,11 @@ const Stream = () => {
             vertical: 'top',
             horizontal: 'right',
           }}
-/*          sx={{
-            position: 'absolute',
-            left: iconPosition?.left-100,
-            top: iconPosition?.top-130,
-          }}*/
+        //  sx={{
+        //     position: 'absolute',
+        //     right:"-200%",
+        //     top: iconPosition?.top-130,
+        //   }}
         >
           <Box
             component="form"
