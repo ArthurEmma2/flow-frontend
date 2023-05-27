@@ -2,3 +2,7 @@
     width: auto;
     height: 50%;
 }
+
+.closeModalButton:hover {
+    cursor: pointer;
+}

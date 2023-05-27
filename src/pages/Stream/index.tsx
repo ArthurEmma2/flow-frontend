@@ -16,13 +16,15 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Typography
+  Typography,
+  Modal,
 } from "@mui/material";
 import SouthWestIcon from '@mui/icons-material/SouthWest';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -53,6 +55,7 @@ import netConfApt from "../../config/configuration.aptos";
 // import Streaming from "resources/Streaming.gif";
 import "./index.css";
 import { useRef } from 'react';
+import {gradientButtonStyle} from "../../style/button";
 
 const customTypographyStyle = {
   h5: {
@@ -115,6 +118,7 @@ const Stream = () => {
   const [extendValue, setExtendValue] = useState<number>(0);
   const [openPopover, setOpenPopover] = useState<boolean>(false);
   const [popStream, setPopStream] = useState<StreamInfo[]>([]);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const columnList = ["Transaction Name", "Progress", "Transaction Date", "Recipient", "", "", "", ""]
 
@@ -593,11 +597,12 @@ const Stream = () => {
             streamType === "Outgoing" ? <>
               <TableCell align="center">
                 <IconButton onClick={(event) => {
-                  setExtendAnchorEl(event.currentTarget);
-                  setOpenedPopoverId(row.streamId);
-                  setIconPosition(event.currentTarget.getBoundingClientRect());
-                  setOpenPopover(true);
+                  // setExtendAnchorEl(event.currentTarget);
+                  // setOpenedPopoverId(row.streamId);
+                  // setIconPosition(event.currentTarget.getBoundingClientRect());
+                  // setOpenPopover(true);
                   setPopStream([row]);
+                  handleModalOpen();
                 }} disabled={shouldDisable(row)}>
                   <ShareIcon fontSize="small"/>
                 </IconButton>
@@ -647,6 +652,27 @@ const Stream = () => {
     )
   }
 
+  const handleModalOpen = () => {
+    setOpenModal(true);
+  }
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+  }
+
+  const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 510,
+    bgcolor: '#313740',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: "20px",
+  };
+
   const centerAnchorRef = useRef(null);
   return (
     <Container>
@@ -661,8 +687,84 @@ const Stream = () => {
             height: "100px",
             width: "100px",
           }}
+          
       >
       </Box>
+      <Modal
+        open={openModal}
+        onClose={handleModalClose}
+      >
+        <Box sx={style}>
+          <Typography 
+          sx={{
+            color: "#fff",
+          }}
+          id="modal-modal-title" variant="h5" component="h2">
+            Extend Amount
+            <CloseIcon 
+              className="closeModalButton"
+              sx={{
+                float: "right",
+                position: "relative",
+                top:"5px"
+              }}
+              // sx={{position: "absolute", top: "10px", right: "10px", cursor: "pointer"}} 
+              onClick={handleModalClose}
+            />
+          </Typography>
+          <input
+              type="text"
+              value={extendValue}
+              onChange={(e) => setExtendValue(Number(e.target.value) * 10**8)}
+              style={{ 
+                backgroundColor: "#313740", 
+                marginBottom: "0",
+                border: "1px solid white",
+                marginTop: "15px",
+                color: "white",
+                height: "50px",
+                borderRadius: "10px",
+                lineHeight: "50px",
+              }}
+              className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
+              placeholder="Extend Amount"
+           />    
+          <Typography id="modal-modal-description" sx={{ color: "#C140B9",mt: 2, fontSize: "13px" }}>
+            You can top up between 0 and {0} SOL
+          </Typography>
+          <div className="flex mt-5 mb-2" style={{
+            justifyContent: "flex-end",
+            marginTop: "30px",
+          }}>
+              <Button 
+                size="small" 
+                sx={{ 
+                  background: "#83868B", 
+                  width: "80px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  marginRight: "30px",
+                }} 
+                onClick={(e) => {
+                  handleModalClose();
+                    // handleSend();
+                }
+              }>Cancel</Button>
+              <Button 
+                disabled={extendValue !== null && extendValue > 0 ? false : true}
+                size="small" sx={{
+                  ...gradientButtonStyle, 
+                  width: "80px",
+                  height: "40px",
+                  borderRadius: "10px",
+                }}
+                onClick={(e) => {
+                  // e.preventDefault();
+                  extendStreams(extendValue, popStream[0]);
+              }}>Conrifm</Button>
+            </div>
+        </Box>
+      </Modal>
       <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
         { alertStatus === "success" ?
           <Alert onClose={() => setShowAlert(false)} severity="success">
