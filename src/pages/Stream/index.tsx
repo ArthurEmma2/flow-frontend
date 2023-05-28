@@ -116,7 +116,7 @@ const Stream = () => {
   const [extendAnchorEl, setExtendAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [iconPosition, setIconPosition] = useState<any>(null);
   const [popoverRow, setPopoverRow] = useState<StreamInfo | null>(null);
-  const [extendValue, setExtendValue] = useState<number>(0);
+  const [extendValue, setExtendValue] = useState("0");
   const [openPopover, setOpenPopover] = useState<boolean>(false);
   const [popStream, setPopStream] = useState<StreamInfo[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -198,8 +198,14 @@ const Stream = () => {
     }
   };
 
-  const extendStreams = (extraAmount: number, row: StreamInfo) => {
-    const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))));
+  const extendStreams = (extraAmount: string, row: StreamInfo) => {
+    console.log('extraAmount', extraAmount);
+    console.log('ratePerInterval', row.ratePerInterval);
+    console.log('interval', row.interval);
+    // let tmp = Number(extraAmount) * (10 ** 8) / (Number(row.ratePerInterval) / 1000);
+    let tmp = Number(extraAmount) * (10 ** 8) / ((Number(row.ratePerInterval) * (Number(row.interval) / 1000))) ;
+    console.log('delta time', tmp);
+    const newStopTime = Math.ceil((Number(row.stopTime) + tmp) / 1000);
     console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
@@ -723,26 +729,25 @@ const Stream = () => {
               onClick={handleModalClose}
             />
           </Typography>
-          <input
-              type="text"
+          <TextField
               value={extendValue}
-              onChange={(e) => setExtendValue(Number(e.target.value) * 10**8)}
+              onChange={(e) => setExtendValue(e.target.value)}
               style={{
                 backgroundColor: "#313740",
                 marginBottom: "0",
-                border: "1px solid white",
                 marginTop: "15px",
                 color: "white",
                 height: "50px",
                 borderRadius: "10px",
                 lineHeight: "50px",
+                width: "100%",
               }}
-              className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
-              placeholder="Extend Amount"
+              // className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
+              label="Extend Amount"
            />
-          <Typography id="modal-modal-description" sx={{ color: "#C140B9",mt: 2, fontSize: "13px" }}>
-            You can top up between 0 and {0} SOL
-          </Typography>
+          {/*<Typography id="modal-modal-description" sx={{ color: "#C140B9",mt: 2, fontSize: "13px" }}>*/}
+          {/*  You can top up between 0 and {0} APT*/}
+          {/*</Typography>*/}
           <div className="flex mt-5 mb-2" style={{
             justifyContent: "flex-end",
             marginTop: "30px",
@@ -762,7 +767,7 @@ const Stream = () => {
                 }
               }>Cancel</Button>
               <Button
-                disabled={extendValue !== null && extendValue > 0 ? false : true}
+                disabled={extendValue !== null && Number(extendValue) > 0 ? false : true}
                 size="small" sx={{
                   ...gradientButtonStyle,
                   width: "80px",
@@ -772,7 +777,7 @@ const Stream = () => {
                 onClick={(e) => {
                   // e.preventDefault();
                   extendStreams(extendValue, popStream[0]);
-              }}>Conrifm</Button>
+              }}>Confirm</Button>
             </div>
         </Box>
       </Modal>
@@ -837,50 +842,6 @@ const Stream = () => {
             })}
           </ToggleButtonGroup>
         </Box>
-        <Popover
-          id={'simple-popover'}
-          open={openPopover}
-          anchorEl={centerAnchorRef.current}
-          onClose={() => {
-            setExtendAnchorEl(null);
-            setOpenedPopoverId(null);
-            setPopoverRow(null);
-            setOpenPopover(false);
-          }}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        //  sx={{
-        //     position: 'absolute',
-        //     right:"-200%",
-        //     top: iconPosition?.top-130,
-        //   }}
-        >
-          <Box
-            component="form"
-            autoComplete="off"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              paddingLeft: 2,
-              paddingRight: 2,
-              paddingBottom: 1,
-              paddingTop: 1,
-              borderRadius: "8px",
-              gap: 2
-            }}
-          >
-            <TextField id="standard-basic" label="Extend Amount" variant="standard" onChange={(event: React.ChangeEvent<HTMLInputElement>) => {setExtendValue(Number(event.target.value) * 10**8)}}/>
-            <Button onClick={() => {
-                extendStreams(extendValue, popStream[0]);
-            }}>Confirm</Button>
-          </Box>
-        </Popover>
         <MyTable
           content={streams}
           needPagination={true}
