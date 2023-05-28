@@ -521,7 +521,10 @@ const Stream = () => {
                 <div>Streamed Amount</div>
                 <div>
                   <div className="flex flex-row">
-                    <p className="text-red-600 text-center">-</p>
+                    {
+                      streamType == "Outgoing" ? <p className="text-red-600 text-center">-</p> :
+                        <p className="text-green-600 text-center">+</p>
+                    }
                     {Number(new BigNumber(streamedAmount).toFixed(6))}
                   </div>
                 </div>
@@ -532,7 +535,10 @@ const Stream = () => {
                 <div className="shrink">Withdrawable Amount</div>
                 <div className="shrink-0">
                   <div className="flex flex-row align-middle text-center">
-                    <p className="text-red-600 text-center">-</p>
+                    {
+                      streamType == "Outgoing" ? <p className="text-red-600 text-center">-</p> :
+                        <p className="text-green-600 text-center">+</p>
+                    }
                     {Number(new BigNumber(withdrawableAmount).toFixed(6))}
                   </div>
                 </div>
