@@ -56,6 +56,7 @@ import netConfApt from "../../config/configuration.aptos";
 import "./index.css";
 import { useRef } from 'react';
 import {gradientButtonStyle} from "../../style/button";
+import Pagination from "../../types/pagination";
 
 const customTypographyStyle = {
   h5: {
@@ -139,8 +140,12 @@ const Stream = () => {
   }
 
   const pullStreams = () => {
+    let pagination: Pagination = {
+      page: page - 1,
+      pageSize: pageSize,
+    }
     if (streamType === "Outgoing") {
-      walletAdapter?.getOutgoingStreams(accountAddr).then((streams: StreamInfo[]) => {
+      walletAdapter?.getOutgoingStreams(accountAddr, pagination).then((streams: StreamInfo[]) => {
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams =  streams.filter((stream) => {
@@ -166,7 +171,7 @@ const Stream = () => {
         }
       })
     } else {
-      walletAdapter?.getIncomingStreams(accountAddr).then((streams: StreamInfo[]) => {
+      walletAdapter?.getIncomingStreams(accountAddr, pagination).then((streams: StreamInfo[]) => {
         let newStreams: StreamInfo[];
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
@@ -194,8 +199,8 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: number, row: StreamInfo) => {
-    const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))) / 1000);
-    console.log('new StopTimes, extraAmount', newStopTime, extraAmount);
+    const newStopTime = Math.ceil((Number(row.stopTime) + extraAmount / ((Number(row.ratePerInterval) / 1000) / Number(row.interval))));
+    console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::extend`,
@@ -693,7 +698,7 @@ const Stream = () => {
             height: "100px",
             width: "100px",
           }}
-          
+
       >
       </Box>
       <Modal
@@ -701,20 +706,20 @@ const Stream = () => {
         onClose={handleModalClose}
       >
         <Box sx={style}>
-          <Typography 
+          <Typography
           sx={{
             color: "#fff",
           }}
           id="modal-modal-title" variant="h5" component="h2">
             Extend Amount
-            <CloseIcon 
+            <CloseIcon
               className="closeModalButton"
               sx={{
                 float: "right",
                 position: "relative",
                 top:"5px"
               }}
-              // sx={{position: "absolute", top: "10px", right: "10px", cursor: "pointer"}} 
+              // sx={{position: "absolute", top: "10px", right: "10px", cursor: "pointer"}}
               onClick={handleModalClose}
             />
           </Typography>
@@ -722,8 +727,8 @@ const Stream = () => {
               type="text"
               value={extendValue}
               onChange={(e) => setExtendValue(Number(e.target.value) * 10**8)}
-              style={{ 
-                backgroundColor: "#313740", 
+              style={{
+                backgroundColor: "#313740",
                 marginBottom: "0",
                 border: "1px solid white",
                 marginTop: "15px",
@@ -734,7 +739,7 @@ const Stream = () => {
               }}
               className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
               placeholder="Extend Amount"
-           />    
+           />
           <Typography id="modal-modal-description" sx={{ color: "#C140B9",mt: 2, fontSize: "13px" }}>
             You can top up between 0 and {0} SOL
           </Typography>
@@ -742,24 +747,24 @@ const Stream = () => {
             justifyContent: "flex-end",
             marginTop: "30px",
           }}>
-              <Button 
-                size="small" 
-                sx={{ 
-                  background: "#83868B", 
+              <Button
+                size="small"
+                sx={{
+                  background: "#83868B",
                   width: "80px",
                   height: "40px",
                   borderRadius: "10px",
                   marginRight: "30px",
-                }} 
+                }}
                 onClick={(e) => {
                   handleModalClose();
                     // handleSend();
                 }
               }>Cancel</Button>
-              <Button 
+              <Button
                 disabled={extendValue !== null && extendValue > 0 ? false : true}
                 size="small" sx={{
-                  ...gradientButtonStyle, 
+                  ...gradientButtonStyle,
                   width: "80px",
                   height: "40px",
                   borderRadius: "10px",

@@ -19,9 +19,9 @@ export interface NetworkAdapter {
 
   getBalance(): Promise<string>;
 
-  getIncomingStreams(recipientAddress: string): Promise<StreamInfo[]>;
+  getIncomingStreams(recipientAddress: string, pagination?: Pagination): Promise<StreamInfo[]>;
 
-  getOutgoingStreams(senderAddress: string): Promise<StreamInfo[]>;
+  getOutgoingStreams(senderAddress: string, pagination?: Pagination): Promise<StreamInfo[]>;
 
   sendTransaction(from: string, to: string, amount: number): string;
 
@@ -100,203 +100,68 @@ class AptAdapter implements NetworkAdapter {
     return this.displayAmount(new BigNumber(coin.data.coin.value));
   }
 
-  async getIncomingStreams(recvAddress: string): Promise<StreamInfo[]> {
+  async getIncomingStreams(recvAddress: string, pagination?: Pagination): Promise<StreamInfo[]> {
+    let streams: StreamInfo[] = [];
+    const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     const body = {
       where: {
-        sender: '0x9ca8317d198392dec3ff864b77f4f289b577fbb5ea419ee1ce7f73690d12f11f',
+        recipient: recvAddress,
       },
       orderBy: {
         create_at: 'desc',
       },
-      pageNumber: 0,
-      pageSize: 5,
+      pageNumber: pagination!.page,
+      pageSize: pagination!.pageSize,
     };
-    const testStr = await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
+    await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       redirect: "follow",
-    }).then(data => data.json());
-    console.debug("test str", testStr);
-
-    const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
-    console.log('recevAddr', recvAddress);
-    const address = netConfApt.contract;
-    const event_handle = `${address}::${aptosConfigType}`;
-    const eventField = "stream_events";
-    const eventsAll = await this.client.getEventsByEventHandle(
-      address,
-      event_handle,
-      eventField,
-      {
-        start: 0,
-        limit: 1000,
-      }
-    );
-    // console.debug("AptAdapter getIncomingStreams events", eventsAll);
-
-    const eventsRecv = eventsAll.filter(event => event.data.recipient! === recvAddress);
-    if (eventsRecv.length === 0) return [];
-
-    const streamIds = Array.from(new Set(eventsRecv.map(event => event.data.id!)));
-    // console.debug("AptAdapter getIncomingStreams streamIds", streamIds);
-
-    const resources = await this.client.getAccountResources(address);
-    // console.debug("AptAdapter getIncomingStreams resources:", resources);
-    const resGlConf = resources.find((r) => r.type.includes(aptosConfigType))!;
-    // @ts-ignore
-    const inStreamHandle = resGlConf.data.streams_store.inner.handle!;
-    let streams: StreamInfo[] = [];
-
-    await Promise.all(streamIds.map(async (streamId) => {
-      const tbReqStreamInd = {
-        key_type: "u64",
-        value_type: `${address}::${aptosStreamType}`,
-        key: streamId,
-      };
-      // console.debug("AptAdapter getIncomingStreams inStreamHandle, tbReqStreamInd", streamId, inStreamHandle, tbReqStreamInd);
-      const stream = await this.client.getTableItem(inStreamHandle, tbReqStreamInd);
-      const status = this.getStatus(stream, currTime)
-      const withdrawableAmount = this.calculateWithdrawableAmount(
-        Number(stream.start_time) * 1000,
-        Number(stream.stop_time) * 1000,
-        Number(currTime),
-        Number(stream.pauseInfo.pause_at) * 1000,
-        Number(stream.last_withdraw_time) * 1000,
-        Number(stream.pauseInfo.acc_paused_time) * 1000,
-        Number(stream.interval),
-        Number(stream.rate_per_interval),
-        status,
-      )
-      const streamedAmount = this.calculateStreamedAmount(
-        Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
-        Number(stream.start_time) * 1000,
-        Number(stream.stop_time) * 1000,
-        Number(currTime),
-        Number(stream.pauseInfo.pause_at) * 1000,
-        Number(stream.last_withdraw_time) * 1000,
-        Number(stream.pauseInfo.acc_paused_time) * 1000,
-        Number(stream.interval),
-        Number(stream.rate_per_interval),
-        status,
-      );
-      streams.push({
-        name: stream.name,
-        status: status,
-        createTime: (Number(stream.create_at) * 1000).toString(),
-        depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
-        streamId: stream.id,
-        interval: stream.interval,
-        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
-        ratePerInterval: stream.rate_per_interval,
-        recipientId: stream.recipient,
-        remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
-        senderId: stream.sender,
-        startTime: (Number(stream.start_time) * 1000).toString(),
-        stopTime: (Number(stream.stop_time) * 1000).toString(),
-        withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
-        pauseInfo: {
-          accPausedTime: (Number(stream.pauseInfo.acc_paused_time)).toString(),
-          pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
-          paused: stream.pauseInfo.paused,
-        },
-        streamedAmount: streamedAmount.toString(),
-        withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
-        escrowAddress: stream.escrow_address,
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((result) => {
+        console.log('1d89a', result);
+        for (let i = 0; i < result.length; i++) {
+          const currStream = result[i];
+          streams.push(this.buildStream(currStream, currTime));
+        }
       });
-      // console.log('stream___', stream);
-    }));
     console.debug("AptAdapter getIncomingStreams streams", streams);
     return streams;
   }
 
-  async getOutgoingStreams(sendAddress: string): Promise<StreamInfo[]> {
-    const address = netConfApt.contract;
-    const event_handle = `${address}::${aptosConfigType}`;
-    const eventField = "stream_events";
-    const eventsAll = await this.client.getEventsByEventHandle(
-      address,
-      event_handle,
-      eventField,
-      {
-        start: BigInt(0),
-        limit: 1000,
-      }
-    );
-    console.info("AptAdapter getOutgoingStreams events", eventsAll);
-    const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
-    const eventsSend = eventsAll.filter(event => event.data.sender! === sendAddress);
-    if (eventsSend.length === 0) return [];
-    // console.info("AptAdapter getOutgoingStreams eventsSend", eventsSend);
-
-    const streamIds = Array.from(new Set(eventsSend.map(event => event.data.id!)));
-    console.log('streamId,', streamIds);
-    const resources = await this.client.getAccountResources(address);
-    console.info("AptAdapter getOutgoingStreams resources:", resources);
-    const resGlConf = resources.find((r) => r.type.includes(aptosConfigType))!;
-    // @ts-ignore
-    const outStreamHandle = resGlConf.data.streams_store.inner.handle!;
+  async getOutgoingStreams(sendAddress: string, pagination?: Pagination): Promise<StreamInfo[]> {
     let streams: StreamInfo[] = [];
-
-    await Promise.all(streamIds.map(async (streamId) => {
-      const tbReqStreamInd = {
-        key_type: "u64",
-        value_type: `${address}::${aptosStreamType}`,
-        key: streamId,
-      };
-      // console.info("AptAdapter getIncomingStreams outStreamHandle, tbReqStreamInd", streamId, outStreamHandle, tbReqStreamInd);
-      const stream = await this.client.getTableItem(outStreamHandle, tbReqStreamInd);
-      const status = this.getStatus(stream, currTime)
-      const withdrawableAmount = this.calculateWithdrawableAmount(
-        Number(stream.start_time) * 1000,
-        Number(stream.stop_time) * 1000,
-        Number(currTime),
-        Number(stream.pauseInfo.pause_at) * 1000,
-        Number(stream.last_withdraw_time) * 1000,
-        Number(stream.pauseInfo.acc_paused_time) * 1000,
-        Number(stream.interval),
-        Number(stream.rate_per_interval),
-        status,
-      )
-      // console.log('withdrawableAmount', withdrawableAmount)
-      const streamedAmount = this.calculateStreamedAmount(
-        Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
-        Number(stream.start_time) * 1000,
-        Number(stream.stop_time) * 1000,
-        Number(currTime),
-        Number(stream.pauseInfo.pause_at) * 1000,
-        Number(stream.last_withdraw_time) * 1000,
-        Number(stream.pauseInfo.acc_paused_time) * 1000,
-        Number(stream.interval),
-        Number(stream.rate_per_interval),
-        status,
-      );
-      streams.push({
-        name: stream.name,
-        status: status,
-        createTime: (Number(stream.create_at) * 1000).toString(),
-        depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
-        streamId: stream.id,
-        interval: stream.interval,
-        lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
-        ratePerInterval: stream.rate_per_interval,
-        recipientId: stream.recipient,
-        remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
-        senderId: stream.sender,
-        startTime: (Number(stream.start_time) * 1000).toString(),
-        stopTime: (Number(stream.stop_time) * 1000).toString(),
-        withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
-        pauseInfo: {
-          accPausedTime: (Number(stream.pauseInfo.acc_paused_time) * 1000).toString(),
-          pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
-          paused: stream.pauseInfo.paused,
-        },
-        streamedAmount: streamedAmount.toString(),
-        withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
-        escrowAddress: stream.escrow_address,
+    const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
+    const body = {
+      where: {
+        sender: sendAddress,
+      },
+      orderBy: {
+        create_at: 'desc',
+      },
+      pageNumber: pagination!.page,
+      pageSize: pagination!.pageSize,
+    };
+    await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      redirect: "follow",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((result) => {
+        console.log('1d89a', result);
+        for (let i = 0; i < result.length; i++) {
+          const currStream = result[i];
+          streams.push(this.buildStream(currStream, currTime));
+        }
       });
-    }));
-
     console.info("AptAdapter getOutStreamHandle streams", streams);
     return streams;
   }
@@ -374,6 +239,57 @@ class AptAdapter implements NetworkAdapter {
 
   displayAmount(amount: BigNumber): string {
     return amount.dividedBy(10 ** 8).toFixed(6).toString();
+  }
+
+  buildStream(stream: any, currTime: bigint): StreamInfo {
+    const status = this.getStatus(stream, currTime)
+    const withdrawableAmount = this.calculateWithdrawableAmount(
+      Number(stream.start_time) * 1000,
+      Number(stream.stop_time) * 1000,
+      Number(currTime),
+      Number(stream.pauseInfo.pause_at) * 1000,
+      Number(stream.last_withdraw_time) * 1000,
+      Number(stream.pauseInfo.acc_paused_time) * 1000,
+      Number(stream.interval),
+      Number(stream.rate_per_interval),
+      status,
+    )
+    const streamedAmount = this.calculateStreamedAmount(
+      Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
+      Number(stream.start_time) * 1000,
+      Number(stream.stop_time) * 1000,
+      Number(currTime),
+      Number(stream.pauseInfo.pause_at) * 1000,
+      Number(stream.last_withdraw_time) * 1000,
+      Number(stream.pauseInfo.acc_paused_time) * 1000,
+      Number(stream.interval),
+      Number(stream.rate_per_interval),
+      status,
+    );
+    return {
+      name: stream.name,
+      status: status,
+      createTime: (Number(stream.create_at) * 1000).toString(),
+      depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
+      streamId: stream.id,
+      interval: stream.interval,
+      lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
+      ratePerInterval: stream.rate_per_interval,
+      recipientId: stream.recipient,
+      remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
+      senderId: stream.sender,
+      startTime: (Number(stream.start_time) * 1000).toString(),
+      stopTime: (Number(stream.stop_time) * 1000).toString(),
+      withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
+      pauseInfo: {
+        accPausedTime: (Number(stream.pauseInfo.acc_paused_time)).toString(),
+        pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
+        paused: stream.pauseInfo.paused,
+      },
+      streamedAmount: streamedAmount.toString(),
+      withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
+      escrowAddress: stream.escrow_address,
+    }
   }
 
   calculateWithdrawableAmount(
