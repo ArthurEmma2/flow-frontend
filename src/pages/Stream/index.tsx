@@ -465,7 +465,7 @@ const Stream = () => {
                   <ContentCopyIcon width="2rem" height="2rem" fontSize="small"/>
                 </IconButton>
               </Box>
-              <Box >
+              { row.status !== StreamStatus.Streaming ? <Box>
                 {
                   row.status === StreamStatus.Canceled &&
                   <div className="px-2">
@@ -489,13 +489,15 @@ const Stream = () => {
                     {statusTab[4].icon}
                   </div>
                 }
-                {
-                  row.status === StreamStatus.Streaming &&
-                  <div>
-                    <img src={require("../../resources/Streaming.gif")} alt="Streaming" className="animated-gif"/>
-                  </div>
-                }
+              </Box>: <Box sx={{
+                flexGrow: 1,
+                flexShrink: 1,
+              }}>
+                <div>
+                  <img src={require("../../resources/Streaming.gif")} alt="Streaming" className="animated-gif"/>
+                </div>
               </Box>
+              }
               <Box
                 sx={{
                   display: "flex",
@@ -533,7 +535,7 @@ const Stream = () => {
                 <div>
                   <div className="flex flex-row">
                     {
-                      streamType == "Outgoing" ? <p className="text-red-600 text-center">-</p> :
+                      streamType === "Outgoing" ? <p className="text-red-600 text-center">-</p> :
                         <p className="text-green-600 text-center">+</p>
                     }
                     {Number(new BigNumber(streamedAmount).toFixed(6))}
