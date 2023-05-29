@@ -108,7 +108,7 @@ const Stream = () => {
   const [openMap, setOpenMap] = useState<Map<string, boolean>>(new Map<string, boolean>());
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalNum] = useState(0);
+  const [totalNum, setTotalNum] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertStatus, setAlertStatus] = useState<string>("");
@@ -145,8 +145,9 @@ const Stream = () => {
       pageSize: pageSize,
     }
     if (streamType === "Outgoing") {
-      walletAdapter?.getOutgoingStreams(accountAddr, pagination).then((streams: StreamInfo[]) => {
+      walletAdapter?.getOutgoingStreams(accountAddr, pagination).then(({streams, totalCount}) => {
         let newStreams: StreamInfo[];
+        setTotalNum(totalCount);
         if (statusType !== StreamStatus.All) {
           newStreams =  streams.filter((stream) => {
             return stream.status === statusType;
@@ -171,8 +172,9 @@ const Stream = () => {
         }
       })
     } else {
-      walletAdapter?.getIncomingStreams(accountAddr, pagination).then((streams: StreamInfo[]) => {
+      walletAdapter?.getIncomingStreams(accountAddr, pagination).then(({streams, totalCount}) => {
         let newStreams: StreamInfo[];
+        setTotalNum(totalCount);
         if (statusType !== StreamStatus.All) {
           newStreams = streams.filter((stream) => {
             return stream.status === statusType;
@@ -199,13 +201,14 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: string, row: StreamInfo) => {
+    console.log('row___', row.name);
     console.log('extraAmount', extraAmount);
     console.log('ratePerInterval', row.ratePerInterval);
     console.log('interval', row.interval);
     // let tmp = Number(extraAmount) * (10 ** 8) / (Number(row.ratePerInterval) / 1000);
-    let tmp = Number(extraAmount) * (10 ** 8) / ((Number(row.ratePerInterval) * (Number(row.interval) / 1000))) ;
+    let tmp = Math.ceil(Number(extraAmount) * (10 ** 8) / ((Number(row.ratePerInterval) / 1000) )) ;
     console.log('delta time', tmp);
-    const newStopTime = Math.ceil((Number(row.stopTime) + tmp) / 1000);
+    const newStopTime = Math.ceil((Number(row.stopTime) + tmp * Number(row.interval)) / 1000);
     console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
@@ -224,11 +227,12 @@ const Stream = () => {
         setAlertStatus("success");
         setAlertMessage("The stream has been extended successfully.");
         setShowAlert(true);
-        setOpenPopover(false);
+        handleModalClose();
       }).catch((e) => {
         setAlertStatus("failed");
         setAlertMessage(e.name);
-      setShowAlert(true);
+        setShowAlert(true);
+        handleModalClose();
       })
   }
 
@@ -757,11 +761,12 @@ const Stream = () => {
               <Button
                 size="small"
                 sx={{
-                  background: "#83868B",
+                  background: "#747474",
                   width: "80px",
                   height: "40px",
                   borderRadius: "10px",
                   marginRight: "30px",
+                  color: "#E0E0E0"
                 }}
                 onClick={(e) => {
                   handleModalClose();
@@ -775,6 +780,7 @@ const Stream = () => {
                   width: "80px",
                   height: "40px",
                   borderRadius: "10px",
+                  // color: "#747474"
                 }}
                 onClick={(e) => {
                   // e.preventDefault();

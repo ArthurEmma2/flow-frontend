@@ -19,9 +19,9 @@ export interface NetworkAdapter {
 
   getBalance(): Promise<string>;
 
-  getIncomingStreams(recipientAddress: string, pagination?: Pagination): Promise<StreamInfo[]>;
+  getIncomingStreams(recipientAddress: string, pagination?: Pagination): Promise<{streams: StreamInfo[], totalCount: number}>;
 
-  getOutgoingStreams(senderAddress: string, pagination?: Pagination): Promise<StreamInfo[]>;
+  getOutgoingStreams(senderAddress: string, pagination?: Pagination): Promise<{streams: StreamInfo[], totalCount: number}>;
 
   sendTransaction(from: string, to: string, amount: number): string;
 
@@ -100,8 +100,9 @@ class AptAdapter implements NetworkAdapter {
     return this.displayAmount(new BigNumber(coin.data.coin.value));
   }
 
-  async getIncomingStreams(recvAddress: string, pagination?: Pagination): Promise<StreamInfo[]> {
+  async getIncomingStreams(recvAddress: string, pagination?: Pagination): Promise<{streams: StreamInfo[], totalCount: number}> {
     let streams: StreamInfo[] = [];
+    let totalCount: number = 0;
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     const body = {
       where: {
@@ -124,17 +125,22 @@ class AptAdapter implements NetworkAdapter {
       })
       .then((result) => {
         console.log('1d89a', result);
+        totalCount = result.count;
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
     console.debug("AptAdapter getIncomingStreams streams", streams);
-    return streams;
+    return {
+      streams: streams,
+      totalCount: totalCount,
+    };
   }
 
-  async getOutgoingStreams(sendAddress: string, pagination?: Pagination): Promise<StreamInfo[]> {
+  async getOutgoingStreams(sendAddress: string, pagination?: Pagination) {
     let streams: StreamInfo[] = [];
+    let totalCount: number = 0;
     const currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     const body = {
       where: {
@@ -157,13 +163,17 @@ class AptAdapter implements NetworkAdapter {
       })
       .then((result) => {
         console.log('1d89a', result);
+        totalCount = result.count
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
     console.info("AptAdapter getOutStreamHandle streams", streams);
-    return streams;
+    return {
+      streams: streams,
+      totalCount: totalCount
+    };
   }
 
   // async createStream(
@@ -219,8 +229,7 @@ class AptAdapter implements NetworkAdapter {
   }
 
   getStatus(stream: any, currTime: bigint): StreamStatus {
-    console.log('close', stream);
-    if (stream.closed) {
+    if (Boolean(stream.closed)) {
       return StreamStatus.Canceled;
     }
     if (Boolean(stream.pauseInfo.paused)) {
