@@ -124,8 +124,8 @@ class AptAdapter implements NetworkAdapter {
       })
       .then((result) => {
         console.log('1d89a', result);
-        for (let i = 0; i < result.length; i++) {
-          const currStream = result[i];
+        for (let i = 0; i < result.data.length; i++) {
+          const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
@@ -157,8 +157,8 @@ class AptAdapter implements NetworkAdapter {
       })
       .then((result) => {
         console.log('1d89a', result);
-        for (let i = 0; i < result.length; i++) {
-          const currStream = result[i];
+        for (let i = 0; i < result.data.length; i++) {
+          const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
@@ -219,7 +219,8 @@ class AptAdapter implements NetworkAdapter {
   }
 
   getStatus(stream: any, currTime: bigint): StreamStatus {
-    if (Boolean(stream.closed)) {
+    console.log('close', stream);
+    if (stream.closed) {
       return StreamStatus.Canceled;
     }
     if (Boolean(stream.pauseInfo.paused)) {
