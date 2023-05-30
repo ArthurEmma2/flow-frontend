@@ -201,12 +201,8 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: string, row: StreamInfo) => {
-    console.log('row___', row.name);
-    console.log('extraAmount', extraAmount);
-    console.log('ratePerInterval', row.ratePerInterval);
-    console.log('interval', row.interval);
     // let tmp = Number(extraAmount) * (10 ** 8) / (Number(row.ratePerInterval) / 1000);
-    let tmp = Math.ceil(Number(extraAmount) * (10 ** 8) / ((Number(row.ratePerInterval) / 1000) )) ;
+    let tmp = Math.ceil(Number(extraAmount) * 1000 * (10 ** 8) / (Number(row.ratePerInterval) )) ;
     console.log('delta time', tmp);
     const newStopTime = Math.ceil((Number(row.stopTime) + tmp * Number(row.interval)) / 1000);
     console.log('new StopTimes', newStopTime);
@@ -780,7 +776,9 @@ const Stream = () => {
                   width: "80px",
                   height: "40px",
                   borderRadius: "10px",
-                  // color: "#747474"
+                  "&.Mui-disabled": {
+                    color: "white"
+                  }
                 }}
                 onClick={(e) => {
                   // e.preventDefault();

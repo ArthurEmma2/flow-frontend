@@ -282,7 +282,7 @@ class AptAdapter implements NetworkAdapter {
       createTime: (Number(stream.create_at) * 1000).toString(),
       depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
       streamId: stream.id,
-      interval: stream.interval,
+      interval: (Number(stream.interval) * 1000).toString(),
       lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
       ratePerInterval: stream.rate_per_interval,
       recipientId: stream.recipient,
