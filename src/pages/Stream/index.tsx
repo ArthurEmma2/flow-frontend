@@ -359,6 +359,7 @@ const Stream = () => {
     let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     let sMap = new Map();
     for (let i = 0; i < streams.length; i++) {
+      console.log('streams[i', streams[i].interval);
       const streamedAmount = walletAdapter!.calculateStreamedAmount(
         Number(streams[i].withdrawnAmount),
         Number(streams[i].startTime),

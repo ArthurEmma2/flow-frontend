@@ -111,9 +111,13 @@ class AptAdapter implements NetworkAdapter {
       orderBy: {
         create_at: 'desc',
       },
-      pageNumber: pagination!.page,
-      pageSize: pagination!.pageSize,
+      pageNumber: 100,
+      pageSize: 0,
     };
+    if (pagination !== undefined) {
+      body.pageSize = pagination!.pageSize
+      body.pageNumber = pagination!.page
+    }
     await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -149,9 +153,13 @@ class AptAdapter implements NetworkAdapter {
       orderBy: {
         create_at: 'desc',
       },
-      pageNumber: pagination!.page,
-      pageSize: pagination!.pageSize,
+      pageSize: 100,
+      pageNumber: 0,
     };
+    if (pagination !== undefined) {
+      body.pageSize = pagination!.pageSize
+      body.pageNumber = pagination!.page
+    }
     await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -253,6 +261,7 @@ class AptAdapter implements NetworkAdapter {
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
     const status = this.getStatus(stream, currTime)
+    console.log('interval78178', stream.interval);
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
       Number(stream.stop_time) * 1000,
@@ -260,7 +269,7 @@ class AptAdapter implements NetworkAdapter {
       Number(stream.pauseInfo.pause_at) * 1000,
       Number(stream.last_withdraw_time) * 1000,
       Number(stream.pauseInfo.acc_paused_time) * 1000,
-      Number(stream.interval),
+      Number(stream.interval) * 1000,
       Number(stream.rate_per_interval),
       status,
     )
@@ -272,7 +281,7 @@ class AptAdapter implements NetworkAdapter {
       Number(stream.pauseInfo.pause_at) * 1000,
       Number(stream.last_withdraw_time) * 1000,
       Number(stream.pauseInfo.acc_paused_time) * 1000,
-      Number(stream.interval),
+      Number(stream.interval) * 1000,
       Number(stream.rate_per_interval),
       status,
     );
@@ -333,8 +342,7 @@ class AptAdapter implements NetworkAdapter {
         timeSpan = BigInt(currTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
       }
     }
-
-    let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval) / BigInt(1000)));
+    let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval)));
     withdrawal = Number(BigInt(intervalNum) * BigInt(ratePerInterval) / BigInt(1000));
     return withdrawal;
   }
