@@ -150,7 +150,6 @@ const Stream = () => {
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
         let wMap = getWithdrawableAmountMap(newStreams);
-        console.log('newStreams', newStreams);
         setWithdrawableAmountMap(wMap);
         setStreams(newStreams);
         for(let i=0;i<newStreams.length;i++) {
@@ -346,7 +345,6 @@ const Stream = () => {
     let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     let sMap = new Map();
     for (let i = 0; i < streams.length; i++) {
-      console.log('streams[i', streams[i].interval);
       const streamedAmount = walletAdapter!.calculateStreamedAmount(
         Number(streams[i].withdrawnAmount),
         Number(streams[i].startTime),
@@ -844,7 +842,7 @@ const Stream = () => {
           totalNum={totalNum}
           onPageChange={(event, newPage) => {
             console.log('newPage', newPage);
-            setPage(newPage)
+            setPage(newPage + 1)
           }}
           onRowsPerPageChange={(event) => {
             setPageSize(parseInt(event.target.value, 10));

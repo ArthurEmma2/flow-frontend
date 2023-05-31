@@ -128,14 +128,13 @@ class AptAdapter implements NetworkAdapter {
         return response.json();
       })
       .then((result) => {
-        console.log('1d89a', result);
         totalCount = result.count;
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
-    console.debug("AptAdapter getIncomingStreams streams", streams);
+
     return {
       streams: streams,
       totalCount: totalCount,
@@ -170,14 +169,13 @@ class AptAdapter implements NetworkAdapter {
         return response.json();
       })
       .then((result) => {
-        console.log('1d89a', result);
         totalCount = result.count
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
           streams.push(this.buildStream(currStream, currTime));
         }
       });
-    console.info("AptAdapter getOutStreamHandle streams", streams);
+    // console.info("AptAdapter getOutStreamHandle streams", streams);
     return {
       streams: streams,
       totalCount: totalCount
@@ -261,7 +259,6 @@ class AptAdapter implements NetworkAdapter {
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
     const status = this.getStatus(stream, currTime)
-    console.log('interval78178', stream.interval);
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
       Number(stream.stop_time) * 1000,
