@@ -625,7 +625,7 @@ const Stream = () => {
               </TableCell>
             </> : <>
               <TableCell>
-                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}}>
+                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}} disabled={Number(row.withdrawableAmount) === 0}>
                   <MonetizationOnOutlinedIcon fontSize="small"/>
                 </IconButton>
               </TableCell>
