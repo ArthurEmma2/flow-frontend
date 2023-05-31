@@ -278,6 +278,11 @@ const Dashboard = () => {
             return acc + isCanceled;
           }, 0);
           setIncomingCanceledNum(canceledLenIn);
+
+          const withdrawableSum = streams.reduce((acc, stream) => {
+            return acc + Number(stream.withdrawableAmount);
+          }, 0);
+          setWithdrawableAmount(Number(withdrawableSum.toFixed(6)));
         });
 
         walletAdapter?.getOutgoingStreams(accountAddr).then(({streams}) => {
@@ -317,11 +322,6 @@ const Dashboard = () => {
             return acc + isCanceled;
           }, 0);
           setOutgoingCanceledNum(canceledLenOut);
-
-          const withdrawableSum = streams.reduce((acc, stream) => {
-            return acc + Number(stream.withdrawableAmount);
-          }, 0);
-          setWithdrawableAmount(Number(withdrawableSum.toFixed(6)));
         });
 
         FindAddress(accountAddr, chainName, network, {
