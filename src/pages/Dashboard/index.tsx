@@ -248,12 +248,12 @@ const Dashboard = () => {
           const incomingSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setIncomingAmount(Number(incomingSum.toFixed(6)));
+          setIncomingAmount(Number(incomingSum.toFixed(4)));
           const incomingStreamedSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
           console.log('incomingStreamedSum', incomingStreamedSum);
-          setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(6)));
+          setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(4)));
 
           const scheduledLenIn = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
@@ -282,7 +282,7 @@ const Dashboard = () => {
           const withdrawableSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.withdrawableAmount);
           }, 0);
-          setWithdrawableAmount(Number(withdrawableSum.toFixed(6)));
+          setWithdrawableAmount(Number(withdrawableSum.toFixed(4)));
         });
 
         walletAdapter?.getOutgoingStreams(accountAddr).then(({streams}) => {
@@ -291,13 +291,13 @@ const Dashboard = () => {
           const outgoingSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setOutgoingAmount(Number(outgoingSum.toFixed(6)));
+          setOutgoingAmount(Number(outgoingSum.toFixed(4)));
 
           const outgoingStreamedSum = streams.reduce((acc, stream) => {
             console.log(`aaa stream ${stream.streamId}, ${stream.streamedAmount}`)
             return acc + Number(stream.streamedAmount);
           }, 0)
-          setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(6)));
+          setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(4)));
 
           const scheduledLenOut = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;

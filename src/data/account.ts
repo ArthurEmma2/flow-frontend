@@ -1,7 +1,7 @@
 import {JsonRpcProvider} from "@mysten/sui.js";
 import {AptosClient, HexString} from "aptos";
 import {AccountKeys, Wallet, WalletAdapter} from '@manahippo/aptos-wallet-adapter';
-import netConfApt, {aptosConfigType, aptosStreamType} from "../config/configuration.aptos";
+import netConfApt from "../config/configuration.aptos";
 import StreamInfo from "../types/streamInfo";
 import {NetworkConfiguration} from "../config";
 import BigNumber from 'bignumber.js';
@@ -256,7 +256,7 @@ class AptAdapter implements NetworkAdapter {
   }
 
   displayAmount(amount: BigNumber): string {
-    return amount.dividedBy(10 ** 8).toFixed(6).toString();
+    return amount.dividedBy(10 ** 8).toFixed(4).toString();
   }
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
@@ -322,6 +322,9 @@ class AptAdapter implements NetworkAdapter {
     ratePerInterval: number,
     status: StreamStatus,
   ): number {
+    if (status === StreamStatus.Canceled) {
+      return 0;
+    }
     let withdrawal = 0;
     let timeSpan = BigInt(0)
     if (currTime <= BigInt(startTime)) {

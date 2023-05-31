@@ -152,7 +152,7 @@ export default function AptosWalletButton() {
               }}>{stringWithEllipsis(address, 7)}</Typography>
             </Box>
             <Box sx={{marginBottom: 3}}>
-              <Typography variant="h6" component="div" sx={{fontWeight: "bold"}}>{`$${walletBalance}`}</Typography>
+              <Typography variant="h6" component="div" sx={{fontWeight: "bold"}}>{`${walletBalance} APT`}</Typography>
             </Box>
             <Button variant="outlined" size="small" onClick={() => {
               disconnect();
