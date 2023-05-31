@@ -130,15 +130,6 @@ const Stream = () => {
     setOpenMap(newMap);
   }
 
-  const tmpPagination = (newStreams: StreamInfo[]) => {
-    const streamsLen = newStreams.length;
-    // sort streams in descending date by field startTime
-    newStreams = newStreams.sort((a, b) => Number(b.startTime) - Number(a.startTime));
-    const index_start = (page - 1) * pageSize
-    const index_end = (page * pageSize > streamsLen) ? streamsLen : (page * pageSize);
-    return newStreams.slice(index_start, index_end);
-  }
-
   const pullStreams = () => {
     let pagination: Pagination = {
       page: page - 1,
@@ -155,8 +146,6 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
-
-        newStreams = tmpPagination(newStreams);
 
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
@@ -182,8 +171,6 @@ const Stream = () => {
         } else {
           newStreams = streams;
         }
-
-        newStreams = tmpPagination(newStreams);
 
         let sMap = getStreamedAmountMap(newStreams);
         setStreamedAmountMap(sMap);
@@ -377,18 +364,15 @@ const Stream = () => {
     return sMap;
   }
 
-  useEffect(() => {
-    pullStreams()
-  }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, alertMessage, page, pageSize])
-
   // 定时更新streamedAmountMap
   useEffect(() => {
     let interval = setInterval(() => {
+      pullStreams();
       let sMap = getStreamedAmountMap(streams);
       let wMap = getWithdrawableAmountMap(streams);
       setStreamedAmountMap(sMap);
       setWithdrawableAmountMap(wMap);
-    }, 1000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [chainName, network, accountAddr, connected, walletAdapter, streamType, statusType, streams, page, pageSize]);
 
