@@ -111,8 +111,8 @@ class AptAdapter implements NetworkAdapter {
       orderBy: {
         create_at: 'desc',
       },
-      pageNumber: 100,
-      pageSize: 0,
+      pageNumber: 0,
+      pageSize: 100,
     };
     if (pagination !== undefined) {
       body.pageSize = pagination!.pageSize
