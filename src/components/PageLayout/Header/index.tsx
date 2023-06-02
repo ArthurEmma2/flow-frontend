@@ -94,6 +94,7 @@ export default function Header(props: any) {
           <IconButton aria-describedby={id} onClick={handleUserClick}>
             <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
           </IconButton>
+{/*
           <Popover
             id={id}
             open={open}
@@ -110,6 +111,7 @@ export default function Header(props: any) {
             sx={{borderRadius: "8px"}}
           >
           </Popover>
+*/}
         </Box>
         {/*<Select*/}
         {/*  labelId="demo-simple-select-label"*/}
