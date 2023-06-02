@@ -54,6 +54,16 @@ const AddressBook = (props: any) => {
       // placeholder
       return;
     }
+
+    const resp = walletAddress.match(/(\b0x[a-f0-9]{64}\b)/g);
+    if(resp === null) {
+      setStatus("error");
+      setAlertMessage("Invalid address. Please try again.")
+      setShowAlert(true);
+      return;
+    }
+
+
     AddAddress(wallet.account.address as string, addressName, walletAddress, chainName, network)
       .then((response: { json: () => any; }) => {
         console.log("response", response);
@@ -83,6 +93,15 @@ const AddressBook = (props: any) => {
       // placeholder
         return;
     }
+
+    const resp = editingObj.addr.match(/(\b0x[a-f0-9]{64}\b)/g);
+    if(resp === null) {
+      setStatus("error");
+      setAlertMessage("Invalid address. Please try again.")
+      setShowAlert(true);
+      return;
+    }
+
     UpdateAddress(wallet.account.address as string,editingObj.name, editingObj.addr, chainName, network, editingObj)
       .then(response => response.text())
       .then(result => {
