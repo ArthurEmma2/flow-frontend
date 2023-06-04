@@ -331,15 +331,16 @@ class AptAdapter implements NetworkAdapter {
     // console.log('stopTime', stopTime)
     if (currTime > BigInt(stopTime)) {
       if (status === StreamStatus.Paused) {
-        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
+        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
       } else {
-        timeSpan = BigInt(stopTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
+        timeSpan = BigInt(stopTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
+
       }
     } else {
       if (status === StreamStatus.Paused) {
-        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime)
+        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
       } else {
-        timeSpan = BigInt(currTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
+        timeSpan = BigInt(currTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
       }
     }
     let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval)));
