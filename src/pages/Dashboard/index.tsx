@@ -244,7 +244,6 @@ const Dashboard = () => {
 
         walletAdapter?.getIncomingStreams(accountAddr).then(({streams}) => {
           setIncomingNum(streams.length);
-          console.info("getIncomingStreams dashboard", streams);
           const incomingSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
@@ -252,7 +251,6 @@ const Dashboard = () => {
           const incomingStreamedSum = streams.reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          console.log('incomingStreamedSum', incomingStreamedSum);
           setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(4)));
 
           const scheduledLenIn = streams.reduce((acc, stream) => {
@@ -294,7 +292,6 @@ const Dashboard = () => {
           setOutgoingAmount(Number(outgoingSum.toFixed(4)));
 
           const outgoingStreamedSum = streams.reduce((acc, stream) => {
-            console.log(`aaa stream ${stream.streamId}, ${stream.streamedAmount}`)
             return acc + Number(stream.streamedAmount);
           }, 0)
           setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(4)));

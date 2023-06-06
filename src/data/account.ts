@@ -298,7 +298,7 @@ class AptAdapter implements NetworkAdapter {
       stopTime: (Number(stream.stop_time) * 1000).toString(),
       withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
       pauseInfo: {
-        accPausedTime: (Number(stream.pauseInfo.acc_paused_time)).toString(),
+        accPausedTime: (Number(stream.pauseInfo.acc_paused_time) * 1000).toString(),
         pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
         paused: stream.pauseInfo.paused,
       },
@@ -331,16 +331,16 @@ class AptAdapter implements NetworkAdapter {
     // console.log('stopTime', stopTime)
     if (currTime > BigInt(stopTime)) {
       if (status === StreamStatus.Paused) {
-        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
+        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
       } else {
-        timeSpan = BigInt(stopTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
+        timeSpan = BigInt(stopTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
 
       }
     } else {
       if (status === StreamStatus.Paused) {
-        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
+        timeSpan = BigInt(pausedAt) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
       } else {
-        timeSpan = BigInt(currTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime) * BigInt(1000);
+        timeSpan = BigInt(currTime) - BigInt(lastWithdrawTime) - BigInt(accPausedTime);
       }
     }
     let intervalNum = Math.ceil(Number(timeSpan / BigInt(interval)));
