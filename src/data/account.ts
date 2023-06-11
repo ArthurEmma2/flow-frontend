@@ -238,23 +238,21 @@ class AptAdapter implements NetworkAdapter {
     return "Success";
   }
 
-  getStatus(stream: any, currTime: bigint): StreamStatus {
-    if (Boolean(stream.closed)) {
-      return StreamStatus.Canceled;
+  getStatus(stream: any): StreamStatus {
+    switch (stream.status) {
+      case 1:
+        return StreamStatus.Scheduled
+      case 2:
+        return StreamStatus.Canceled
+      case 3:
+        return StreamStatus.Streaming
+      case 4:
+        return StreamStatus.Completed
+      case 5:
+        return StreamStatus.Paused
+      default:
+        return StreamStatus.Unknown
     }
-    if (Boolean(stream.pauseInfo.paused)) {
-      return StreamStatus.Paused;
-    }
-    if (currTime < BigInt(stream.start_time) * BigInt(1000)) {
-      return StreamStatus.Scheduled;
-    }
-    if (currTime < BigInt(stream.stop_time) * BigInt(1000)) {
-      return StreamStatus.Streaming;
-    }
-    if (currTime > BigInt(stream.stop_time) * BigInt(1000)) {
-      return StreamStatus.Completed;
-    }
-    return StreamStatus.Unknown;
   }
 
   displayAmount(amount: BigNumber): string {
@@ -262,7 +260,7 @@ class AptAdapter implements NetworkAdapter {
   }
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
-    const status = this.getStatus(stream, currTime)
+    const status = this.getStatus(stream)
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
       Number(stream.stop_time) * 1000,
