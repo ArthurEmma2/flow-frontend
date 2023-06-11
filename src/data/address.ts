@@ -1,10 +1,11 @@
 import Address from "../types/address";
 import Pagination from "../types/pagination";
 import {MaybeHexString} from "aptos";
+import netConfApt from "../config/configuration.aptos";
 
 export const AddAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string) => {
     let myHeaders = new Headers();
-
+    console.log("address__",network)
     myHeaders.append("Content-Type", "application/json");
     let raw = JSON.stringify({
         "creator": creator,
@@ -20,7 +21,8 @@ export const AddAddress = (creator: MaybeHexString, name: string, addr: string, 
         body: raw,
         redirect: "follow"
     };
-    return fetch("https://api.moveflow.xyz/api/address/add", requestOptions)
+    console.log('netConfApt___', netConfApt.backend);
+    return fetch(`${netConfApt.backend}/address/add`, requestOptions)
 }
 
 export const UpdateAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string, obj: Address) => {
@@ -41,7 +43,7 @@ export const UpdateAddress = (creator: MaybeHexString, name: string, addr: strin
         body: raw,
         redirect: "follow"
     };
-    return fetch(`https://api.moveflow.xyz/api/address/${obj.id}`, requestOptions)
+    return fetch(`${netConfApt.backend}/address/${obj.id}`, requestOptions)
 }
 
 export const DeleteAddress = (addressId: string) => {
@@ -54,7 +56,7 @@ export const DeleteAddress = (addressId: string) => {
         headers: myHeaders,
         redirect: "follow"
     };
-    return fetch(`https://api.moveflow.xyz/api/address/${addressId}`, requestOptions)
+    return fetch(`${netConfApt.backend}/address/${addressId}`, requestOptions)
 }
 
 export const FindAddress = (creator: MaybeHexString, chain: string, network: string, {page, pageSize}: Pagination): Promise<Response> => {
@@ -66,5 +68,5 @@ export const FindAddress = (creator: MaybeHexString, chain: string, network: str
         headers: myHeaders,
         redirect: 'follow'
     };
-    return fetch(`https://api.moveflow.xyz/api/addresses?pagesize=${pageSize}&page=${page}&creator=${creator}&network=${network}&chain=${chain}`, requestOptions)
+    return fetch(`${netConfApt.backend}/addresses?pagesize=${pageSize}&page=${page}&creator=${creator}&network=${network}&chain=${chain}`, requestOptions)
 }

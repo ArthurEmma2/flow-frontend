@@ -70,12 +70,15 @@ class AptAdapter implements NetworkAdapter {
 
   private wallet: Wallet;
 
+  private backend: string;
+
   // The constructor takes a web3 provider as an argument
   constructor(connection: NetworkConfiguration, account: AccountKeys, wallet: Wallet) {
     console.debug("AptAdapter constructor connection:", connection)
     this.client = new AptosClient(connection.fullNodeUrl);
     this.account = account;
     this.wallet = wallet;
+    this.backend = connection.backend
   }
 
   getWallet(): WalletAdapter {
@@ -118,7 +121,7 @@ class AptAdapter implements NetworkAdapter {
       body.pageSize = pagination!.pageSize
       body.pageNumber = pagination!.page
     }
-    await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
+    await fetch(`${this.backend}/streams/${1}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -159,7 +162,7 @@ class AptAdapter implements NetworkAdapter {
       body.pageSize = pagination!.pageSize
       body.pageNumber = pagination!.page
     }
-    await fetch(`https://api.moveflow.xyz/api/streams/${1}`, {
+    await fetch(`${this.backend}/streams/${1}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -169,6 +172,7 @@ class AptAdapter implements NetworkAdapter {
         return response.json();
       })
       .then((result) => {
+        console.log('result', result)
         totalCount = result.count
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];

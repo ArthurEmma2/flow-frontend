@@ -26,7 +26,7 @@ const TESTNET_CONFIG = new NetworkConfiguration(
   'https://fullnode.testnet.aptoslabs.com/v1',
   'https://faucet.testnet.aptoslabs.com',
   '0x85e0c7b86bbea605ab495df331042370b81c9abe94a0a7447c719de549545207',
-  'https://api.moveflow.xyz/api',
+  'https://testnet.api.moveflow.xyz/api',
   'apt_testnet',
 );
 
@@ -34,8 +34,8 @@ const MAINNET_CONFIG = new NetworkConfiguration(
   'mainnet',
   'https://fullnode.mainnet.aptoslabs.com/v1',
   '',
-  'contract',
-  'backend',
+  '0x78daa336e5da7dcfef7ed1c3ffc8006dfe0aee460b7c4d28bbd854a93e5afb97',
+  'https://api.moveflow.xyz/api',
   'apt_mainnet'
 );
 
