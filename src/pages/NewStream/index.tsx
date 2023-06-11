@@ -159,8 +159,6 @@ const NewStream: React.FC<{}> = () => {
   const sendButtonDisabled = () => {
 
     if(transactionName.length === 0 || receiverAddress.length === 0){
-      console.log("fall if 0")
-
       return true;
     }
 
@@ -227,6 +225,9 @@ const NewStream: React.FC<{}> = () => {
                         startTime: string, stopTime: string,
                         interval: number, canPause?: boolean,
                         closeable?: boolean, recipientModifiable?: boolean) => {
+    console.log(`startTime: ${startTime}, stopTime: ${stopTime}, currTime: ${Date.parse(new Date().toString().valueOf()) / 1000}`)
+    console.log(`stopTime >= createTime: ${Number(stopTime) >= Number(startTime)}`)
+    console.log(`stopTime >= currTime: ${Number(stopTime) >= Number(Date.parse(new Date().toString().valueOf()) / 1000)}`)
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::create`,
@@ -238,9 +239,9 @@ const NewStream: React.FC<{}> = () => {
         startTime,
         stopTime,
         Math.floor(interval/1000).toString(),
-        true,
-        true,
-        true,
+        false,
+        false,
+        false,
       ],
       type_arguments: ['0x1::aptos_coin::AptosCoin'],
     };

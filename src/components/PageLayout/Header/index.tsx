@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Box from "@mui/material/Box";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
 // import SuiWalletButton from "../../Wallets/SuiWallet";
-import {Avatar, Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
+import {Avatar, BottomNavigation, BottomNavigationAction, Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
 import useCurrentPage from "../../../hooks/useCurrentPage";
@@ -22,7 +22,7 @@ export default function Header(props: any) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   // const [currentPageName, setCurrentPage] = useCurrentPage();
   const {walletAdapter} = useContext(WalletAdapter);
-
+  const [network, setNetwork] = useState<string>(process.env.REACT_APP_CURRENT_NETWORK as string);
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
 
@@ -94,38 +94,49 @@ export default function Header(props: any) {
           <IconButton aria-describedby={id} onClick={handleUserClick}>
             <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
           </IconButton>
-{/*
-          <Popover
-            id={id}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleUserClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            sx={{borderRadius: "8px"}}
-          >
-          </Popover>
-*/}
+          {/*<Popover*/}
+          {/*  id={id}*/}
+          {/*  open={open}*/}
+          {/*  anchorEl={anchorEl}*/}
+          {/*  onClose={handleUserClose}*/}
+          {/*  anchorOrigin={{*/}
+          {/*    vertical: 'bottom',*/}
+          {/*    horizontal: 'right',*/}
+          {/*  }}*/}
+          {/*  transformOrigin={{*/}
+          {/*    vertical: 'top',*/}
+          {/*    horizontal: 'right',*/}
+          {/*  }}*/}
+          {/*  sx={{borderRadius: "8px"}}*/}
+          {/*>*/}
+          {/*  <Box sx={{*/}
+          {/*    display: "flex",*/}
+          {/*    flexDirection: "column",*/}
+          {/*    gap: 2,*/}
+          {/*    margin: 2,*/}
+          {/*    marginTop: 1,*/}
+          {/*    marginBottom: 1,*/}
+          {/*  }}>*/}
+          {/*    <Tabs value={network} onChange={(event, newValue: string) => {*/}
+          {/*      if (newValue !== process.env.REACT_APP_CURRENT_NETWORK as string) {*/}
+          {/*        switch (newValue) {*/}
+          {/*          case "Testnet":*/}
+          {/*            window.location.replace("https://testnet.app.moveflow.xyz")*/}
+          {/*            break;*/}
+          {/*          case "Mainnet":*/}
+          {/*            window.location.replace("https://app.moveflow.xyz")*/}
+          {/*            break;*/}
+          {/*          default:*/}
+          {/*            alert("wrong network!")*/}
+          {/*        }*/}
+          {/*      }*/}
+          {/*    }}>*/}
+          {/*      <Tab key="Mainnet" label="Mainnet" value="Mainnet" />*/}
+          {/*      <Tab key="Testnet" label="Testnet" value="Testnet" />*/}
+          {/*    </Tabs>*/}
+          {/*  </Box>*/}
+          {/*</Popover>*/}
         </Box>
-        {/*<Select*/}
-        {/*  labelId="demo-simple-select-label"*/}
-        {/*  id="demo-simple-select"*/}
-        {/*  value={chainName}*/}
-        {/*  label="Chain"*/}
-        {/*  onChange={handleChange}*/}
-        {/*  sx={{*/}
-        {/*    height: "2rem",*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  <MenuItem value={"aptos"}>Aptos</MenuItem>*/}
-        {/*  <MenuItem value={"sui"}>Sui</MenuItem>*/}
-        {/*</Select>*/}
       </Box>
     </Container>
   )

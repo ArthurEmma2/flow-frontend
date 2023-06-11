@@ -135,6 +135,7 @@ const Stream = () => {
       page: page - 1,
       pageSize: pageSize,
     }
+    console.log('walletAdapter', walletAdapter)
     if (streamType === "Outgoing") {
       walletAdapter?.getOutgoingStreams(accountAddr, pagination).then(({streams, totalCount}) => {
         let newStreams: StreamInfo[];
@@ -689,7 +690,6 @@ const Stream = () => {
             height: "100px",
             width: "100px",
           }}
-
       >
       </Box>
       <Modal
