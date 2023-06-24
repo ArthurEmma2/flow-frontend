@@ -28,9 +28,9 @@ export default function Header(props: any) {
   // const [currentPageName, setCurrentPage] = useCurrentPage();
   const {walletAdapter} = useContext(WalletAdapter);
   const [network, setNetwork] = useState<string>(process.env.REACT_APP_CURRENT_NETWORK as string);
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("");
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
-
   const navigate = useNavigate();
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log('newTab', newValue);
@@ -130,40 +130,34 @@ export default function Header(props: any) {
               " role="group">
                 <button
                   type="button"
-                  onClick={() => {window.location.replace("https://app.moveflow.xyz")}}
-                  className="
+                  onClick={() => {
+                    window.location.replace("https://app.moveflow.xyz")
+                    setSelectedNetwork("Mainnet")
+                  }}
+                  className={`
                     px-4
                     py-2
                     text-sm
                     font-medium
                     text-[#FFFFFF]
-                    bg-transparent
                     rounded
-                    hover:bg-gray-900
-                    hover:text-white
-                    focus:z-10
-                    focus:text-white
-                    focus:bg-[#000000]
-                  ">
+                    ${(network === "Mainnet" && selectedNetwork === "")  ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]": "bg-transparent rounded hover:bg-gray-900 hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#F143E2] focus:to-[#40187F]"}`}>
                   Mainnet
                 </button>
                 <button
                   type="button"
-                  onClick={() => {window.location.replace("https://testnet.app.moveflow.xyz")}}
-                  className="
+                  onClick={() => {
+                    window.location.replace("https://testnet.app.moveflow.xyz")
+                    setSelectedNetwork("Testnet")
+                  }}
+                  className={`
                     px-4
                     py-2
                     text-sm
                     font-medium
                     text-[#FFFFFF]
-                    bg-transparent
                     rounded
-                    hover:bg-gray-900
-                    hover:text-white
-                    focus:z-10
-                    focus:text-white
-                    focus:bg-[#000000]
-                ">
+                    ${network === "Testnet" && selectedNetwork === "" ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]" : "bg-transparent hover:bg-gray-900 hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#F143E2] focus:to-[#40187F]"}`}>
                   Testnet
                 </button>
               </div>
