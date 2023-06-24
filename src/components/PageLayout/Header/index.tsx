@@ -5,17 +5,22 @@ import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import {useContext} from "react";
 import {ChainName} from "../../../context/chainName";
-// import SuiWalletButton from "../../Wallets/SuiWallet";
-import {Avatar, BottomNavigation, BottomNavigationAction, Container, IconButton, Popover, Typography, useTheme} from "@mui/material";
+import {
+  Avatar,
+  BottomNavigation,
+  BottomNavigationAction,
+  Container,
+  IconButton,
+  Popover, ToggleButton, ToggleButtonGroup,
+  Typography,
+  useTheme
+} from "@mui/material";
 import {AptosLogoAlt} from "../../../resources";
 import AptosWalletButton from "../../Wallets/AptosWallet";
-import useCurrentPage from "../../../hooks/useCurrentPage";
 import {gradientButtonStyle} from "../../../style/button";
 import { useNavigate } from 'react-router-dom';
 import {ReactComponent as MoveFlowLogo} from "../../../resources/MFlogo.svg";
-import {Hashicon} from "@emeraldpay/hashicon-react";
 import {WalletAdapter} from "../../../context/WalletAdapter";
-
 
 export default function Header(props: any) {
   const {chainName, setChainName} = useContext(ChainName);
@@ -41,8 +46,6 @@ export default function Header(props: any) {
   }
 
   const darkMode = useTheme().palette.mode === 'dark';
-
-  const address = walletAdapter?.getAddress() as string
 
   return (
     <Container>
@@ -94,48 +97,78 @@ export default function Header(props: any) {
           <IconButton aria-describedby={id} onClick={handleUserClick}>
             <AptosLogoAlt width="2rem" height="2rem" fill={darkMode ? "white" : "black"}/>
           </IconButton>
-          {/*<Popover*/}
-          {/*  id={id}*/}
-          {/*  open={open}*/}
-          {/*  anchorEl={anchorEl}*/}
-          {/*  onClose={handleUserClose}*/}
-          {/*  anchorOrigin={{*/}
-          {/*    vertical: 'bottom',*/}
-          {/*    horizontal: 'right',*/}
-          {/*  }}*/}
-          {/*  transformOrigin={{*/}
-          {/*    vertical: 'top',*/}
-          {/*    horizontal: 'right',*/}
-          {/*  }}*/}
-          {/*  sx={{borderRadius: "8px"}}*/}
-          {/*>*/}
-          {/*  <Box sx={{*/}
-          {/*    display: "flex",*/}
-          {/*    flexDirection: "column",*/}
-          {/*    gap: 2,*/}
-          {/*    margin: 2,*/}
-          {/*    marginTop: 1,*/}
-          {/*    marginBottom: 1,*/}
-          {/*  }}>*/}
-          {/*    <Tabs value={network} onChange={(event, newValue: string) => {*/}
-          {/*      if (newValue !== process.env.REACT_APP_CURRENT_NETWORK as string) {*/}
-          {/*        switch (newValue) {*/}
-          {/*          case "Testnet":*/}
-          {/*            window.location.replace("https://testnet.app.moveflow.xyz")*/}
-          {/*            break;*/}
-          {/*          case "Mainnet":*/}
-          {/*            window.location.replace("https://app.moveflow.xyz")*/}
-          {/*            break;*/}
-          {/*          default:*/}
-          {/*            alert("wrong network!")*/}
-          {/*        }*/}
-          {/*      }*/}
-          {/*    }}>*/}
-          {/*      <Tab key="Mainnet" label="Mainnet" value="Mainnet" />*/}
-          {/*      <Tab key="Testnet" label="Testnet" value="Testnet" />*/}
-          {/*    </Tabs>*/}
-          {/*  </Box>*/}
-          {/*</Popover>*/}
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleUserClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            sx={{borderRadius: "8px"}}
+          >
+            <Box sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              margin: 2,
+              marginTop: 1,
+              marginBottom: 1,
+              backgroundColor: '#252629',
+            }}>
+              <div className="
+                inline-flex
+                rounded
+                shadow-sm
+                bg-[#3F4043]
+                p-0.5
+              " role="group">
+                <button
+                  type="button"
+                  onClick={() => {window.location.replace("https://app.moveflow.xyz")}}
+                  className="
+                    px-4
+                    py-2
+                    text-sm
+                    font-medium
+                    text-[#FFFFFF]
+                    bg-transparent
+                    rounded
+                    hover:bg-gray-900
+                    hover:text-white
+                    focus:z-10
+                    focus:text-white
+                    focus:bg-[#000000]
+                  ">
+                  Mainnet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {window.location.replace("https://testnet.app.moveflow.xyz")}}
+                  className="
+                    px-4
+                    py-2
+                    text-sm
+                    font-medium
+                    text-[#FFFFFF]
+                    bg-transparent
+                    rounded
+                    hover:bg-gray-900
+                    hover:text-white
+                    focus:z-10
+                    focus:text-white
+                    focus:bg-[#000000]
+                ">
+                  Testnet
+                </button>
+              </div>
+            </Box>
+          </Popover>
         </Box>
       </Box>
     </Container>
