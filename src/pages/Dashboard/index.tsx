@@ -73,6 +73,8 @@ const Dashboard = () => {
   const accountAddr = walletAdapter?.getAddress()!;
 
   const [balance, setBalance] = useState<string>("0");
+  // TODO: Walter | total MOON_COIN balance under the account
+  const [moonBalance, setMoonBalance] = useState<string>("0");
   const [outgoingCanceledNum, setOutgoingCanceledNum] = useState<number>(0);
   const [incomingCanceledNum, setIncomingCanceledNum] = useState<number>(0);
   const [outgoingStreamedNum, setOutgoingStreamedNum] = useState<number>(0);
@@ -83,11 +85,26 @@ const Dashboard = () => {
   const [outgoingScheduledNum, setOutgoingScheduledNum] = useState<number>(0);
   const [outgoingNum, setOutgoingNum] = useState<number>(0);
   const [incomingNum, setIncomingNum] = useState<number>(0);
+
   const [incomingAmount, setIncomingAmount] = useState<number>(0);
+  // TODO: Walter
+  const [moonIncomingAmount, setMoonIncomingAmount] = useState<number>(0);
+
   const [outgoingAmount, setOutgoingAmount] = useState<number>(0);
+  // TODO: Walter
+  const [moonOutgoingAmount, setMoonOutgoingAmount] = useState<number>(0);
+
   const [outgoingStreamedSum, setOutgoingStreamedSum] = useState<number>(0);
+  // TODO: Walter
+  const [moonOutgoingStreamedSum, setMoonOutgoingStreamedSum] = useState<number>(0);
+
   const [incomingStreamedSum, setIncomingStreamedSum] = useState<number>(0);
+  // TODO: Walter
+  const [moonIncomingStreamedSum, setMoonIncomingStreamedSum] = useState<number>(0);
+
   const [withdrawableAmount, setWithdrawableAmount] = useState<number>(0);
+  // TODO: Walter
+  const [moonWithDrawableAmount, setMoonWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
 
   const amountCards = [
@@ -227,8 +244,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (connected) {
-      walletAdapter?.getBalance().then((value) => {
+      walletAdapter?.getBalance("APT").then((value) => {
         setBalance(value);
+      })
+      walletAdapter?.getBalance("MOON").then((value) => {
+        setMoonBalance(value);
       })
     }
   }, [walletAdapter, connected])
@@ -238,20 +258,34 @@ const Dashboard = () => {
       if(connected) {
         const currTime = Number(Date.parse(new Date().toString()));
 
-        walletAdapter?.getBalance().then((balance) => {
-          setBalance(balance);
-        });
+        walletAdapter?.getBalance("APT").then((value) => {
+          setBalance(value);
+        })
+        walletAdapter?.getBalance("MOON").then((value) => {
+          setMoonBalance(value);
+        })
 
         walletAdapter?.getIncomingStreams(accountAddr).then(({streams}) => {
           setIncomingNum(streams.length);
-          const incomingSum = streams.reduce((acc, stream) => {
+          const APTIncomingSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setIncomingAmount(Number(incomingSum.toFixed(4)));
-          const incomingStreamedSum = streams.reduce((acc, stream) => {
+          setIncomingAmount(Number(APTIncomingSum.toFixed(4)));
+
+          const MOONIncomingSum = streams.filter((val) => {return val.coinType === "MOOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.depositAmount);
+          }, 0);
+          setMoonIncomingAmount(Number(MOONIncomingSum.toFixed(4)));
+
+          const APTIncomingStreamedSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(4)));
+          setIncomingStreamedSum(Number(APTIncomingStreamedSum.toFixed(4)));
+
+          const MOONIncomingStreamedSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0)
+          setMoonIncomingStreamedSum(Number(MOONIncomingStreamedSum.toFixed(4)));
 
           const scheduledLenIn = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
@@ -277,24 +311,40 @@ const Dashboard = () => {
           }, 0);
           setIncomingCanceledNum(canceledLenIn);
 
-          const withdrawableSum = streams.reduce((acc, stream) => {
+          const APTWithdrawableSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.withdrawableAmount);
           }, 0);
-          setWithdrawableAmount(Number(withdrawableSum.toFixed(4)));
+          setWithdrawableAmount(Number(APTWithdrawableSum.toFixed(4)));
+
+          const MoonWithdrawableSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.withdrawableAmount);
+          }, 0);
+          setMoonWithdrawableAmount(Number(MoonWithdrawableSum.toFixed(4)));
+
         });
 
         walletAdapter?.getOutgoingStreams(accountAddr).then(({streams}) => {
           setOutgoingNum(streams.length);
           // console.debug("getOutgoingStreams", "streams", streams[0]);
-          const outgoingSum = streams.reduce((acc, stream) => {
+          const APTOutgoingSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setOutgoingAmount(Number(outgoingSum.toFixed(4)));
+          setOutgoingAmount(Number(APTOutgoingSum.toFixed(4)));
 
-          const outgoingStreamedSum = streams.reduce((acc, stream) => {
+          const MoonOutgoingSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.depositAmount);
+          }, 0);
+          setMoonOutgoingAmount(Number(MoonOutgoingSum.toFixed(4)));
+
+          const APTOutgoingStreamedSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(4)));
+          setOutgoingStreamedSum(Number(APTOutgoingStreamedSum.toFixed(4)));
+
+          const MoonOutgoingStreamedSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0)
+          setMoonOutgoingStreamedSum(Number(MoonOutgoingStreamedSum.toFixed(4)));
 
           const scheduledLenOut = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;

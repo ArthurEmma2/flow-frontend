@@ -57,6 +57,7 @@ import "./index.css";
 import { useRef } from 'react';
 import {gradientButtonStyle} from "../../style/button";
 import Pagination from "../../types/pagination";
+import getNetworkCoinConfig from "../../config/coinConfig";
 
 const customTypographyStyle = {
   h5: {
@@ -188,8 +189,11 @@ const Stream = () => {
   };
 
   const extendStreams = (extraAmount: string, row: StreamInfo) => {
-    // let tmp = Number(extraAmount) * (10 ** 8) / (Number(row.ratePerInterval) / 1000);
-    let tmp = Math.ceil(Number(extraAmount) * 1000 * (10 ** 8) / (Number(row.ratePerInterval) )) ;
+    const coinName = row.coinType;
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
+    let tmp = Math.ceil(Number(extraAmount) * 1000 * coinInfo.unit / (Number(row.ratePerInterval) )) ;
     console.log('delta time', tmp);
     const newStopTime = Math.ceil((Number(row.stopTime) + tmp * Number(row.interval)) / 1000);
     console.log('new StopTimes', newStopTime);
@@ -200,7 +204,7 @@ const Stream = () => {
         newStopTime,
         row.streamId
       ],
-      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+      type_arguments: [coinInfo.coinType],
     };
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -226,14 +230,17 @@ const Stream = () => {
       return false;
   }
 
-  const pauseStreams = (streamId: string) => {
+  const pauseStreams = (streamId: string, network: string, coinName: string) => {
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::pause`,
       arguments: [
         streamId
       ],
-      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+      type_arguments: [coinInfo.coinType],
     }
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -250,14 +257,17 @@ const Stream = () => {
       })
   }
 
-  const cancelStreams = (streamId: string) => {
+  const cancelStreams = (streamId: string, network: string, coinName: string) => {
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::close`,
       arguments: [
         streamId
       ],
-      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+      type_arguments: [coinInfo.coinType],
     }
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -274,14 +284,17 @@ const Stream = () => {
       })
   }
 
-  const withdrawStreams = (streamId: number) => {
+  const withdrawStreams = (streamId: number, network: string, coinName: string) => {
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::withdraw`,
       arguments: [
         streamId
       ],
-      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+      type_arguments: [coinInfo.coinType],
     }
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -298,14 +311,17 @@ const Stream = () => {
       })
   }
 
-  const resumeStreams = (streamId: string) => {
+  const resumeStreams = (streamId: string, network: string, coinName: string) => {
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::resume`,
       arguments: [
         streamId
       ],
-      type_arguments: [],
+      type_arguments: [coinInfo.coinType],
     }
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -325,7 +341,10 @@ const Stream = () => {
   const getWithdrawableAmountMap = (streams: StreamInfo[]): Map<string, string> => {
     let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()));
     let wMap = new Map();
+    const coinConfigs = getNetworkCoinConfig(network);
     for (let i = 0; i < streams.length; i++) {
+      const coinName = streams[i].coinType;
+      const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const withdrawableAmount = walletAdapter!.calculateWithdrawableAmount(
         Number(streams[i].startTime),
         Number(streams[i].stopTime),
@@ -337,15 +356,19 @@ const Stream = () => {
         Number(streams[i].ratePerInterval),
         streams[i].status,
       )
-      wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawableAmount)));
+      wMap.set(streams[i].streamId, walletAdapter!.displayAmount(new BigNumber(withdrawableAmount), coinInfo.unit));
     }
     return wMap;
   }
 
   const getStreamedAmountMap = (streams: StreamInfo[]): Map<string, string> => {
+    const coinConfigs = getNetworkCoinConfig(network);
+
     let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     let sMap = new Map();
     for (let i = 0; i < streams.length; i++) {
+      const coinName = streams[i].coinType;
+      const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const streamedAmount = walletAdapter!.calculateStreamedAmount(
         Number(streams[i].withdrawnAmount),
         Number(streams[i].startTime),
@@ -357,6 +380,7 @@ const Stream = () => {
         Number(streams[i].interval),
         Number(streams[i].ratePerInterval),
         streams[i].status,
+        coinInfo.unit,
       );
       sMap.set(streams[i].streamId, streamedAmount)
     }
@@ -611,20 +635,20 @@ const Stream = () => {
                 </IconButton>
               </TableCell>
               <TableCell align="center">
-                {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId)}}>
+                {row.status === StreamStatus.Paused ? <IconButton onClick={() => {resumeStreams(row.streamId, network, row.coinType)}}>
                   <PlayCircleOutlineIcon fontSize="small" />
-                </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId)}} disabled={shouldDisable(row)}>
+                </IconButton> : <IconButton onClick={() => {pauseStreams(row.streamId, network, row.coinType)}} disabled={shouldDisable(row)}>
                   <PauseCircleOutlinedIcon fontSize="small"/>
                 </IconButton>}
               </TableCell>
               <TableCell align="center">
-                <IconButton onClick={() => {cancelStreams(row.streamId)}} disabled={shouldDisable(row)}>
+                <IconButton onClick={() => {cancelStreams(row.streamId, network, row.coinType)}} disabled={shouldDisable(row)}>
                   <CancelOutlinedIcon fontSize="small"/>
                 </IconButton>
               </TableCell>
             </> : <>
               <TableCell>
-                <IconButton onClick={() => {withdrawStreams(Number(row.streamId))}} disabled={Number(row.withdrawableAmount) === 0}>
+                <IconButton onClick={() => {withdrawStreams(Number(row.streamId), network, row.coinType)}} disabled={Number(row.withdrawableAmount) === 0}>
                   <MonetizationOnOutlinedIcon fontSize="small"/>
                 </IconButton>
               </TableCell>

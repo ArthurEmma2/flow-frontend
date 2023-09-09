@@ -30,6 +30,8 @@ import dayjs from 'dayjs';
 import {RawCoinInfo, useCoingeckoValue} from "../../hooks/useCoingecko";
 import {useLocation} from 'react-router-dom';
 import useCurrentPage from "../../hooks/useCurrentPage";
+import coinConfig from "../../config/coinConfig";
+import getNetworkCoinConfig from "../../config/coinConfig";
 
 
 const { RangePicker } = DatePicker;
@@ -73,7 +75,7 @@ const NewStream: React.FC<{}> = () => {
   const [receiverAddress, setReceiverAddress] = useState("");
   const [receiverInputText, setReceiverInputText] = useState("");
   const [receiverValue, setReceiverValue] = useState<Option | null>(null); // [label, value
-  const [token, setToken] = useState("Aptos");
+  const [token, setToken] = useState("APT");
   const [amount, setAmount] = useState(0);
   const [datePickerTime, setDatePickerTime] = useState([dayjs().toISOString(), dayjs().toISOString()]); // [startDate, endDate
   const [remark, setRemark] = useState("");
@@ -223,11 +225,14 @@ const NewStream: React.FC<{}> = () => {
 
   const createStream = (name: string, remark: string, recipientAddr: string, depositAmount: number,
                         startTime: string, stopTime: string,
-                        interval: number, canPause?: boolean,
+                        interval: number, coinName: string, network: string, canPause?: boolean,
                         closeable?: boolean, recipientModifiable?: boolean) => {
-    console.log(`startTime: ${startTime}, stopTime: ${stopTime}, currTime: ${Date.parse(new Date().toString().valueOf()) / 1000}`)
-    console.log(`stopTime >= createTime: ${Number(stopTime) >= Number(startTime)}`)
-    console.log(`stopTime >= currTime: ${Number(stopTime) >= Number(Date.parse(new Date().toString().valueOf()) / 1000)}`)
+    console.log('network___', network);
+    console.log('coinName', coinName);
+
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs]
+
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::create`,
@@ -235,7 +240,7 @@ const NewStream: React.FC<{}> = () => {
         name,
         remark,
         recipientAddr,
-        depositAmount * 10 ** 8,
+        depositAmount * coinInfo.unit,
         startTime,
         stopTime,
         Math.floor(interval/1000).toString(),
@@ -243,7 +248,7 @@ const NewStream: React.FC<{}> = () => {
         true,
         false,
       ],
-      type_arguments: ['0x1::aptos_coin::AptosCoin'],
+      type_arguments: [coinInfo.coinType],
     };
 
     const res = signAndSubmitTransaction(transaction)
@@ -265,6 +270,8 @@ const NewStream: React.FC<{}> = () => {
       dayjs(datePickerTime[0]).unix().toString(),
       dayjs(datePickerTime[1]).unix().toString(),
       interval,
+      token,
+      network.name!,
       true,
       true,
       true
@@ -400,7 +407,8 @@ const NewStream: React.FC<{}> = () => {
                   inputProps={{ 'aria-label': 'Without label' }}
                   displayEmpty
                 >
-                  <MenuItem value={"Aptos"} key={"Aptos"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"Aptos"}</MenuItem>
+                  <MenuItem value={"APT"} key={"APT"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"APT"}</MenuItem>
+                {/*  TODO: Walter | add MOON coin */}
                 </Select>
               </Grid>
               <Grid item sm={6}>
