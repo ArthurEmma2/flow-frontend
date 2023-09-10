@@ -248,12 +248,14 @@ const Dashboard = () => {
         setBalance(value);
       })
       walletAdapter?.getBalance("MOON").then((value) => {
+        console.log('moon', value)
         setMoonBalance(value);
       })
     }
   }, [walletAdapter, connected])
 
   useEffect(() => {
+    console.log("in second useeffect")
     const interval = setInterval(() => {
       if(connected) {
         const currTime = Number(Date.parse(new Date().toString()));
@@ -266,6 +268,7 @@ const Dashboard = () => {
         })
 
         walletAdapter?.getIncomingStreams(accountAddr).then(({streams}) => {
+          console.log('streams:', streams)
           setIncomingNum(streams.length);
           const APTIncomingSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
@@ -273,6 +276,7 @@ const Dashboard = () => {
           setIncomingAmount(Number(APTIncomingSum.toFixed(4)));
 
           const MOONIncomingSum = streams.filter((val) => {return val.coinType === "MOOON"}).reduce((acc, stream) => {
+            console.log('moonstream:', stream)
             return acc + Number(stream.depositAmount);
           }, 0);
           setMoonIncomingAmount(Number(MOONIncomingSum.toFixed(4)));

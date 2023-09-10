@@ -68,7 +68,7 @@ export default function AptosWalletButton() {
     if (connected) {
       let adapter = createNetworkAdapter(chainName, account as AccountKeys, wallet as Wallet);
       setWalletAdapter(adapter);
-      adapter.getBalance().then((balance) => {
+      adapter.getBalance("APT").then((balance) => {
         setWalletBalance(balance);
       })
     }

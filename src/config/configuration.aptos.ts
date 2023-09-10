@@ -55,5 +55,5 @@ const getNetworkConfiguration = (env: string): NetworkConfiguration => {
 };
 
 const netConfApt = getNetworkConfiguration(process.env.REACT_APP_CURRENT_NETWORK as string);
-
+// const netConfApt = getNetworkConfiguration("Testnet");
 export default netConfApt;
