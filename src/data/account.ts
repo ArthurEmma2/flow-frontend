@@ -227,10 +227,10 @@ class AptAdapter implements NetworkAdapter {
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
     const network = this.wallet.adapter.network.name!;
-    const coinName = stream.coin_type;
+    const coinName = stream.coin_type || "APT";
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
-
+    console.log('coinInfo', coinInfo);
     const status = this.getStatus(stream, currTime)
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
