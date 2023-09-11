@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
 import AptosIcon from '../../resources/aptos4.png';
+import MoonIcon from '../../resources/icons/Group 482290.svg';
 import {DatePicker} from 'antd';
 import {gradientButtonStyle} from "../../style/button";
 import dayjs from 'dayjs';
@@ -152,7 +153,6 @@ const NewStream: React.FC<{}> = () => {
       setReceiverAddress("");
       setReceiverInputText("");
     } else {
-      console.log(newValue)
       setReceiverAddress(newValue.addr);
       setReceiverInputText(newValue.label);
     }
@@ -193,11 +193,9 @@ const NewStream: React.FC<{}> = () => {
   }, [numberOfTimes, amountPerTime, interval, enableStreamRate])
 
   useEffect(() => {
-    console.log("state", state)
     if(state!==null && state.address!=null && state.address.length>0){
       const options = generateAddressOptions();
       for(let i=0;i<options.length;i++){
-        console.log("options", options)
         if(options[i].addr === state.address){
           setReceiverAddress(state.address);
           setReceiverInputText(options[i].label);
@@ -262,7 +260,6 @@ const NewStream: React.FC<{}> = () => {
     //   setShowAlert(true);
     //   return;
     // }
-    console.log("token", token  )
     createStream(
       transactionName,
       remark,
@@ -410,7 +407,7 @@ const NewStream: React.FC<{}> = () => {
                   onChange={(e: any) => setToken(e.target.value)}
                 >
                   <MenuItem value={"APT"} key={"APT"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"APT"}</MenuItem>
-                  <MenuItem value={"MOON"} key={"MOON"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"MOON"}</MenuItem>
+                  <MenuItem value={"MOON"} key={"MOON"}><img src={MoonIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"MOON"}</MenuItem>
 
                 {/*  TODO: Walter | add MOON coin */}
                 </Select>

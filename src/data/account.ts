@@ -136,6 +136,7 @@ class AptAdapter implements NetworkAdapter {
       redirect: "follow",
     })
       .then((response) => {
+        // console.log('response', response.json())
         return response.json();
       })
       .then((result) => {
@@ -180,7 +181,6 @@ class AptAdapter implements NetworkAdapter {
         return response.json();
       })
       .then((result) => {
-        console.log('result', result)
         totalCount = result.count
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
@@ -227,8 +227,9 @@ class AptAdapter implements NetworkAdapter {
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
     const network = this.wallet.adapter.network.name!;
-    const coinName = stream.coin_type;
+    let coinName = stream.coin_type;
     const coinConfigs = getNetworkCoinConfig(network);
+    coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
     const status = this.getStatus(stream, currTime)

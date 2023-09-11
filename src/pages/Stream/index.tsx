@@ -343,7 +343,8 @@ const Stream = () => {
     let wMap = new Map();
     const coinConfigs = getNetworkCoinConfig(network);
     for (let i = 0; i < streams.length; i++) {
-      const coinName = streams[i].coinType;
+      let coinName = streams[i].coinType;
+      coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
       const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const withdrawableAmount = walletAdapter!.calculateWithdrawableAmount(
         Number(streams[i].startTime),
@@ -367,7 +368,9 @@ const Stream = () => {
     let currTime = BigInt(Date.parse(new Date().toISOString().valueOf()))
     let sMap = new Map();
     for (let i = 0; i < streams.length; i++) {
-      const coinName = streams[i].coinType;
+      let coinName = streams[i].coinType;
+      coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
+
       const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const streamedAmount = walletAdapter!.calculateStreamedAmount(
         Number(streams[i].withdrawnAmount),
