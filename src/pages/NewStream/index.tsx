@@ -225,12 +225,9 @@ const NewStream: React.FC<{}> = () => {
                         startTime: string, stopTime: string,
                         interval: number, coinName: string, network: string, canPause?: boolean,
                         closeable?: boolean, recipientModifiable?: boolean) => {
-    console.log('network___', network);
     console.log('coinName', coinName);
-
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs]
-
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::create`,

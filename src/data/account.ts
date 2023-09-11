@@ -231,7 +231,7 @@ class AptAdapter implements NetworkAdapter {
     const coinConfigs = getNetworkCoinConfig(network);
     coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
-
+    console.log('coinInfo', coinInfo);
     const status = this.getStatus(stream, currTime)
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
