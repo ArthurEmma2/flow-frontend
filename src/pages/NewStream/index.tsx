@@ -404,7 +404,7 @@ const NewStream: React.FC<{}> = () => {
                   onChange={(e: any) => setToken(e.target.value)}
                 >
                   <MenuItem value={"APT"} key={"APT"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"APT"}</MenuItem>
-                  <MenuItem value={"MOON"} key={"MOON"}><img src={MoonIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"MOON"}</MenuItem>
+                  <MenuItem value={"MOON"} key={"MOON"}><img src={MoonIcon} alt="logo" width={16} height={16} style={{float: "left", marginRight: "5px"}}/>{"MOON"}</MenuItem>
 
                 {/*  TODO: Walter | add MOON coin */}
                 </Select>

@@ -26,6 +26,7 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import PauseCircleOutlinedIcon from '@mui/icons-material/PauseCircleOutlined';
+import MoonIcon from '../../resources/icons/Group 482290.svg';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -413,6 +414,8 @@ const Stream = () => {
       withdrawableAmount,
     } = props
 
+    const coinName = row.coinType.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
+
     return (
       <React.Fragment>
         <Collapse in={openMap.get(row.streamId)} timeout="auto" unmountOnExit>
@@ -422,9 +425,9 @@ const Stream = () => {
             </Typography>
             <div className="flex flex-row gap-x-1 items-center justify-end px-6">
               <div className="flex flex-row gap-x-1 items-center justify-center basis-1/3">
-                <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" />
+                {coinName === "APT" ? <AptosLogoAlt fontSize="small" fill="#FFFFFF" width="2rem" height="2rem" /> : <img src={MoonIcon} alt="logo" width={30} height={30} style={{float: "left", marginRight: "5px"}} />}
                 <Typography variant="h4" align="center" component="div" sx={{marginTop: 1, marginBottom: 1, fontWeight: 'bolder', color: "#D5D5D5"}}>
-                  {Number(new BigNumber(streamedAmount).toFixed(6))}
+                  {Number(new BigNumber(streamedAmount)).toFixed(2)}
                 </Typography>
                 <CustomTypography
                   variant="h5" align="center"
@@ -434,7 +437,7 @@ const Stream = () => {
                     fontWeight: 'bolder',
                   }}
                 >
-                  Apt
+                  {coinName === "APT" ? "Apt" : "Moon"}
                 </CustomTypography>
               </div>
               <div className="flex basis-1/3 justify-end">

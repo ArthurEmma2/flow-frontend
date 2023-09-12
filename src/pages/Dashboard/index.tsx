@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import MyCard from "../../components/Card";
 import {Box, Container, Grid, Typography} from "@mui/material";
 import {SxProps} from "@mui/system";
-import {Theme} from "@mui/material/styles";
+import {Theme, styled, withStyles} from "@mui/material/styles";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter";
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import SouthWestIcon from '@mui/icons-material/SouthWest';
@@ -65,6 +65,10 @@ const CardContent = ({content, sx}: DashboardContentProp) => {
   )
 }
 
+const CustomTypography = styled(Typography)({
+  fontSize: "1.5rem"
+})
+
 const Dashboard = () => {
   const {  connected} = useAptosWallet();
   const {walletAdapter} = useContext(WalletAdapter);
@@ -120,8 +124,8 @@ const Dashboard = () => {
         <React.Fragment>
           <CardContent content={
             <Box>
-              <Typography>${outgoingStreamedSum} / ${outgoingAmount} APT</Typography>
-              <Typography>${moonOutgoingStreamedSum} / ${moonOutgoingAmount} MOON</Typography>
+              <CustomTypography>{outgoingStreamedSum.toFixed(2)} / {outgoingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonOutgoingStreamedSum.toFixed(2)} / {moonOutgoingAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
           } sx={amountContentStyle}></CardContent>
         </React.Fragment>,
@@ -138,8 +142,8 @@ const Dashboard = () => {
         <React.Fragment>
           {<CardContent content={
             <Box>
-              <Typography>${incomingStreamedSum} / ${incomingAmount} APT</Typography>
-              <Typography>${moonIncomingStreamedSum} / ${moonIncomingAmount} MOON</Typography>
+              <CustomTypography>{incomingStreamedSum.toFixed(2)} / {incomingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonIncomingStreamedSum.toFixed(2)} / {moonIncomingAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
             } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
@@ -156,8 +160,8 @@ const Dashboard = () => {
         <React.Fragment>
           {<CardContent content={
             <Box>
-              <Typography>${withdrawableAmount} APT</Typography>
-              <Typography>${moonWithDrawableAmount} MOON</Typography>
+              <CustomTypography>{withdrawableAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonWithDrawableAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
             } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
@@ -417,9 +421,8 @@ const Dashboard = () => {
                 <MyCard
                   content={<CardContent content={
                     <Box>
-                      <Typography variant="h6">{balance} APT</Typography>
-                      <Typography variant="h6">{moonBalance} MOON</Typography>
-
+                      <CustomTypography>{Number(balance).toFixed(2)} APT</CustomTypography>
+                      <CustomTypography>{Number(moonBalance).toFixed(2)} MOON</CustomTypography>
                     </Box>
                 } sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
                   cardStyle={walletAmountCardStyle}
