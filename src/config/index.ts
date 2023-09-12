@@ -9,3 +9,5 @@ export class NetworkConfiguration {
     public isMainNet = false
   ) {}
 }
+
+export const msgToSign = 'Congrats! Moveflow caught you! ';
