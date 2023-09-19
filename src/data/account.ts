@@ -227,9 +227,9 @@ class AptAdapter implements NetworkAdapter {
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
     const network = this.wallet.adapter.network.name!;
-    let coinName = stream.coin_type;
+    let coinType = stream.coin_type;
     const coinConfigs = getNetworkCoinConfig(network);
-    coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
+    let coinName = coinType === null ? "APT" : coinType.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
     console.log('coinInfo', coinInfo);
     const status = this.getStatus(stream, currTime)
@@ -280,7 +280,7 @@ class AptAdapter implements NetworkAdapter {
       streamedAmount: streamedAmount.toString(),
       withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount), coinInfo.unit).toString(),
       escrowAddress: stream.escrow_address,
-      coinType: stream.coin_type,
+      coinType: coinName,
     }
   }
 
