@@ -137,7 +137,6 @@ const Stream = () => {
       page: page - 1,
       pageSize: pageSize,
     }
-    console.log('walletAdapter', walletAdapter)
     if (streamType === "Outgoing") {
       walletAdapter?.getOutgoingStreams(accountAddr, pagination).then(({streams, totalCount}) => {
         let newStreams: StreamInfo[];
@@ -194,9 +193,9 @@ const Stream = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
-    let tmp = Math.ceil(Number(extraAmount) * 1000 * coinInfo.unit / (Number(row.ratePerInterval) )) ;
+    let tmp = Math.floor(Number(extraAmount) * 1000 * coinInfo.unit / (Number(row.ratePerInterval) )) ;
     console.log('delta time', tmp);
-    const newStopTime = Math.ceil((Number(row.stopTime) + tmp * Number(row.interval)) / 1000);
+    const newStopTime = Math.floor((Number(row.stopTime) + tmp * Number(row.interval)) / 1000);
     console.log('new StopTimes', newStopTime);
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
@@ -313,16 +312,13 @@ const Stream = () => {
   }
 
   const resumeStreams = (streamId: string, network: string, coinName: string) => {
-    const coinConfigs = getNetworkCoinConfig(network);
-    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
-
     const transaction: Types.TransactionPayload_EntryFunctionPayload = {
       type: 'entry_function_payload',
       function: `${netConfApt.contract}::stream::resume`,
       arguments: [
         streamId
       ],
-      type_arguments: [coinInfo.coinType],
+      type_arguments: [],
     }
     signAndSubmitTransaction(transaction)
       .then((response) => {
@@ -345,7 +341,6 @@ const Stream = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     for (let i = 0; i < streams.length; i++) {
       let coinName = streams[i].coinType;
-      coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
       const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const withdrawableAmount = walletAdapter!.calculateWithdrawableAmount(
         Number(streams[i].startTime),
@@ -370,7 +365,6 @@ const Stream = () => {
     let sMap = new Map();
     for (let i = 0; i < streams.length; i++) {
       let coinName = streams[i].coinType;
-      coinName = coinName.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
 
       const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
       const streamedAmount = walletAdapter!.calculateStreamedAmount(
@@ -414,7 +408,7 @@ const Stream = () => {
       withdrawableAmount,
     } = props
 
-    const coinName = row.coinType.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
+    const coinName = row.coinType;
 
     return (
       <React.Fragment>
@@ -437,7 +431,7 @@ const Stream = () => {
                     fontWeight: 'bolder',
                   }}
                 >
-                  {coinName === "APT" ? "Apt" : "Moon"}
+                  {coinName}
                 </CustomTypography>
               </div>
               <div className="flex basis-1/3 justify-end">
