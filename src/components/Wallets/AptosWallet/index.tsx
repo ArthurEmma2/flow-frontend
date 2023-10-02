@@ -11,6 +11,8 @@ import {WalletAdapter} from "../../../context/WalletAdapter";
 import {createNetworkAdapter} from "../../../data/account";
 import {ChainName} from "../../../context/chainName";
 import {Hashicon} from "@emeraldpay/hashicon-react";
+import {SignMessagePayload} from "@manahippo/aptos-wallet-adapter/dist/WalletAdapters/BaseAdapter";
+import {msgToSign} from "../../../config";
 
 interface ConnectedInfoProps {
   connected: boolean
@@ -26,6 +28,7 @@ export default function AptosWalletButton() {
     disconnect,
     connected,
     account,
+    disconnecting,
   } = useAptosWallet();
   const {setWalletAdapter} = useContext(WalletAdapter);
   const {chainName} = useContext(ChainName);
@@ -68,11 +71,29 @@ export default function AptosWalletButton() {
     if (connected) {
       let adapter = createNetworkAdapter(chainName, account as AccountKeys, wallet as Wallet);
       setWalletAdapter(adapter);
-      adapter.getBalance().then((balance) => {
+      adapter.getBalance("APT").then((balance) => {
         setWalletBalance(balance);
-      })
+      });
+
+      if(global.msgSigned === undefined || global.msgSigned === '') {
+          const wallet_ = adapter.getWallet();
+          const tst = new Date();
+          const msg: SignMessagePayload = {
+              message: `${msgToSign } ${address} `,
+              nonce: String(tst.getTime())
+          };
+          wallet_.signMessage(msg).then(x => {
+              if(typeof x === 'string') global.msgSigned = x;
+              if(typeof x === 'object') global.msgSigned = JSON.stringify(x);
+          });
+      }
     }
-  }, [wallet, connected, account])
+
+    if(disconnecting) {
+        global.msgSigned = '';
+    }
+
+  }, [wallet, connected, account, disconnecting])
 
   return (
     <>

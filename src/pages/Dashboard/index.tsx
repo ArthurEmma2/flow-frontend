@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import MyCard from "../../components/Card";
 import {Box, Container, Grid, Typography} from "@mui/material";
 import {SxProps} from "@mui/system";
-import {Theme} from "@mui/material/styles";
+import {Theme, styled, withStyles} from "@mui/material/styles";
 import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter";
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import SouthWestIcon from '@mui/icons-material/SouthWest';
@@ -21,7 +21,7 @@ import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
 
 interface DashboardContentProp {
-  content: string
+  content: string | number | JSX.Element
   sx?: SxProps<Theme>
 }
 
@@ -65,6 +65,10 @@ const CardContent = ({content, sx}: DashboardContentProp) => {
   )
 }
 
+const CustomTypography = styled(Typography)({
+  fontSize: "1.5rem"
+})
+
 const Dashboard = () => {
   const {  connected} = useAptosWallet();
   const {walletAdapter} = useContext(WalletAdapter);
@@ -73,6 +77,8 @@ const Dashboard = () => {
   const accountAddr = walletAdapter?.getAddress()!;
 
   const [balance, setBalance] = useState<string>("0");
+  
+  const [moonBalance, setMoonBalance] = useState<string>("0");
   const [outgoingCanceledNum, setOutgoingCanceledNum] = useState<number>(0);
   const [incomingCanceledNum, setIncomingCanceledNum] = useState<number>(0);
   const [outgoingStreamedNum, setOutgoingStreamedNum] = useState<number>(0);
@@ -83,11 +89,26 @@ const Dashboard = () => {
   const [outgoingScheduledNum, setOutgoingScheduledNum] = useState<number>(0);
   const [outgoingNum, setOutgoingNum] = useState<number>(0);
   const [incomingNum, setIncomingNum] = useState<number>(0);
+
   const [incomingAmount, setIncomingAmount] = useState<number>(0);
+  
+  const [moonIncomingAmount, setMoonIncomingAmount] = useState<number>(0);
+
   const [outgoingAmount, setOutgoingAmount] = useState<number>(0);
+  
+  const [moonOutgoingAmount, setMoonOutgoingAmount] = useState<number>(0);
+
   const [outgoingStreamedSum, setOutgoingStreamedSum] = useState<number>(0);
+  
+  const [moonOutgoingStreamedSum, setMoonOutgoingStreamedSum] = useState<number>(0);
+
   const [incomingStreamedSum, setIncomingStreamedSum] = useState<number>(0);
+  
+  const [moonIncomingStreamedSum, setMoonIncomingStreamedSum] = useState<number>(0);
+
   const [withdrawableAmount, setWithdrawableAmount] = useState<number>(0);
+  
+  const [moonWithDrawableAmount, setMoonWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
 
   const amountCards = [
@@ -101,7 +122,12 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          <CardContent content={`${outgoingStreamedSum} / ${outgoingAmount} APT`} sx={amountContentStyle}></CardContent>
+          <CardContent content={
+            <Box>
+              <CustomTypography>{outgoingStreamedSum.toFixed(2)} / {outgoingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonOutgoingStreamedSum.toFixed(2)} / {moonOutgoingAmount.toFixed(2)} MOON</CustomTypography>
+            </Box>
+          } sx={amountContentStyle}></CardContent>
         </React.Fragment>,
     },
     {
@@ -114,7 +140,12 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`${incomingStreamedSum} / ${incomingAmount} APT`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={
+            <Box>
+              <CustomTypography>{incomingStreamedSum.toFixed(2)} / {incomingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonIncomingStreamedSum.toFixed(2)} / {moonIncomingAmount.toFixed(2)} MOON</CustomTypography>
+            </Box>
+            } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -127,7 +158,12 @@ const Dashboard = () => {
         </React.Fragment>,
       content:
         <React.Fragment>
-          {<CardContent content={`${withdrawableAmount} APT`} sx={amountContentStyle}></CardContent>}
+          {<CardContent content={
+            <Box>
+              <CustomTypography>{withdrawableAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonWithDrawableAmount.toFixed(2)} MOON</CustomTypography>
+            </Box>
+            } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
     },
     {
@@ -227,8 +263,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (connected) {
-      walletAdapter?.getBalance().then((value) => {
+      walletAdapter?.getBalance("APT").then((value) => {
         setBalance(value);
+      })
+      walletAdapter?.getBalance("MOON").then((value) => {
+        setMoonBalance(value);
       })
     }
   }, [walletAdapter, connected])
@@ -238,20 +277,34 @@ const Dashboard = () => {
       if(connected) {
         const currTime = Number(Date.parse(new Date().toString()));
 
-        walletAdapter?.getBalance().then((balance) => {
-          setBalance(balance);
-        });
+        walletAdapter?.getBalance("APT").then((value) => {
+          setBalance(value);
+        })
+        walletAdapter?.getBalance("MOON").then((value) => {
+          setMoonBalance(value);
+        })
 
         walletAdapter?.getIncomingStreams(accountAddr).then(({streams}) => {
           setIncomingNum(streams.length);
-          const incomingSum = streams.reduce((acc, stream) => {
+          const APTIncomingSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setIncomingAmount(Number(incomingSum.toFixed(4)));
-          const incomingStreamedSum = streams.reduce((acc, stream) => {
+          setIncomingAmount(Number(APTIncomingSum.toFixed(4)));
+
+          const MOONIncomingSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.depositAmount);
+          }, 0);
+          setMoonIncomingAmount(Number(MOONIncomingSum.toFixed(4)));
+
+          const APTIncomingStreamedSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          setIncomingStreamedSum(Number(incomingStreamedSum.toFixed(4)));
+          setIncomingStreamedSum(Number(APTIncomingStreamedSum.toFixed(4)));
+
+          const MOONIncomingStreamedSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0)
+          setMoonIncomingStreamedSum(Number(MOONIncomingStreamedSum.toFixed(4)));
 
           const scheduledLenIn = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
@@ -277,24 +330,42 @@ const Dashboard = () => {
           }, 0);
           setIncomingCanceledNum(canceledLenIn);
 
-          const withdrawableSum = streams.reduce((acc, stream) => {
+          const APTWithdrawableSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.withdrawableAmount);
           }, 0);
-          setWithdrawableAmount(Number(withdrawableSum.toFixed(4)));
+          setWithdrawableAmount(Number(APTWithdrawableSum.toFixed(4)));
+
+          const MoonWithdrawableSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.withdrawableAmount);
+          }, 0);
+          setMoonWithdrawableAmount(Number(MoonWithdrawableSum.toFixed(4)));
+
         });
 
         walletAdapter?.getOutgoingStreams(accountAddr).then(({streams}) => {
           setOutgoingNum(streams.length);
           // console.debug("getOutgoingStreams", "streams", streams[0]);
-          const outgoingSum = streams.reduce((acc, stream) => {
+          const APTOutgoingSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.depositAmount);
           }, 0);
-          setOutgoingAmount(Number(outgoingSum.toFixed(4)));
+          setOutgoingAmount(Number(APTOutgoingSum.toFixed(4)));
 
-          const outgoingStreamedSum = streams.reduce((acc, stream) => {
+          const MoonOutgoingSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.depositAmount);
+          }, 0);
+
+          setMoonOutgoingAmount(Number(MoonOutgoingSum.toFixed(4)));
+
+          const APTOutgoingStreamedSum = streams.filter((val) => {return val.coinType === "APT"}).reduce((acc, stream) => {
             return acc + Number(stream.streamedAmount);
           }, 0)
-          setOutgoingStreamedSum(Number(outgoingStreamedSum.toFixed(4)));
+
+          setOutgoingStreamedSum(Number(APTOutgoingStreamedSum.toFixed(4)));
+
+          const MoonOutgoingStreamedSum = streams.filter((val) => {return val.coinType === "MOON"}).reduce((acc, stream) => {
+            return acc + Number(stream.streamedAmount);
+          }, 0);
+          setMoonOutgoingStreamedSum(Number(MoonOutgoingStreamedSum.toFixed(4)));
 
           const scheduledLenOut = streams.reduce((acc, stream) => {
             const isScheduled = stream.status === StreamStatus.Scheduled ? 1 : 0;
@@ -328,7 +399,6 @@ const Dashboard = () => {
         .then(result => {
           return JSON.parse(result);
         }).then(res => {
-          console.log('addr', res)
           setAddressNum(res.total);
         })
       }
@@ -351,7 +421,12 @@ const Dashboard = () => {
             <Grid style={{height: "100%"}}>
               <Box sx={{height: "100%"}}>
                 <MyCard
-                  content={<CardContent content={`${balance} APT`} sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
+                  content={<CardContent content={
+                    <Box>
+                      <CustomTypography>{Number(balance).toFixed(2)} APT</CustomTypography>
+                      <CustomTypography>{Number(moonBalance).toFixed(2)} MOON</CustomTypography>
+                    </Box>
+                } sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
                   cardStyle={walletAmountCardStyle}
                 >
                   <div className="flex flex-row justify-start items-center">
