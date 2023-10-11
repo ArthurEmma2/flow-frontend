@@ -25,7 +25,6 @@ interface StreamInfo {
     streamedAmount: string,
     withdrawableAmount: string,
     escrowAddress: string,
-    coinType: string,
 }
 
 export default StreamInfo;
