@@ -25,7 +25,7 @@ const TESTNET_CONFIG = new NetworkConfiguration(
   'testnet',
   'https://fullnode.testnet.aptoslabs.com/v1',
   'https://faucet.testnet.aptoslabs.com',
-  '0xd71e041f0d9c871e68604699aa109ead5643ced548f9d216ddb89702968e5458',
+  '0x85e0c7b86bbea605ab495df331042370b81c9abe94a0a7447c719de549545207',
   'https://testnet.api.moveflow.xyz/api',
   'apt_testnet',
 );
@@ -55,5 +55,5 @@ const getNetworkConfiguration = (env: string): NetworkConfiguration => {
 };
 
 const netConfApt = getNetworkConfiguration(process.env.REACT_APP_CURRENT_NETWORK as string);
-// const netConfApt = getNetworkConfiguration("Testnet");
+
 export default netConfApt;

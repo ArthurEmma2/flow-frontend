@@ -27,14 +27,13 @@ export default function Header(props: any) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   // const [currentPageName, setCurrentPage] = useCurrentPage();
   const {walletAdapter} = useContext(WalletAdapter);
-  // const [network, setNetwork] = useState<string>("Testnet");
-
-  const [network, setNetwork] = useState<string>("process.env.REACT_APP_CURRENT_NETWORK as string");
+  const [network, setNetwork] = useState<string>(process.env.REACT_APP_CURRENT_NETWORK as string);
   const [selectedNetwork, setSelectedNetwork] = useState<string>("");
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
   const navigate = useNavigate();
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    console.log('newTab', newValue);
     props.setCurrentPage(newValue as string);
   };
 
