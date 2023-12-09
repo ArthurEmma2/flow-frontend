@@ -7,6 +7,8 @@ import {NetworkConfiguration} from "../config";
 import BigNumber from 'bignumber.js';
 import {StreamStatus} from "../types/streamStatus";
 import Pagination from "../types/pagination";
+import coinConfig from "../config/coinConfig";
+import getNetworkCoinConfig from "../config/coinConfig";
 
 
 export interface NetworkAdapter {
@@ -17,7 +19,7 @@ export interface NetworkAdapter {
 
   getAddress(): string;
 
-  getBalance(): Promise<string>;
+  getBalance(coinName: string): Promise<string>;
 
   getIncomingStreams(recipientAddress: string, pagination?: Pagination): Promise<{streams: StreamInfo[], totalCount: number}>;
 
@@ -27,7 +29,7 @@ export interface NetworkAdapter {
 
   getTransactionStatus(hash: string): string;
 
-  displayAmount(amount: BigNumber): string;
+  displayAmount(amount: BigNumber, unit: number): string;
 
   calculateStreamedAmount(
     withdrawnAmount: number,
@@ -40,6 +42,7 @@ export interface NetworkAdapter {
     interval: number,
     ratePerInterval: number,
     status: StreamStatus,
+    unit: number,
   ): number
 
   calculateWithdrawableAmount(
@@ -93,14 +96,19 @@ class AptAdapter implements NetworkAdapter {
     return this.client;
   }
 
-  async getBalance() {
+  async getBalance(coinName: string) {
+    const network = this.wallet.adapter.network.name!;
+
+    const coinConfigs = getNetworkCoinConfig(network);
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
     const resources = await this.client.getAccountResources(this.account.address as HexString);
-    const coin = resources.find((r) => r.type.includes('0x1::aptos_coin::AptosCoin'));
+    const coin = resources.find((r) => r.type.includes(coinInfo.coinType));
     if (typeof coin == "undefined") {
       return "0";
     }
     // @ts-ignore
-    return this.displayAmount(new BigNumber(coin.data.coin.value));
+    return this.displayAmount(new BigNumber(coin.data.coin.value), coinInfo.unit);
   }
 
   async getIncomingStreams(recvAddress: string, pagination?: Pagination): Promise<{streams: StreamInfo[], totalCount: number}> {
@@ -128,6 +136,7 @@ class AptAdapter implements NetworkAdapter {
       redirect: "follow",
     })
       .then((response) => {
+        // console.log('response', response.json())
         return response.json();
       })
       .then((result) => {
@@ -172,7 +181,6 @@ class AptAdapter implements NetworkAdapter {
         return response.json();
       })
       .then((result) => {
-        console.log('result', result)
         totalCount = result.count
         for (let i = 0; i < result.data.length; i++) {
           const currStream = result.data[i];
@@ -185,50 +193,6 @@ class AptAdapter implements NetworkAdapter {
       totalCount: totalCount
     };
   }
-
-  // async createStream(
-  //   name: string, remark: string, recipientAddr: string, depositAmount: number,
-  //   startTime: number, stopTime: number,
-  //   interval: number, canPause: boolean,
-  //   closeable: boolean, recipientModifiable: boolean) {
-  //   const address = netConfApt.contract;
-  //   const transaction: Types.TransactionPayload_EntryFunctionPayload = {
-  //     type: 'entry_function_payload',
-  //     function: `${address}::streampay::create`,
-  //     arguments: [
-  //       name,
-  //       remark,
-  //       recipientAddr,
-  //       depositAmount,
-  //       startTime,
-  //       stopTime,
-  //       interval,
-  //       canPause,
-  //       closeable,
-  //       recipientModifiable,
-  //     ],
-  //     type_arguments: ['0x1::aptos_coin::AptosCoin'],
-  //   };
-  //
-  //   detectProvider()
-  //     .then(provider => {
-  //       console.log('provider', provider);
-  //       const result = await provider.signAndSubmit(transaction);
-  //     })
-  //
-  //   if (result) {
-  //     openTxSuccessNotification(result.hash, 'Transaction Success');
-  //   }
-  //   if (fromSymbol && fromUiAmt) {
-  //     const options: Partial<Types.SubmitTransactionRequest> = {
-  //       expiration_timestamp_secs: '' + (Math.floor(Date.now() / 1000) + values.trasactionDeadline),
-  //       max_gas_amount: '' + values.maxGasFee
-  //     };
-  //     formikHelper.setSubmitting(false);
-  //   } else {
-  //     openErrorNotification({ detail: 'Invalid input for Sending' });
-  //   }
-  // }
 
   sendTransaction(from: string, to: string, amount: number): string {
     return "hash";
@@ -257,11 +221,16 @@ class AptAdapter implements NetworkAdapter {
     return StreamStatus.Unknown;
   }
 
-  displayAmount(amount: BigNumber): string {
-    return amount.dividedBy(10 ** 8).toFixed(4).toString();
+  displayAmount(amount: BigNumber, unit: number): string {
+    return amount.dividedBy(unit).toFixed(4).toString();
   }
 
   buildStream(stream: any, currTime: bigint): StreamInfo {
+    const network = this.wallet.adapter.network.name!;
+    let coinType = stream.coin_type;
+    const coinConfigs = getNetworkCoinConfig(network);
+    let coinName = coinType === null ? "APT" : coinType.indexOf("AptosCoin") > -1 ? "APT" : "MOON";
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
     const status = this.getStatus(stream, currTime)
     const withdrawableAmount = this.calculateWithdrawableAmount(
       Number(stream.start_time) * 1000,
@@ -275,7 +244,7 @@ class AptAdapter implements NetworkAdapter {
       status,
     )
     const streamedAmount = this.calculateStreamedAmount(
-      Number(this.displayAmount(new BigNumber(stream.withdrawn_amount))),
+      Number(this.displayAmount(new BigNumber(stream.withdrawn_amount), coinInfo.unit)),
       Number(stream.start_time) * 1000,
       Number(stream.stop_time) * 1000,
       Number(currTime),
@@ -285,30 +254,32 @@ class AptAdapter implements NetworkAdapter {
       Number(stream.interval) * 1000,
       Number(stream.rate_per_interval),
       status,
+      coinInfo.unit,
     );
     return {
       name: stream.name,
       status: status,
       createTime: (Number(stream.create_at) * 1000).toString(),
-      depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount)),
+      depositAmount: this.displayAmount(new BigNumber(stream.deposit_amount), coinInfo.unit),
       streamId: stream.id,
       interval: (Number(stream.interval) * 1000).toString(),
       lastWithdrawTime: (Number(stream.last_withdraw_time) * 1000).toString(),
       ratePerInterval: stream.rate_per_interval,
       recipientId: stream.recipient,
-      remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount)),
+      remainingAmount: this.displayAmount(new BigNumber(stream.remaining_amount), coinInfo.unit),
       senderId: stream.sender,
       startTime: (Number(stream.start_time) * 1000).toString(),
       stopTime: (Number(stream.stop_time) * 1000).toString(),
-      withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount)),
+      withdrawnAmount: this.displayAmount(new BigNumber(stream.withdrawn_amount), coinInfo.unit),
       pauseInfo: {
         accPausedTime: (Number(stream.pauseInfo.acc_paused_time) * 1000).toString(),
         pauseAt: (Number(stream.pauseInfo.pause_at) * 1000).toString(),
         paused: stream.pauseInfo.paused,
       },
       streamedAmount: streamedAmount.toString(),
-      withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount)).toString(),
+      withdrawableAmount: this.displayAmount(new BigNumber(withdrawableAmount), coinInfo.unit).toString(),
       escrowAddress: stream.escrow_address,
+      coinType: coinName,
     }
   }
 
@@ -363,6 +334,7 @@ class AptAdapter implements NetworkAdapter {
     interval: number,
     ratePerInterval: number,
     status: StreamStatus,
+    unit: number,
   ): number {
     let withdrawable = this.calculateWithdrawableAmount(
       startTime,
@@ -375,15 +347,13 @@ class AptAdapter implements NetworkAdapter {
       ratePerInterval,
       status
     )
-    return withdrawnAmount + Number(this.displayAmount(new BigNumber(Number(withdrawable))));
+    return withdrawnAmount + Number(this.displayAmount(new BigNumber(Number(withdrawable)), unit));
   }
 }
 
 export function createNetworkAdapter(
   blockchain: string, account: AccountKeys, wallet: Wallet): NetworkAdapter {
   switch (blockchain) {
-    // case "sui":
-    //   return new SuiAdapter(connectionSui);
     case "aptos":
       return new AptAdapter(netConfApt, account, wallet);
     default:
