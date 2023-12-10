@@ -19,7 +19,6 @@ import StreamInfo from "../../types/streamInfo";
 import {FindAddress} from "../../data/address";
 import {ChainName} from "../../context/chainName";
 import {Network} from "../../context/network";
-import {RawCoinInfo, useCoingeckoValue} from "../../hooks/useCoingecko";
 
 interface DashboardContentProp {
   content: string | number | JSX.Element
@@ -70,25 +69,6 @@ const CustomTypography = styled(Typography)({
   fontSize: "1.5rem"
 })
 
-const aptos: RawCoinInfo = {
-  coingecko_id: 'aptos',
-  symbol: 'aptos',
-  name: 'Aptos',
-  decimals: 6,
-  official_symbol: 'APTOS',
-  logo_url: "",
-  project_url:"",
-  token_type:{
-    type: "move",
-    account_address: "",
-    module_name: "",
-    struct_name: "",
-  },
-  extensions: {
-    data: []
-  }
-}
-
 const Dashboard = () => {
   const {  connected} = useAptosWallet();
   const {walletAdapter} = useContext(WalletAdapter);
@@ -130,8 +110,6 @@ const Dashboard = () => {
   
   const [moonWithDrawableAmount, setMoonWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
-  const aptosPrice = useCoingeckoValue(aptos, 1);
-  console.log("aptosPrice", aptosPrice  )
 
   const amountCards = [
     {
@@ -146,9 +124,8 @@ const Dashboard = () => {
         <React.Fragment>
           <CardContent content={
             <Box>
-              {/* <CustomTypography>{outgoingStreamedSum.toFixed(2)} / {outgoingAmount.toFixed(2)} APT</CustomTypography>
-              <CustomTypography>{moonOutgoingStreamedSum.toFixed(2)} / {moonOutgoingAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (outgoingStreamedSum * aptosPrice[0] + moonOutgoingStreamedSum).toFixed(2)} / {'$' +  (outgoingAmount * aptosPrice[0] + moonOutgoingAmount).toFixed(2)}</CustomTypography>
+              <CustomTypography>{outgoingStreamedSum.toFixed(2)} / {outgoingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonOutgoingStreamedSum.toFixed(2)} / {moonOutgoingAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
           } sx={amountContentStyle}></CardContent>
         </React.Fragment>,
@@ -165,10 +142,8 @@ const Dashboard = () => {
         <React.Fragment>
           {<CardContent content={
             <Box>
-              {/* <CustomTypography>{incomingStreamedSum.toFixed(2)} / {incomingAmount.toFixed(2)} APT</CustomTypography>
-              <CustomTypography>{moonIncomingStreamedSum.toFixed(2)} / {moonIncomingAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (incomingStreamedSum * aptosPrice[0] + moonIncomingStreamedSum).toFixed(2)} / {'$' + (incomingAmount * aptosPrice[0] + moonIncomingAmount).toFixed(2)}</CustomTypography>
-
+              <CustomTypography>{incomingStreamedSum.toFixed(2)} / {incomingAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonIncomingStreamedSum.toFixed(2)} / {moonIncomingAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
             } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
@@ -185,10 +160,8 @@ const Dashboard = () => {
         <React.Fragment>
           {<CardContent content={
             <Box>
-              {/* <CustomTypography>{withdrawableAmount.toFixed(2)} APT</CustomTypography>
-              <CustomTypography>{moonWithDrawableAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (withdrawableAmount * aptosPrice[0] + moonWithDrawableAmount).toFixed(2)} </CustomTypography>
-
+              <CustomTypography>{withdrawableAmount.toFixed(2)} APT</CustomTypography>
+              <CustomTypography>{moonWithDrawableAmount.toFixed(2)} MOON</CustomTypography>
             </Box>
             } sx={amountContentStyle}></CardContent>}
         </React.Fragment>,
@@ -450,10 +423,8 @@ const Dashboard = () => {
                 <MyCard
                   content={<CardContent content={
                     <Box>
-                      {/* <CustomTypography>{Number(balance).toFixed(2)} APT</CustomTypography>
-                      <CustomTypography>{Number(moonBalance).toFixed(2)} MOON</CustomTypography> */}
-                      <CustomTypography>{'$' + (Number(balance)*aptosPrice[0] + Number(moonBalance)).toFixed(2)}</CustomTypography>
-
+                      <CustomTypography>{Number(balance).toFixed(2)} APT</CustomTypography>
+                      <CustomTypography>{Number(moonBalance).toFixed(2)} MOON</CustomTypography>
                     </Box>
                 } sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
                   cardStyle={walletAmountCardStyle}

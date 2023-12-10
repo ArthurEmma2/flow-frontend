@@ -142,7 +142,7 @@ export default function Header(props: any) {
                     font-medium
                     text-[#FFFFFF]
                     rounded
-                    ${(network === "Mainnet" && selectedNetwork === "")  ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]": "bg-transparent rounded hover:hover:bg-black  hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#0c0d13] focus:to-[#40187F]"}`}>
+                    ${(network === "Mainnet" && selectedNetwork === "")  ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]": "bg-transparent rounded hover:bg-gray-900 hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#F143E2] focus:to-[#40187F]"}`}>
                   Mainnet
                 </button>
                 <button
@@ -158,7 +158,7 @@ export default function Header(props: any) {
                     font-medium
                     text-[#FFFFFF]
                     rounded
-                    ${network === "Testnet" && selectedNetwork === "" ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]" : "bg-transparent hover:bg-black hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#F143E2] focus:to-[#40187F]"}`}>
+                    ${network === "Testnet" && selectedNetwork === "" ? "bg-gradient-to-r from-[#F143E2] to-[#40187F]" : "bg-transparent hover:bg-gray-900 hover:text-white focus:z-10 focus:text-white focus:bg-gradient-to-r focus:from-[#F143E2] focus:to-[#40187F]"}`}>
                   Testnet
                 </button>
               </div>
