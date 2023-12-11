@@ -22,7 +22,7 @@ const testnetCoinConfig = {
 }
 
 const getNetworkCoinConfig = (network: string) => {
-  switch (network.toLowerCase()) {
+  switch (network?.toLowerCase()) {
     case "mainnet":
       return mainnetCoinConfig
     case "testnet":
