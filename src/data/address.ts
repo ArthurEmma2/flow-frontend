@@ -7,6 +7,7 @@ export const AddAddress = (creator: MaybeHexString, name: string, addr: string, 
     let myHeaders = new Headers();
     console.log("address__",network)
     myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("authorization", global.msgSigned);
     let raw = JSON.stringify({
         "creator": creator,
         "name": name,
@@ -29,6 +30,7 @@ export const UpdateAddress = (creator: MaybeHexString, name: string, addr: strin
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("authorization", global.msgSigned);
     let raw = JSON.stringify({
         "creator": creator,
         "name": name,
@@ -50,6 +52,7 @@ export const DeleteAddress = (addressId: string) => {
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("authorization", global.msgSigned);
 
     let requestOptions: RequestInit = {
         method: "DELETE",

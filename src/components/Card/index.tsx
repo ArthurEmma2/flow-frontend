@@ -16,7 +16,7 @@ const MyCard = ({children, content, cardStyle}: CardProp) => {
     <React.Fragment>
       <Box>
         <Card sx={cardStyle}>
-          <CardContent>
+          <CardContent component="div">
             {children}
             {content}
           </CardContent>
