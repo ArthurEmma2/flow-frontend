@@ -525,7 +525,7 @@ const NewStream: React.FC<{}> = () => {
                 We only support streams to wallets on Move Ecosystems.
               </Typography>
               <Typography variant="body1" gutterBottom sx={{fontSize: "16px", marginTop:"10px"}}>
-                Token Streamed to exchange wallets can't be withdrawn.
+                Token streamed to exchange wallets can't be withdrawn.
               </Typography>
             </Paper>
             <Paper sx={{

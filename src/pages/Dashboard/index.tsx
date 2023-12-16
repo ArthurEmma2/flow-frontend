@@ -131,7 +131,10 @@ const Dashboard = () => {
   const [moonWithDrawableAmount, setMoonWithdrawableAmount] = useState<number>(0);
   const [addressNum, setAddressNum] = useState<number>(0);
   const aptosPrice = useCoingeckoValue(aptos, 1);
+  aptosPrice[0] = aptosPrice[0] || 0;
   console.log("aptosPrice", aptosPrice  )
+  const regex = /\B(?=(\d{3})+(?!\d))/g;
+
 
   const amountCards = [
     {
@@ -148,7 +151,7 @@ const Dashboard = () => {
             <Box>
               {/* <CustomTypography>{outgoingStreamedSum.toFixed(2)} / {outgoingAmount.toFixed(2)} APT</CustomTypography>
               <CustomTypography>{moonOutgoingStreamedSum.toFixed(2)} / {moonOutgoingAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (outgoingStreamedSum * aptosPrice[0] + moonOutgoingStreamedSum).toFixed(2)} / {'$' +  (outgoingAmount * aptosPrice[0] + moonOutgoingAmount).toFixed(2)}</CustomTypography>
+              <CustomTypography>{'$' + (outgoingStreamedSum * aptosPrice[0] + moonOutgoingStreamedSum).toFixed(2).replace(regex, ',')} / {'$' +  (outgoingAmount * aptosPrice[0] + moonOutgoingAmount).toFixed(2).replace(regex, ',')}</CustomTypography>
             </Box>
           } sx={amountContentStyle}></CardContent>
         </React.Fragment>,
@@ -167,7 +170,7 @@ const Dashboard = () => {
             <Box>
               {/* <CustomTypography>{incomingStreamedSum.toFixed(2)} / {incomingAmount.toFixed(2)} APT</CustomTypography>
               <CustomTypography>{moonIncomingStreamedSum.toFixed(2)} / {moonIncomingAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (incomingStreamedSum * aptosPrice[0] + moonIncomingStreamedSum).toFixed(2)} / {'$' + (incomingAmount * aptosPrice[0] + moonIncomingAmount).toFixed(2)}</CustomTypography>
+              <CustomTypography>{'$' + (incomingStreamedSum * aptosPrice[0] + moonIncomingStreamedSum).toFixed(2).replace(regex, ',')} / {'$' + (incomingAmount * aptosPrice[0] + moonIncomingAmount).toFixed(2).replace(regex, ',')}</CustomTypography>
 
             </Box>
             } sx={amountContentStyle}></CardContent>}
@@ -187,7 +190,7 @@ const Dashboard = () => {
             <Box>
               {/* <CustomTypography>{withdrawableAmount.toFixed(2)} APT</CustomTypography>
               <CustomTypography>{moonWithDrawableAmount.toFixed(2)} MOON</CustomTypography> */}
-              <CustomTypography>{'$' + (withdrawableAmount * aptosPrice[0] + moonWithDrawableAmount).toFixed(2)} </CustomTypography>
+              <CustomTypography>{'$' + (withdrawableAmount * aptosPrice[0] + moonWithDrawableAmount).toFixed(2).replace(regex, ',')} </CustomTypography>
 
             </Box>
             } sx={amountContentStyle}></CardContent>}
@@ -452,7 +455,7 @@ const Dashboard = () => {
                     <Box>
                       {/* <CustomTypography>{Number(balance).toFixed(2)} APT</CustomTypography>
                       <CustomTypography>{Number(moonBalance).toFixed(2)} MOON</CustomTypography> */}
-                      <CustomTypography>{'$' + (Number(balance)*aptosPrice[0] + Number(moonBalance)).toFixed(2)}</CustomTypography>
+                      <CustomTypography>{'$' + (Number(balance)*aptosPrice[0] + Number(moonBalance)).toFixed(2).replace(regex, ',')}</CustomTypography>
 
                     </Box>
                 } sx={{paddingTop: 3, fontSize: "1.5rem"}}></CardContent>}
