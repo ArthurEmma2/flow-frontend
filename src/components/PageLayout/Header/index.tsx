@@ -21,6 +21,8 @@ import {gradientButtonStyle} from "../../../style/button";
 import { useNavigate } from 'react-router-dom';
 import {ReactComponent as MoveFlowLogo} from "../../../resources/MFlogo.svg";
 import {WalletAdapter} from "../../../context/WalletAdapter";
+import { Link } from 'react-router-dom';
+
 
 export default function Header(props: any) {
   const {chainName, setChainName} = useContext(ChainName);
@@ -36,6 +38,7 @@ export default function Header(props: any) {
   const navigate = useNavigate();
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     props.setCurrentPage(newValue as string);
+    navigate(newValue);
   };
 
   const handleUserClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -78,9 +81,12 @@ export default function Header(props: any) {
         }}>
           <Box>
             <Tabs aria-label="basic tabs example" value={props.currentPageName} onChange={handleTabChange}>
-              <Tab label="Dashboard" value="dashboard" href="/dashboard"/>
-              <Tab label="Stream" value="stream" href="/stream"/>
-              <Tab label="Address Book" value="address_book" href="/address_book"/>
+              {/* <Link to="/dashboard">Dashboard</Link>
+              <Link to="/stream">Stream</Link>
+              <Link to="/address_book">Address Book</Link> */}
+              <Tab label="Dashboard" value="dashboard" />
+              <Tab label="Stream" value="stream" />
+              <Tab label="Address Book" value="address_book" />
               {/*<Tab label="" value="new_stream" href="/new_stream" />*/}
             </Tabs>
           </Box>

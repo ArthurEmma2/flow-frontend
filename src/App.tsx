@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import {Navigate, Route, Routes} from "react-router-dom";
 import Stream from "./pages/Stream";
 import {WalletAdapter} from "./context/WalletAdapter";
+import { MsgSigned  } from "./context/msgSigned";
 import {NetworkAdapter} from "./data/account";
 import NewStream from "./pages/NewStream";
 import useCurrentPage from "./hooks/useCurrentPage";
@@ -44,54 +45,57 @@ function App() {
   const [chainName, setChainName] = useState<string>('aptos')
   const [walletAdapter, setWalletAdapter] = useState<NetworkAdapter>();
   const [currentPageName, setCurrentPage] = useCurrentPage();
+  const [msgSigned, setMsgSigned] = useState<string>("");
 
   return (
     <ThemeProvider theme={darkTheme}>
       <ChainName.Provider value={{chainName, setChainName}}>
         <WalletAdapter.Provider value={{walletAdapter, setWalletAdapter}}>
-          <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20}}>
-            {
-              // chainName === "sui" ?
-              //   <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
-              //     <Stack spacing={2}>
-              //       <Box>
-              //         <Header />
-              //       </Box>
+          <MsgSigned.Provider value={{msgSigned, setMsgSigned}}>
+            <Box sx={{width: '100%', height: '100%', paddingLeft: 20, paddingRight: 20}}>
+              {
+                // chainName === "sui" ?
+                //   <SuiWalletProvider chains={SupportChains} defaultWallets={DefaultWallets}>
+                //     <Stack spacing={2}>
+                //       <Box>
+                //         <Header />
+                //       </Box>
 
-              //       <Box>
-              //         <Footer />
-              //       </Box>
-              //     </Stack>
-              //   </SuiWalletProvider> :
-                <AptosWalletProvider
-                  wallets={AptosWallets}
-                  autoConnect
-                  onError={(err: Error) => {
-                    console.log('Handle Error Message.', err)
-                  }}
-                >
-                  <Stack spacing={2} direction="column">
-                    <Box>
-                      <Header currentPageName={currentPageName} setCurrentPage={setCurrentPage}></Header>
-                    </Box>
-                    <Box>
+                //       <Box>
+                //         <Footer />
+                //       </Box>
+                //     </Stack>
+                //   </SuiWalletProvider> :
+                  <AptosWalletProvider
+                    wallets={AptosWallets}
+                    autoConnect
+                    onError={(err: Error) => {
+                      console.log('Handle Error Message.', err)
+                    }}
+                  >
+                    <Stack spacing={2} direction="column">
                       <Box>
-                        <Routes>
-                          <Route path="/dashboard" element={<Dashboard/>} />
-                          <Route path="/stream" element={<Stream/>} />
-                          <Route path="/address_book" element={<AddressBook currentPageName={currentPageName} setCurrentPage={setCurrentPage}/>} />
-                          <Route path="/new_stream" element={<NewStream/>} />
-                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                        </Routes>
+                        <Header currentPageName={currentPageName} setCurrentPage={setCurrentPage}></Header>
                       </Box>
-                    </Box>
-                    <Box>
-                      <Footer></Footer>
-                    </Box>
-                  </Stack>
-                </AptosWalletProvider>
-            }
-          </Box>
+                      <Box>
+                        <Box>
+                          <Routes>
+                            <Route path="/dashboard" element={<Dashboard/>} />
+                            <Route path="/stream" element={<Stream/>} />
+                            <Route path="/address_book" element={<AddressBook currentPageName={currentPageName} setCurrentPage={setCurrentPage}/>} />
+                            <Route path="/new_stream" element={<NewStream/>} />
+                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                          </Routes>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Footer></Footer>
+                      </Box>
+                    </Stack>
+                  </AptosWalletProvider>
+              }
+            </Box>
+          </MsgSigned.Provider>
         </WalletAdapter.Provider>
 
       </ChainName.Provider>

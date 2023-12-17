@@ -13,6 +13,7 @@ import {ChainName} from "../../../context/chainName";
 import {Hashicon} from "@emeraldpay/hashicon-react";
 import {SignMessagePayload} from "@manahippo/aptos-wallet-adapter/dist/WalletAdapters/BaseAdapter";
 import {msgToSign} from "../../../config";
+import { MsgSigned } from "../../../context/msgSigned";
 
 interface ConnectedInfoProps {
   connected: boolean
@@ -31,6 +32,7 @@ export default function AptosWalletButton() {
     disconnecting,
   } = useAptosWallet();
   const {setWalletAdapter} = useContext(WalletAdapter);
+  const {msgSigned, setMsgSigned} = useContext(MsgSigned);
   const {chainName} = useContext(ChainName);
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
@@ -44,6 +46,7 @@ export default function AptosWalletButton() {
   const handleUserClose = () => {
     setAnchorEl(null);
   }
+
 
   const ConnectedButton = ({connected, address}: ConnectedInfoProps) => {
     return (
@@ -75,7 +78,10 @@ export default function AptosWalletButton() {
         setWalletBalance(balance);
       });
 
-      if(global.msgSigned === undefined || global.msgSigned === '') {
+      console.log('msgSigned', msgSigned)
+      console.log('chainName', chainName)
+
+      if(msgSigned === undefined || msgSigned === '') {
           const wallet_ = adapter.getWallet();
           const tst = new Date();
           const msg: SignMessagePayload = {
@@ -83,14 +89,22 @@ export default function AptosWalletButton() {
               nonce: String(tst.getTime())
           };
           wallet_.signMessage(msg).then(x => {
-              if(typeof x === 'string') global.msgSigned = x;
-              if(typeof x === 'object') global.msgSigned = JSON.stringify(x);
+            console.log('x', x)
+              if(typeof x === 'string') {
+                console.log('x is string', x)
+                setMsgSigned(x)
+                
+              };
+              if(typeof x === 'object') {
+                console.log('x is object', x)
+                setMsgSigned(JSON.stringify(x))
+              }
           });
       }
     }
 
     if(disconnecting) {
-        global.msgSigned = '';
+        setMsgSigned('');
     }
 
   }, [wallet, connected, account, disconnecting])
