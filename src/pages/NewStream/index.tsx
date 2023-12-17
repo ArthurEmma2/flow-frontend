@@ -541,7 +541,7 @@ const NewStream: React.FC<{}> = () => {
                 Stream start on {new Date(datePickerTime[0]).toLocaleString()}
               </Typography>
               <Typography variant="body1" gutterBottom sx={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)", marginTop: "20px" }}>
-                {amount} Aptos will be sent to receiver wallet.
+                {amount} {token} will be sent to receiver wallet.
               </Typography>
               <Typography variant="body1" gutterBottom sx={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)", marginTop: "20px" }}>
                 Stream ends on {new Date(datePickerTime[1]).toLocaleString()}
