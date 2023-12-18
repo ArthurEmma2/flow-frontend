@@ -81,31 +81,31 @@ export default function AptosWalletButton() {
       console.log('msgSigned', msgSigned)
       console.log('chainName', chainName)
 
-      if(msgSigned === undefined || msgSigned === '') {
-          const wallet_ = adapter.getWallet();
-          const tst = new Date();
-          const msg: SignMessagePayload = {
-              message: `${msgToSign } ${address} `,
-              nonce: String(tst.getTime())
-          };
-          wallet_.signMessage(msg).then(x => {
-            console.log('x', x)
-              if(typeof x === 'string') {
-                console.log('x is string', x)
-                setMsgSigned(x)
+      // if(msgSigned === undefined || msgSigned === '') {
+      //     const wallet_ = adapter.getWallet();
+      //     const tst = new Date();
+      //     const msg: SignMessagePayload = {
+      //         message: `${msgToSign } ${address} `,
+      //         nonce: String(tst.getTime())
+      //     };
+      //     wallet_.signMessage(msg).then(x => {
+      //       console.log('x', x)
+      //         if(typeof x === 'string') {
+      //           console.log('x is string', x)
+      //           setMsgSigned(x)
                 
-              };
-              if(typeof x === 'object') {
-                console.log('x is object', x)
-                setMsgSigned(JSON.stringify(x))
-              }
-          });
-      }
+      //         };
+      //         if(typeof x === 'object') {
+      //           console.log('x is object', x)
+      //           setMsgSigned(JSON.stringify(x))
+      //         }
+      //     });
+      // }
     }
 
-    if(disconnecting) {
-        setMsgSigned('');
-    }
+    // if(disconnecting) {
+    //     setMsgSigned('');
+    // }
 
   }, [wallet, connected, account, disconnecting])
 

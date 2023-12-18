@@ -1,17 +1,17 @@
-import {useContext} from "react";
+// import {useContext} from "react";
 import Address from "../types/address";
 import Pagination from "../types/pagination";
 import {MaybeHexString} from "aptos";
 import netConfApt from "../config/configuration.aptos";
-import { MsgSigned } from "../context/msgSigned";
+// import { MsgSigned } from "../context/msgSigned";
 
 
 export const AddAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string) => {
     let myHeaders = new Headers();
-    const {msgSigned} = useContext(MsgSigned);
+    // const {msgSigned} = useContext(MsgSigned);
     console.log("address__",network)
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("authorization", msgSigned);
+    // myHeaders.append("authorization", msgSigned);
     let raw = JSON.stringify({
         "creator": creator,
         "name": name,
@@ -32,9 +32,9 @@ export const AddAddress = (creator: MaybeHexString, name: string, addr: string, 
 
 export const UpdateAddress = (creator: MaybeHexString, name: string, addr: string, chain: string, network: string, obj: Address) => {
     let myHeaders = new Headers();
-    const {msgSigned} = useContext(MsgSigned);
+    // const {msgSigned} = useContext(MsgSigned);
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("authorization", msgSigned);
+    // myHeaders.append("authorization", msgSigned);
     let raw = JSON.stringify({
         "creator": creator,
         "name": name,
@@ -56,7 +56,7 @@ export const DeleteAddress = (addressId: string) => {
     let myHeaders = new Headers();
 
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("authorization", global.msgSigned);
+    // myHeaders.append("authorization", global.msgSigned);
 
     let requestOptions: RequestInit = {
         method: "DELETE",
