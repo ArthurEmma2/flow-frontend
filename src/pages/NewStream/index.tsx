@@ -1,11 +1,14 @@
-import React, {useContext, useEffect, useState} from "react";
-import {Types} from "aptos";
+import React, { useContext, useEffect, useState } from "react";
+import { Types } from "aptos";
 import netConfApt from "../../config/configuration.aptos";
-import {WalletAdapterNetwork} from "@manahippo/aptos-wallet-adapter";
-import {FindAddress} from "../../data/address";
-import {ChainName} from "../../context/chainName";
+import { WalletAdapterNetwork } from "@manahippo/aptos-wallet-adapter";
+import { FindAddress } from "../../data/address";
+import { ChainName } from "../../context/chainName";
 import Address from "../../types/address";
-import {useWallet as useAptosWallet} from "@manahippo/aptos-wallet-adapter/dist/WalletProviders/useWallet";
+import {
+  useWallet,
+  InputTransactionData,
+} from "@aptos-labs/wallet-adapter-react";
 import {
   Alert,
   Button,
@@ -20,55 +23,54 @@ import {
   Switch,
   TextField,
   Typography,
-  outlinedInputClasses
+  outlinedInputClasses,
 } from "@mui/material";
-import Autocomplete from '@mui/material/Autocomplete';
-import AptosIcon from '../../resources/aptos4.png';
-import MoonIcon from '../../resources/icons/Group 482290.svg';
-import {DatePicker} from 'antd';
-import {gradientButtonStyle} from "../../style/button";
-import dayjs from 'dayjs';
-import {RawCoinInfo, useCoingeckoValue} from "../../hooks/useCoingecko";
-import {useLocation} from 'react-router-dom';
+import Autocomplete from "@mui/material/Autocomplete";
+import AptosIcon from "../../resources/aptos4.png";
+import MoonIcon from "../../resources/icons/Group 482290.svg";
+import { DatePicker } from "antd";
+import { gradientButtonStyle } from "../../style/button";
+import dayjs from "dayjs";
+import { RawCoinInfo, useCoingeckoValue } from "../../hooks/useCoingecko";
+import { useLocation } from "react-router-dom";
 import useCurrentPage from "../../hooks/useCurrentPage";
 import coinConfig from "../../config/coinConfig";
 import getNetworkCoinConfig from "../../config/coinConfig";
 
-
 const { RangePicker } = DatePicker;
 
 interface Option {
-  addr: string
-  name: string
-  label: string
+  addr: string;
+  name: string;
+  label: string;
 }
-
 
 const intervals = [
   {
     value: 1000,
-    label: "second"
+    label: "second",
   },
   {
     value: 1000 * 60,
-    label: "minute"
+    label: "minute",
   },
   {
     value: 1000 * 60 * 60,
-    label: "hour"
+    label: "hour",
   },
   {
     value: 1000 * 60 * 60 * 24,
-    label: "day"
+    label: "day",
   },
   {
     value: 1000 * 60 * 60 * 24 * 30,
-    label: "month"
-  }
-]
+    label: "month",
+  },
+];
 
 const NewStream: React.FC<{}> = () => {
-  const { wallet, network, account, signAndSubmitTransaction } = useAptosWallet();
+  const { wallet, network, account } = useWallet();
+  const { signAndSubmitTransaction } = useWallet();
   const [enableStreamRate, setEnableStreamRate] = useState(false);
   const [transactionName, setTransactionName] = useState("");
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -78,12 +80,15 @@ const NewStream: React.FC<{}> = () => {
   const [receiverValue, setReceiverValue] = useState<Option | null>(null); // [label, value
   const [token, setToken] = useState("APT");
   const [amount, setAmount] = useState(0);
-  const [datePickerTime, setDatePickerTime] = useState([dayjs().toISOString(), dayjs().toISOString()]); // [startDate, endDate
+  const [datePickerTime, setDatePickerTime] = useState([
+    dayjs().toISOString(),
+    dayjs().toISOString(),
+  ]); // [startDate, endDate
   const [remark, setRemark] = useState("");
   const [numberOfTimes, setNumberOfTimes] = useState(undefined);
   const [amountPerTime, setAmountPerTime] = useState(undefined);
   const [interval, setInterval] = useState(1000);
-  const {chainName} = useContext(ChainName);
+  const { chainName } = useContext(ChainName);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showAlert, setShowAlert] = useState(false);
@@ -93,110 +98,155 @@ const NewStream: React.FC<{}> = () => {
   // console.debug('network', network);
 
   const handleSwitchChange = () => {
-    if(enableStreamRate){
+    if (enableStreamRate) {
       setEnableStreamRate(false);
       setNumberOfTimes(undefined);
       setAmountPerTime(undefined);
     } else {
       setEnableStreamRate(true);
     }
-  }
+  };
 
   const { state } = useLocation();
 
   const aptos: RawCoinInfo = {
-    coingecko_id: 'aptos',
-    symbol: 'aptos',
-    name: 'Aptos',
+    coingecko_id: "aptos",
+    symbol: "aptos",
+    name: "Aptos",
     decimals: 6,
-    official_symbol: 'APTOS',
+    official_symbol: "APTOS",
     logo_url: "",
-    project_url:"",
-    token_type:{
+    project_url: "",
+    token_type: {
       type: "move",
       account_address: "",
       module_name: "",
       struct_name: "",
     },
     extensions: {
-      data: []
-    }
-  }
+      data: [],
+    },
+  };
 
   const aptosPrice = useCoingeckoValue(aptos, 1);
 
-
   const getAddress = () => {
-    if(account == null || account.address == null || network == null || network.name == null){
+    if (
+      account == null ||
+      account.address == null ||
+      network == null ||
+      network.name == null
+    ) {
       return;
     }
-    FindAddress(account.address as string, chainName, network.name, {page, pageSize})
-    .then(response => response.json())
-    .then(result => {
-      console.log('result___', result);
-      let addressList: Address[] = [];
-      for (let i = 0; i < result.data.length; i++) {
-        addressList.push({
-          id: result.data[i].id,
-          name: result.data[i].name,
-          addr: result.data[i].address,
-        })
-      }
-      // console.log('addressList', addressList)
-      setAddresses(addressList);
+    FindAddress(account.address as string, chainName, network.name, {
+      page,
+      pageSize,
     })
-    .catch(error => console.log('error', error));
-  }
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("result___", result);
+        let addressList: Address[] = [];
+        for (let i = 0; i < result.data.length; i++) {
+          addressList.push({
+            id: result.data[i].id,
+            name: result.data[i].name,
+            addr: result.data[i].address,
+          });
+        }
+        // console.log('addressList', addressList)
+        setAddresses(addressList);
+      })
+      .catch((error) => console.log("error", error));
+  };
 
   const handleReceiverSelect = (newValue: any) => {
-    if(newValue == null){
+    if (newValue == null) {
       setReceiverAddress("");
       setReceiverInputText("");
     } else {
       setReceiverAddress(newValue.addr);
       setReceiverInputText(newValue.label);
     }
-  }
+  };
 
   const sendButtonDisabled = () => {
-
-    if(transactionName.length === 0 || receiverAddress.length === 0){
+    if (transactionName.length === 0 || receiverAddress.length === 0) {
       return true;
     }
 
-    if(!enableStreamRate){
-      if(amount === null || isNaN(amount) || amount <= 0 || new Date(datePickerTime[1]) < new Date()){
+    if (!enableStreamRate) {
+      if (
+        amount === null ||
+        isNaN(amount) ||
+        amount <= 0 ||
+        new Date(datePickerTime[1]) < new Date()
+      ) {
         return true;
       }
     } else {
-      if(numberOfTimes == null || isNaN(parseInt(numberOfTimes)) || parseInt(numberOfTimes) <= 0 || amountPerTime == null || isNaN(parseFloat(amountPerTime)) || parseInt(numberOfTimes) <= 0 || amount === null || isNaN(amount) || amount <= 0 ||  new Date(datePickerTime[1]) < new Date()){
+      if (
+        numberOfTimes == null ||
+        isNaN(parseInt(numberOfTimes)) ||
+        parseInt(numberOfTimes) <= 0 ||
+        amountPerTime == null ||
+        isNaN(parseFloat(amountPerTime)) ||
+        parseInt(numberOfTimes) <= 0 ||
+        amount === null ||
+        isNaN(amount) ||
+        amount <= 0 ||
+        new Date(datePickerTime[1]) < new Date()
+      ) {
         return true;
       }
     }
 
     return false;
-  }
+  };
 
   useEffect(() => {
-    if(account == null || account.address == null || network == null || network.name == null){
+    if (
+      account == null ||
+      account.address == null ||
+      network == null ||
+      network.name == null
+    ) {
       // placeholder
-        return;
+      return;
     }
     getAddress();
-  }, [wallet])
+  }, [wallet]);
 
   useEffect(() => {
-    if(enableStreamRate && numberOfTimes != null && !isNaN(parseInt(numberOfTimes)) && parseFloat(numberOfTimes) > 0 && amountPerTime != null && !isNaN(parseFloat(amountPerTime)) && parseInt(numberOfTimes) > 0){
-        setAmount(parseFloat((parseInt(numberOfTimes) * parseFloat(amountPerTime)).toFixed(15)));
-        setDatePickerTime([datePickerTime[0], new Date(new Date(datePickerTime[0]).getTime() + parseInt(numberOfTimes) * interval ).toISOString()]);
+    if (
+      enableStreamRate &&
+      numberOfTimes != null &&
+      !isNaN(parseInt(numberOfTimes)) &&
+      parseFloat(numberOfTimes) > 0 &&
+      amountPerTime != null &&
+      !isNaN(parseFloat(amountPerTime)) &&
+      parseInt(numberOfTimes) > 0
+    ) {
+      setAmount(
+        parseFloat(
+          (parseInt(numberOfTimes) * parseFloat(amountPerTime)).toFixed(15)
+        )
+      );
+      setDatePickerTime([
+        datePickerTime[0],
+        new Date(
+          new Date(datePickerTime[0]).getTime() +
+            parseInt(numberOfTimes) * interval
+        ).toISOString(),
+      ]);
     }
-  }, [numberOfTimes, amountPerTime, interval, enableStreamRate])
+  }, [numberOfTimes, amountPerTime, interval, enableStreamRate]);
 
   useEffect(() => {
-    if(state!==null && state.address!=null && state.address.length>0){
+    if (state !== null && state.address != null && state.address.length > 0) {
       const options = generateAddressOptions();
-      for(let i=0;i<options.length;i++){
-        if(options[i].addr === state.address){
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].addr === state.address) {
           setReceiverAddress(state.address);
           setReceiverInputText(options[i].label);
           setReceiverValue(options[i]);
@@ -205,50 +255,77 @@ const NewStream: React.FC<{}> = () => {
         }
       }
     }
-  }, [addresses])
+  }, [addresses]);
 
   const generateAddressOptions = () => {
     // console.log("items:", items);
     // return items.map((item:any) => {
     //   return  <MenuItem value={item.addr} key={item.addr}>{`${item.name}(${item.addr.substring(0, 9) + (item.addr.length > 8 ? ("..." + item.addr.substring(item.addr.length-8)): "")})`}</MenuItem>
     // })
-      return addresses.map((item:any) => {
-        return {
-          "label": `${item.name}(${item.addr.substring(0, 9) + (item.addr.length > 8 ? ("..." + item.addr.substring(item.addr.length-8)): "")})`,
-          "addr": item.addr,
-          "name": item.name,
-        };
-      })
-  }
+    return addresses.map((item: any) => {
+      return {
+        label: `${item.name}(${
+          item.addr.substring(0, 9) +
+          (item.addr.length > 8
+            ? "..." + item.addr.substring(item.addr.length - 8)
+            : "")
+        })`,
+        addr: item.addr,
+        name: item.name,
+      };
+    });
+  };
 
-  const createStream = (name: string, remark: string, recipientAddr: string, depositAmount: number,
-                        startTime: string, stopTime: string,
-                        interval: number, coinName: string, network: string, canPause?: boolean,
-                        closeable?: boolean, recipientModifiable?: boolean) => {
-    console.log('coinName', coinName);
+  const createStream = async (
+    name: string,
+    remark: string,
+    recipientAddr: string,
+    depositAmount: number,
+    startTime: string,
+    stopTime: string,
+    interval: number,
+    coinName: string,
+    network: string,
+    canPause?: boolean,
+    closeable?: boolean,
+    recipientModifiable?: boolean
+  ) => {
+    console.log("coinName", coinName);
     const coinConfigs = getNetworkCoinConfig(network);
-    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs]
-    const transaction: Types.TransactionPayload_EntryFunctionPayload = {
-      type: 'entry_function_payload',
-      function: `${netConfApt.contract}::stream::create`,
-      arguments: [
-        name,
-        remark,
-        recipientAddr,
-        depositAmount * coinInfo.unit,
-        startTime,
-        stopTime,
-        Math.floor(interval/1000).toString(),
-        true,
-        true,
-        false,
-      ],
-      type_arguments: [coinInfo.coinType],
+    const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
+
+    const transaction: InputTransactionData = {
+      data: {
+        function: `${netConfApt.contract}::stream::create`,
+        functionArguments: [
+          name,
+          remark,
+          recipientAddr,
+          depositAmount * coinInfo.unit,
+          startTime,
+          stopTime,
+          Math.floor(interval / 1000).toString(),
+          true,
+          true,
+          false,
+        ],
+        // @ts-ignore
+        typeArguments: [coinInfo.coinType],
+      },
     };
 
-    const res = signAndSubmitTransaction(transaction)
-    return res;
-  }
+    try {
+      const contractRes = await signAndSubmitTransaction(transaction);
+      console.log(contractRes);
+      console.log("Stream creation successful!");
+      // Handle success as needed
+      return contractRes; // You might want to return some value here if needed
+    } catch (e) {
+      console.error("Error creating stream:", e);
+      // Handle error as needed
+      throw e; // Rethrow the error or return a specific error value
+    }
+  };
 
   const handleSend = () => {
     // if (network != null && network.name != null && network.name !== WalletAdapterNetwork.Testnet) {
@@ -266,53 +343,67 @@ const NewStream: React.FC<{}> = () => {
       dayjs(datePickerTime[1]).unix().toString(),
       interval,
       token,
-      network.name!,
+      network?.name!,
       true,
       true,
       true
     ).then(() => {
       setStatus("success");
-      setAlertMessage("The Stream has been created successfully!")
+      setAlertMessage("The Stream has been created successfully!");
       setShowAlert(true);
     });
-  }
+  };
 
-  const generateOptions = (items:any, valueField: string, labelField: string) => {
+  const generateOptions = (
+    items: any,
+    valueField: string,
+    labelField: string
+  ) => {
     return items.map((item: any) => {
-      return  <MenuItem value={item[valueField]} key={item[valueField]}>{item[labelField]}</MenuItem>
-    })
-  }
+      return (
+        <MenuItem value={item[valueField]} key={item[valueField]}>
+          {item[labelField]}
+        </MenuItem>
+      );
+    });
+  };
 
   // console.debug("receiverInputText", receiverInputText);
 
   return (
     <Container>
-      <Typography
-        variant="h5"
-        color="white"
-        sx={{marginBottom: 4}}
-      >
+      <Typography variant="h5" color="white" sx={{ marginBottom: 4 }}>
         Continuous Streams
       </Typography>
-      <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)} anchorOrigin={{vertical: 'top', horizontal: 'center'}} style={{marginTop: "50px"}}>
-        { status === "success" ?
+      <Snackbar
+        open={showAlert}
+        autoHideDuration={4000}
+        onClose={() => setShowAlert(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        style={{ marginTop: "50px" }}
+      >
+        {status === "success" ? (
           <Alert onClose={() => setShowAlert(false)} severity="success">
             {alertMessage}
-          </Alert> :
+          </Alert>
+        ) : (
           <Alert onClose={() => setShowAlert(false)} severity="error">
             {alertMessage}
           </Alert>
-        }
+        )}
       </Snackbar>
       <Grid container spacing={6}>
         <Grid item sm={8}>
-          <Paper sx={{
-            background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
-            width: "100%",
-            height: "550px",
-            marginTop: "0px",
-            padding:"30px"
-          }}>
+          <Paper
+            sx={{
+              background:
+                "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
+              width: "100%",
+              height: "550px",
+              marginTop: "0px",
+              padding: "30px",
+            }}
+          >
             <Grid container spacing={3}>
               <Grid item sm={6}>
                 <InputLabel shrink>Transaction Name</InputLabel>
@@ -323,7 +414,7 @@ const NewStream: React.FC<{}> = () => {
                   style={{ backgroundColor: "#313138", marginBottom: "0" }}
                   className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Transaction Name"
-                />        
+                />
               </Grid>
               <Grid item sm={6}>
                 <InputLabel shrink>Reveiver Wallet Address</InputLabel>
@@ -333,31 +424,36 @@ const NewStream: React.FC<{}> = () => {
                   freeSolo
                   options={generateAddressOptions()}
                   onChange={(e: any, newValue: any) => {
-                    handleReceiverSelect(newValue)
+                    handleReceiverSelect(newValue);
                   }}
                   onInputChange={(e, newInputValue) => {
                     setReceiverAddress(newInputValue);
                     setReceiverInputText(newInputValue);
                     setReceiverValue(null);
                   }}
-                  sx = {{
+                  sx={{
                     "& .MuiInputBase-inputSizeSmall": {
-                      height: "19px"
+                      height: "19px",
                     },
-                    '& .MuiFormLabel-root': {
-                      fontSize: '0.875rem',
-                      color: 'darkGray',
+                    "& .MuiFormLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "darkGray",
                     },
-                    '& input': {
-                      fontSize: '0.875rem',
+                    "& input": {
+                      fontSize: "0.875rem",
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#f143e2 !important"
+                      borderColor: "#f143e2 !important",
                     },
                   }}
-                  renderInput={(params) => 
-                    <TextField {...params} label="address" size="small" sx={{ backgroundColor: "#313138", height:"35px"}}/>
-                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="address"
+                      size="small"
+                      sx={{ backgroundColor: "#313138", height: "35px" }}
+                    />
+                  )}
                 />
               </Grid>
               <Grid item sm={12}>
@@ -369,66 +465,93 @@ const NewStream: React.FC<{}> = () => {
                   style={{ backgroundColor: "#313138", marginBottom: "0" }}
                   className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter the remarks here (Optional)"
-                />        
+                />
               </Grid>
               <Grid item sm={6}>
                 <InputLabel shrink>Token</InputLabel>
                 <Select
                   value={token}
                   sx={{
-                    width: "100%", 
-                    height:"35px",
+                    width: "100%",
+                    height: "35px",
                     backgroundColor: "#313138",
                     fontSize: "0.875rem",
-                    "&:hover > .MuiOutlinedInput-notchedOutline" : {
-                      borderColor : "#f143e2"
-                    }
+                    "&:hover > .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#f143e2",
+                    },
                   }}
                   MenuProps={{
                     PaperProps: {
                       sx: {
                         "& .MuiMenuItem-root.Mui-selected": {
-                          backgroundColor: "grey"
+                          backgroundColor: "grey",
                         },
                         "& .MuiMenuItem-root:hover": {
-                          backgroundColor: "grey"
+                          backgroundColor: "grey",
                         },
                         "& .MuiMenuItem-root.Mui-selected:hover": {
-                          backgroundColor: "grey"
+                          backgroundColor: "grey",
                         },
-                      }
-                    }
+                      },
+                    },
                   }}
-                  inputProps={{ 'aria-label': 'Without label' }}
+                  inputProps={{ "aria-label": "Without label" }}
                   displayEmpty
                   onChange={(e: any) => setToken(e.target.value)}
                 >
-                  <MenuItem value={"APT"} key={"APT"}><img src={AptosIcon} alt="logo" width={18} height={18} style={{float: "left", marginRight: "5px"}}/>{"APT"}</MenuItem>
-                  <MenuItem value={"MOON"} key={"MOON"}><img src={MoonIcon} alt="logo" width={16} height={16} style={{float: "left", marginRight: "5px"}}/>{"MOON"}</MenuItem>
+                  <MenuItem value={"APT"} key={"APT"}>
+                    <img
+                      src={AptosIcon}
+                      alt="logo"
+                      width={18}
+                      height={18}
+                      style={{ float: "left", marginRight: "5px" }}
+                    />
+                    {"APT"}
+                  </MenuItem>
+                  <MenuItem value={"MOON"} key={"MOON"}>
+                    <img
+                      src={MoonIcon}
+                      alt="logo"
+                      width={16}
+                      height={16}
+                      style={{ float: "left", marginRight: "5px" }}
+                    />
+                    {"MOON"}
+                  </MenuItem>
 
-                {/*  TODO: Walter | add MOON coin */}
+                  {/*  TODO: Walter | add MOON coin */}
                 </Select>
               </Grid>
               <Grid item sm={6}>
-                <InputLabel shrink sx={{width:"450px"}}>Amount <span style={{float: "right"}}>${useCoingeckoValue(aptos, amount)[0]}</span></InputLabel>
+                <InputLabel shrink sx={{ width: "450px" }}>
+                  Amount{" "}
+                  <span style={{ float: "right" }}>
+                    ${useCoingeckoValue(aptos, amount)[0]}
+                  </span>
+                </InputLabel>
                 <input
                   disabled={enableStreamRate}
                   type="text"
                   value={amount}
                   onChange={(e: any) => setAmount(e.target.value)}
-                  style={{ backgroundColor: "#313138", marginBottom: "0", color: enableStreamRate ? "grey" : "white" }}
+                  style={{
+                    backgroundColor: "#313138",
+                    marginBottom: "0",
+                    color: enableStreamRate ? "grey" : "white",
+                  }}
                   className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                   placeholder="Enter amount to send"
-                />        
+                />
               </Grid>
               <Grid item sm={12}>
                 <InputLabel shrink>Time</InputLabel>
-                <RangePicker 
-                  showTime 
-                  style={{width: "100%", backgroundColor: "#313138"}}
+                <RangePicker
+                  showTime
+                  style={{ width: "100%", backgroundColor: "#313138" }}
                   value={[dayjs(datePickerTime[0]), dayjs(datePickerTime[1])]}
                   onChange={(value, dateString) => {
-                      setDatePickerTime(dateString);
+                    setDatePickerTime(dateString);
                   }}
                   disabled={[false, enableStreamRate]}
                   // suffixIcon={null}
@@ -437,18 +560,22 @@ const NewStream: React.FC<{}> = () => {
                 />
               </Grid>
             </Grid>
-            <Grid container spacing={3} sx={{padding: 1}}>
+            <Grid container spacing={3} sx={{ padding: 1 }}>
               <Grid item sm={6}>
                 <FormControlLabel
                   control={
-                    <Switch checked={enableStreamRate} onChange={handleSwitchChange} name="gilad" />
+                    <Switch
+                      checked={enableStreamRate}
+                      onChange={handleSwitchChange}
+                      name="gilad"
+                    />
                   }
                   label="Enable Stream Rate"
                 />
               </Grid>
             </Grid>
-            {enableStreamRate &&
-              <Grid container spacing={3} sx={{padding: 1}}>
+            {enableStreamRate && (
+              <Grid container spacing={3} sx={{ padding: 1 }}>
                 <Grid item sm={4}>
                   <InputLabel shrink>No.of Time</InputLabel>
                   <input
@@ -458,7 +585,7 @@ const NewStream: React.FC<{}> = () => {
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
                     className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                     placeholder="E.g. 4"
-                  />        
+                  />
                 </Grid>
                 <Grid item sm={4}>
                   <InputLabel shrink>Token Amount</InputLabel>
@@ -469,7 +596,7 @@ const NewStream: React.FC<{}> = () => {
                     style={{ backgroundColor: "#313138", marginBottom: "0" }}
                     className="w-full bg-blue-200 text-sm rounded mb-4 p-2 input-field"
                     placeholder="E.g. 4"
-                  />        
+                  />
                 </Grid>
                 <Grid item sm={4}>
                   <InputLabel shrink>Time interval</InputLabel>
@@ -479,71 +606,120 @@ const NewStream: React.FC<{}> = () => {
                     sx={{
                       width: "100%",
                       backgroundColor: "#313138",
-                      height:"35px",
+                      height: "35px",
                       fontSize: "0.875rem",
-                      "&:hover > .MuiOutlinedInput-notchedOutline" : {
-                        borderColor : "#f143e2"
-                      }
+                      "&:hover > .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#f143e2",
+                      },
                     }}
                     disableUnderline
-                    MenuProps={{ 
+                    MenuProps={{
                       style: {
                         maxHeight: 400,
                       },
                     }}
-                  > { generateOptions(intervals, "value", "label")}
-                  </Select>                  
+                  >
+                    {" "}
+                    {generateOptions(intervals, "value", "label")}
+                  </Select>
                 </Grid>
               </Grid>
-            }
+            )}
             <div className="flex justify-center items-center mt-5 mb-2">
-              <Button 
+              <Button
                 disabled={sendButtonDisabled()}
-                size="small" sx={{...gradientButtonStyle, width: "150px"}} onClick={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}>Send</Button>
+                size="small"
+                sx={{ ...gradientButtonStyle, width: "150px" }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+              >
+                Send
+              </Button>
             </div>
           </Paper>
         </Grid>
         <Grid item sm={4}>
-          <Grid container spacing={3} sx={{padding: 1}}>
-            <Paper sx={{
-              background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
-              width: "100%",
-              height:"260px",
-              marginTop: "16px",
-              marginBottom: "30px",
-              padding: "20px"
-            }}>
+          <Grid container spacing={3} sx={{ padding: 1 }}>
+            <Paper
+              sx={{
+                background:
+                  "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
+                width: "100%",
+                height: "260px",
+                marginTop: "16px",
+                marginBottom: "30px",
+                padding: "20px",
+              }}
+            >
               {/* <div className="text-xl mt-1 mb-1" >The receiver will gradually receive the payment per second.</div> */}
-              <p style={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)"}}>The receiver will gradually receive the payment per second.</p>
-              <Typography variant="h6" gutterBottom sx={{marginTop: "20px"}}>
+              <p
+                style={{ fontSize: "16px", color: "rgba(255, 255, 255, 0.7)" }}
+              >
+                The receiver will gradually receive the payment per second.
+              </p>
+              <Typography variant="h6" gutterBottom sx={{ marginTop: "20px" }}>
                 Note:
               </Typography>
-              <Typography variant="body1" gutterBottom sx={{fontSize: "16px", marginTop:"10px"}}>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{ fontSize: "16px", marginTop: "10px" }}
+              >
                 We only support streams to wallets on Move Ecosystems.
               </Typography>
-              <Typography variant="body1" gutterBottom sx={{fontSize: "16px", marginTop:"10px"}}>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{ fontSize: "16px", marginTop: "10px" }}
+              >
                 Token streamed to exchange wallets can't be withdrawn.
               </Typography>
             </Paper>
-            <Paper sx={{
-              background: "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
-              width: "100%",
-              height:"260px",
-              padding: "20px"
-            }}>
+            <Paper
+              sx={{
+                background:
+                  "linear-gradient(101.44deg, #141620 1.73%, #0E111B 98.85%);",
+                width: "100%",
+                height: "260px",
+                padding: "20px",
+              }}
+            >
               <Typography variant="h6" gutterBottom>
                 Stream Overview
               </Typography>
-              <Typography variant="body1" gutterBottom sx={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)", marginTop: "20px" }}>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{
+                  fontSize: "16px",
+                  color: "rgba(255, 255, 255, 0.7)",
+                  marginTop: "20px",
+                }}
+              >
                 Stream start on {new Date(datePickerTime[0]).toLocaleString()}
               </Typography>
-              <Typography variant="body1" gutterBottom sx={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)", marginTop: "20px" }}>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{
+                  fontSize: "16px",
+                  color: "rgba(255, 255, 255, 0.7)",
+                  marginTop: "20px",
+                }}
+              >
                 {amount} {token} will be sent to receiver wallet.
               </Typography>
-              <Typography variant="body1" gutterBottom sx={{fontSize: "16px", color: "rgba(255, 255, 255, 0.7)", marginTop: "20px" }}>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{
+                  fontSize: "16px",
+                  color: "rgba(255, 255, 255, 0.7)",
+                  marginTop: "20px",
+                }}
+              >
                 Stream ends on {new Date(datePickerTime[1]).toLocaleString()}
               </Typography>
             </Paper>
@@ -551,8 +727,7 @@ const NewStream: React.FC<{}> = () => {
         </Grid>
       </Grid>
     </Container>
-  )
-}
+  );
+};
 
 export default NewStream;
-

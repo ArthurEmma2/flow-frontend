@@ -17,7 +17,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import {gradientButtonStyle} from "../../style/button";
-import { useWallet } from "@manahippo/aptos-wallet-adapter";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useNavigate } from "react-router-dom";
 
 const tableStyle: SxProps<Theme> = {
