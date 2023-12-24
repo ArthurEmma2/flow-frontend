@@ -132,25 +132,6 @@ class AptAdapter implements NetworkAdapter {
     );
   }
 
-  // async getBalance(coinName: string) {
-  //   const aptosClient = new AptosClient(netConfApt.fullNodeUrl);
-  //   const userAccount = this.account?.address;
-  //   const coinClient = new CoinClient(aptosClient);
-  //   const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
-
-  //   try {
-  //     const balance = await coinClient.checkBalance(userAccount!, {
-  //       coinType: coinName,
-  //     });
-
-  //     return this.displayAmount(new BigNumber(balance.),  coinInfo.unit);
-  //   } catch (error) {
-  //     console.error("Error fetching balance:", error);
-  //     // Handle the error, e.g., return a default value or throw an exception
-  //     return "0"; // Replace with your default value or appropriate error handling
-  //   }
-  // }
-
   async getIncomingStreams(
     recvAddress: string,
     pagination?: Pagination
