@@ -7,7 +7,6 @@ import { ChainName } from "../../context/chainName";
 import Address from "../../types/address";
 import {
   useWallet,
-  InputTransactionData,
 } from "@aptos-labs/wallet-adapter-react";
 import {
   Alert,
