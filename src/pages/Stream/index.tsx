@@ -52,7 +52,6 @@ import { ChainName } from "../../context/chainName";
 import { Network } from "../../context/network";
 import {
   useWallet,
-  InputTransactionData,
 } from "@aptos-labs/wallet-adapter-react";
 import { Types } from "aptos";
 import netConfApt from "../../config/configuration.aptos";
@@ -241,15 +240,14 @@ const Stream = () => {
       (Number(row.stopTime) + tmp * Number(row.interval)) / 1000
     );
     console.log("new StopTimes", newStopTime);
-    const transaction: InputTransactionData = {
+    signAndSubmitTransaction({
       data: {
         function: `${netConfApt.contract}::stream::extend`,
         functionArguments: [newStopTime, row.streamId],
         // @ts-ignore
         typeArguments: [coinInfo.coinType],
       },
-    };
-    signAndSubmitTransaction(transaction)
+    })
       .then((response) => {
         console.log("response", response);
       })
@@ -285,15 +283,14 @@ const Stream = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
-    const transaction: InputTransactionData = {
+    signAndSubmitTransaction({
       data: {
         function: `${netConfApt.contract}::stream::pause`,
         functionArguments: [streamId],
         // @ts-ignore
         typeArguments: [coinInfo.coinType],
       },
-    };
-    signAndSubmitTransaction(transaction)
+    })
       .then((response) => {
         console.log("response", response);
       })
@@ -317,15 +314,14 @@ const Stream = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
-    const transaction: InputTransactionData = {
+    signAndSubmitTransaction({
       data: {
         function: `${netConfApt.contract}::stream::close`,
         functionArguments: [streamId],
         // @ts-ignore
         type_arguments: [coinInfo.coinType],
       },
-    };
-    signAndSubmitTransaction(transaction)
+    })
       .then((response) => {
         console.log("response", response);
       })
@@ -349,15 +345,14 @@ const Stream = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
-    const transaction: InputTransactionData = {
+    signAndSubmitTransaction({
       data: {
         function: `${netConfApt.contract}::stream::withdraw`,
         functionArguments: [streamId],
         // @ts-ignore
         typeArguments: [coinInfo.coinType],
       },
-    };
-    signAndSubmitTransaction(transaction)
+    })
       .then((response) => {
         console.log("response", response);
       })
@@ -378,14 +373,13 @@ const Stream = () => {
     network: string,
     coinName: string
   ) => {
-    const transaction: InputTransactionData = {
+    signAndSubmitTransaction({
       data: {
         function: `${netConfApt.contract}::stream::resume`,
         functionArguments: [streamId],
         typeArguments: [],
       },
-    };
-    signAndSubmitTransaction(transaction)
+    })
       .then((response) => {
         console.log("response", response);
       })
