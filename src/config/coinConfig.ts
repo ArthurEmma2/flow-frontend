@@ -1,8 +1,6 @@
-export const APTOS_COIN = "0x1::aptos_coin::AptosCoin";
-
 const mainnetCoinConfig = {
   APT: {
-    coinType: APTOS_COIN,
+    coinType: "0x1::aptos_coin::AptosCoin",
     unit: 10 ** 8,
   },
   MOON: {
@@ -13,7 +11,7 @@ const mainnetCoinConfig = {
 
 const testnetCoinConfig = {
   APT: {
-    coinType: APTOS_COIN,
+    coinType: "0x1::aptos_coin::AptosCoin",
     unit: 10 ** 8,
   },
   MOON: {
@@ -24,7 +22,7 @@ const testnetCoinConfig = {
 };
 
 const getNetworkCoinConfig = (network: string) => {
-  switch (network?.toLowerCase()) {
+  switch (network.toLowerCase()) {
     case "mainnet":
       return mainnetCoinConfig;
     case "testnet":
