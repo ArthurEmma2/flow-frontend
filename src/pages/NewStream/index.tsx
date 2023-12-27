@@ -7,7 +7,6 @@ import { ChainName } from "../../context/chainName";
 import Address from "../../types/address";
 import {
   useWallet,
-  InputTransactionData,
 } from "@aptos-labs/wallet-adapter-react";
 import {
   Alert,
@@ -294,28 +293,26 @@ const NewStream: React.FC<{}> = () => {
     const coinConfigs = getNetworkCoinConfig(network);
     const coinInfo = coinConfigs[coinName as keyof typeof coinConfigs];
 
-    const transaction: InputTransactionData = {
-      data: {
-        function: `${netConfApt.contract}::stream::create`,
-        functionArguments: [
-          name,
-          remark,
-          recipientAddr,
-          depositAmount * coinInfo.unit,
-          startTime,
-          stopTime,
-          Math.floor(interval / 1000).toString(),
-          true,
-          true,
-          false,
-        ],
-        // @ts-ignore
-        typeArguments: [coinInfo.coinType],
-      },
-    };
-
     try {
-      const contractRes = await signAndSubmitTransaction(transaction);
+      const contractRes = await signAndSubmitTransaction({
+        data: {
+          function: `${netConfApt.contract}::stream::create`,
+          functionArguments: [
+            name,
+            remark,
+            recipientAddr,
+            depositAmount * coinInfo.unit,
+            startTime,
+            stopTime,
+            Math.floor(interval / 1000).toString(),
+            true,
+            true,
+            false,
+          ],
+          // @ts-ignore
+          typeArguments: [coinInfo.coinType],
+        },
+      });
       console.log(contractRes);
       console.log("Stream creation successful!");
       // Handle success as needed
