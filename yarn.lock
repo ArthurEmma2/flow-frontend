@@ -2253,7 +2253,7 @@
     "@aptos-labs/wallet-adapter-core" "2.1.0"
     aptos "^1.4.0"
 
-"@msafe/aptos-wallet-adapter@^1.0.7":
+"@msafe/aptos-wallet-adapter@^1.0.14":
   version "1.0.14"
   resolved "https://registry.yarnpkg.com/@msafe/aptos-wallet-adapter/-/aptos-wallet-adapter-1.0.14.tgz#2eb14a895f7231502830738f32cc804c85333121"
   integrity sha512-6z/PyD7mT3QZ/diUvEysOby85wyMQ35Az39kOxr0kpMartINTSQk6ek3WJFxgneFq9Glaz/OvrLeHphh3+OiSw==
